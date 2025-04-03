@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buttons</title>
+
+    <!-- Google Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .btn-container {
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* New Button - Dark Purple */
+        .btn-new {
+            background-color: #693D5C;
+            color: white;
+        }
+
+        .btn-new:hover {
+            background-color: #4E2A45;
+            transform: translateY(-2px);
+        }
+
+        /* Upload Button - Light Gray */
+        .btn-upload {
+            background-color: #E4E4E4;
+            color: black;
+        }
+
+        .btn-upload:hover {
+            background-color: #d4d4d4;
+            transform: translateY(-2px);
+        }
+
+        /* Icon Styles */
+        .btn i {
+            font-size: 20px;
+        }
+
+        /* Button Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+    </style>
+
+    <!-- FontAwesome for Icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="btn-container">
+        <button class="btn btn-new"><i class="fas fa-plus"></i> New</button>
+        <button class="btn btn-upload"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+
+</body>
+</html>

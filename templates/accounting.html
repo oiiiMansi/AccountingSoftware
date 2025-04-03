@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            font-weight: 400;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.3);
+            background-color: #f0f0f0;
+        }
+
+        .bank-logos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .bank-logos img {
+            width: 100px;
+            height: 50px;
+            object-fit: contain;
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .upload-box {
+            border: 2px dashed #915c83;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            background: #f4e9f2;
+        }
+
+        .Accounting-Dashboard {
+            border: 6px solid orange;
+            padding: 16px;
+            border-radius: 32px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2 class="Accounting-Dashboard">Accounting Dashboard</h2>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>Sales</h3>
+            <p>Get Paid online. Send electronic invoices.</p>
+        </div>
+
+        <div class="card">
+            <h3>Purchases</h3>
+            <p>Let AI scan your bill. Pay easily.</p>
+            <div class="upload-box">Drag & drop or <a href="#">try our sample</a></div>
+            <p>Send a bill to <a href="mailto:purchases@kk-enterprises1.odoo.com">purchases@kk-enterprises1.odoo.com</a>
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Bank</h3>
+            <p>Connect your bank. Match invoices automatically.</p>
+            <div class="bank-logos">
+                <a href="https://netbanking.hdfcbank.com/">
+                <img src="{{ url_for('static', filename='/images/HDB.svg') }}" alt="HDFC Bank">
+                </a>
+                <a href="https://www.icicibank.com/nri-banking/nri-internet-banking"><img src="{{ url_for('static', filename='images/ICICI.svg') }}" alt="ICICI Bank"></a>
+                
+                <img src="{{ url_for('static', filename='images/Kotak.svg') }}" alt="Kotak Bank">
+                <img src="{{ url_for('static', filename='images/Axis.svg') }}" alt="AXIS Bank">
+                <img src="{{ url_for('static', filename='images/sbi.svg') }}" alt="SBI Bank">
+                <img src="{{ url_for('static', filename='images/Amazon.svg') }}" alt="Amazon Bank">
+                <img src="{{ url_for('static', filename='images/Indusind.svg') }}" alt="Induslnd Bank">
+                <img src="{{ url_for('static', filename='images/IDFC.svg') }}" alt="IDFC Bank">
+                <img src="{{ url_for('static', filename='images/YESBANK.svg') }}" alt="YESBANK Bank">
+                <img src="{{ url_for('static', filename='images/Bank of Baroda.svg') }}" alt="Bank of Baroda Bank">
+                <img src="{{ url_for('static', filename='images/idbi.svg') }}" alt="idbi Bank">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Miscellaneous Operations</h3>
+            <p>Never miss a tax deadline.</p>
+            <ul>
+                <li>Set Company Data</li>
+                <li>Set Periods</li>
+                <li>Review Chart of Accounts</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+
+</html>
