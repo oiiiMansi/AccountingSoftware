@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask_login import LoginManager
 import mysql.connector
-from models import User, load_user  # Import the User class and load_user function
+from models import User, load_user  
 from routes.auth import auth
 from routes.billing import billing
 from routes.expenses import expenses
@@ -18,7 +18,7 @@ login_manager.login_view = "auth.login"  # Redirect to login view if not authent
 
 # Register the user loader function for Flask-Login
 
-from models import load_user  # Ensure correct import
+from models import load_user  
 
 login_manager.user_loader(load_user)  
 # Register Blueprints
