@@ -45,7 +45,7 @@
         }
 
         .success { background: #28a745; color: white; }
-        .error { background: #dc3545; color: white; }
+        .danger, .error { background: #dc3545; color: white; }
 
         form {
             display: flex;
@@ -116,6 +116,10 @@
         {% endwith %}
 
         <form method="POST">
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
