@@ -41,5 +41,9 @@ def accounting():
 def invoicing():
     return render_template('invoicing.html')
 
+@app.route('/budgeting')
+def budgeting():
+    return render_template('budgeting.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
