@@ -15,7 +15,7 @@ def connect_db():
         database="accounting"
     )
 
-# ✅ User Registration Route (New)
+# ✅ User Registration Route
 @auth.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -43,40 +43,42 @@ def register():
             cursor.close()
             conn.close()
 
-    return render_template("register.html")  # Ensure you have a register.html template
+    return render_template("register.html")
 
-# ✅ Login Route (Already Exists, No Change Needed)
+# ✅ Login Route
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
-        # Connect to database and fetch user
         conn = connect_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         conn.close()
 
-        # Debugging: Check stored password
         if user:
-            print(f"Stored Hash: {user['password']}")  
-            print(f"Entered Password: {password}")  
+            print(f"Stored Hash: {user['password']}")
+            print(f"Entered Password: {password}")
             print(f"Check Result: {check_password_hash(user['password'], password)}")
 
-        # Check if user exists and password is correct
         if user and check_password_hash(user["password"], password):
             login_user(User(user["id"], user["username"], user["role"]))
-            return redirect(url_for("home"))  # Redirect to home page
-        else:
-            flash("Invalid credentials!", "danger")  # Show error message
 
-    return render_template("login.html")  # Show login form if GET request
+            # Get 'next' from form (POST) or fallback to home
+            next_page = request.form.get("next") or url_for("home")
+            return redirect(next_page)
+        else:
+            flash("Invalid credentials!", "danger")
+
+    # For GET method
+    next_page = request.args.get("next")
+    return render_template("login.html", next=next_page)
 
 # ✅ Logout Route
 @auth.route("/logout")
-@login_required  # Ensures the user must be logged in to access this route
+@login_required
 def logout():
-    logout_user()  # Logs out the current user
-    return redirect(url_for("auth.login"))  # Redirect to login page
+    logout_user()
+    return redirect(url_for("auth.login"))
