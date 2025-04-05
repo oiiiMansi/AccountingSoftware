@@ -30,7 +30,7 @@ def expenses_page():
         flash("Expense added successfully!", "success")
         return redirect(url_for("expenses.expenses_page"))
 
-    cursor.execute("SELECT * FROM expenses ORDER BY created_at DESC")
+    cursor.execute("SELECT * FROM expenses ORDER BY date DESC")
     expenses_list = cursor.fetchall()
     conn.close()
 
