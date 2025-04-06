@@ -1,3 +1,4 @@
+from flask import Flask, render_template, request, redirect, url_for
 from flask import Flask, render_template
 from flask_login import LoginManager
 import mysql.connector
@@ -34,6 +35,30 @@ app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
 app.register_blueprint(leads)  # ✅ Register Leads Blueprint
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="roxanne",  # 🔁 Replace with your real password
+    database="accounting"      # 👈 Yeh tumne bataya tha already bana hua hai
+)
+
+
+@app.route('/revenue', methods=['GET', 'POST'])
+def revenue():
+    cursor = db.cursor(dictionary=True)
+    if request.method == 'POST':
+        source = request.form['source']
+        amount = request.form['amount']
+        date = request.form['date']
+        cursor.execute("INSERT INTO revenue (source, amount, date) VALUES (%s, %s, %s)", (source, amount, date))
+        db.commit()
+        return redirect(url_for('revenue'))
+    
+    cursor.execute("SELECT * FROM revenue ORDER BY date DESC")
+    records = cursor.fetchall()
+    return render_template("revenue.html", revenues=records)
+
 
 # ✅ Routes
 @app.route("/")
