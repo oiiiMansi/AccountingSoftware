@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: slideInDown 1s ease-in-out;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+
+        .container {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #555;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 15px;
+        }
+
+        .dashboard a {
+            text-decoration: none;
+            background: #ffa500;
+            color: white;
+            font-size: 18px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: slideInUp 1s ease-in-out;
+        }
+
+        .dashboard a:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">KK Enterprises</div>
+        <nav>
+            <div class="dropdown">
+                <a href="#">Finance</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('accounting') }}">Accounting</a>
+                    <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
+                    <a href="{{ url_for('invoicing') }}">Invoicing</a>
+                    <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Sales</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('leads.show_leads') }}">Leads</a>
+                    <a href="#">Transactions</a>
+                    <a href="#">Reports</a>
+                    <a href="{{ url_for('revenue') }}">Revenue</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Human Resource</a>
+                <div class="dropdown-content">
+                    <a href="#">Salary</a>
+                    <a href="#">Employees</a>
+                    <a href="#">Recruitment</a>
+                    <a href="#">Attendance</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Welcome, {{ current_user.username }}</h1>
+        <h2>Dashboard</h2>
+        <div class="dashboard">
+            <a href="{{ url_for('billing.billing_page') }}">Billing</a>
+            <a href="{{ url_for('expenses.expenses_page') }}">Expenses</a>
+            <a href="{{ url_for('stock.stock_page') }}">Stock Management</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

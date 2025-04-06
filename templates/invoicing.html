@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .button-container {
+            margin: 20px;
+        }
+
+        .button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .new-button {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .new-button:hover {
+            background-color: #e69500;
+        }
+
+        .upload-button {
+            background-color: #333;
+            color: white;
+        }
+
+        .upload-button:hover {
+            background-color: #555;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 22px;
+            color: #555;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .save-button {
+            background-color: #ffa500;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .save-button:hover {
+            background-color: #e69500;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .invoice-table th {
+            background-color: #333;
+            color: white;
+            font-weight: bold;
+        }
+
+        .invoice-table td {
+            background-color: white;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">KK Enterprises</div>
+</header>
+
+<div class="button-container">
+    <button class="button new-button" onclick="openModal()">New Invoice</button>
+    <button class="button upload-button" onclick="document.getElementById('fileInput').click()">Upload CSV</button>
+    <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="uploadFile(event)"/>
+</div>
+
+<table class="invoice-table">
+    <thead>
+        <tr>
+            <th>Number</th>
+            <th>Customer</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th>Tax Excluded</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="invoiceBody">
+    </tbody>
+</table>
+
+<div class="modal" id="invoiceModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Customer Invoice</h2>
+        <label>Invoice Number:</label>
+        <input type="text" id="invoiceNumber" value="INV/25-26/0001"/>
+        <label>Customer:</label>
+        <input type="text" id="customerName" placeholder="Enter customer name"/>
+        <label>Invoice Date:</label>
+        <input type="date" id="invoiceDate" value="2025-04-02"/>
+        <label>Due Date:</label>
+        <input type="date" id="dueDate" value="2025-04-04"/>
+        <label>Tax Excluded:</label>
+        <input type="text" id="taxExcluded" value="₹ 0.00"/>
+        <label>Status:</label>
+        <select id="status">
+            <option value="Pending">Pending</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+        <button class="save-button" onclick="saveInvoice()">Save Invoice</button>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+</footer>
+
+<script>
+    function openModal() {
+        document.getElementById("invoiceModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("invoiceModal").style.display = "none";
+    }
+
+    function saveInvoice() {
+        let invoiceNumber = document.getElementById("invoiceNumber").value;
+        let customerName = document.getElementById("customerName").value;
+        let invoiceDate = document.getElementById("invoiceDate").value;
+        let dueDate = document.getElementById("dueDate").value;
+        let taxExcluded = document.getElementById("taxExcluded").value;
+        let status = document.getElementById("status").value;
+        
+        let tableBody = document.getElementById("invoiceBody");
+        let newRow = tableBody.insertRow();
+        newRow.innerHTML = `<td>${invoiceNumber}</td>
+                            <td>${customerName}</td>
+                            <td>${invoiceDate}</td>
+                            <td>${dueDate}</td>
+                            <td>${taxExcluded}</td>
+                            <td>${status}</td>`;
+        
+        closeModal();
+    }
+
+    function uploadFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const rows = e.target.result.split("\n").map(row => row.split(","));
+            const tableBody = document.getElementById("invoiceBody");
+            
+            rows.forEach(row => {
+                if (row.length < 6) return;
+                let newRow = tableBody.insertRow();
+                newRow.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>`;
+            });
+        };
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>

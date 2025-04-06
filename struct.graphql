@@ -1,0 +1,15 @@
+AccountingSoftware/
+│── app.py          # Main entry point (Flask/Django server)
+│── database.py     # Handles MySQL connection
+│── auth.py         # Login system
+│── billing.py      # Invoice management
+│── stock.py        # Inventory management
+│── expenses.py     # Salary & expenses tracking
+│── export.py       # Export data (Excel, PDF)
+│── config.py       # Stores database credentials
+│── templates/      # HTML files for frontend
+│   ├── index.html  # Dashboard
+│   ├── login.html  # Login page
+│   ├── billing.html # Invoice page
+│── static/         # CSS, JavaScript, images
+│── README.md       # Project details
