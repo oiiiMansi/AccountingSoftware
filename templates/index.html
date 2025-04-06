@@ -14,7 +14,7 @@
             color: #333;
             animation: fadeIn 1s ease-in-out;
         }
-        
+
         header {
             display: flex;
             justify-content: space-between;
@@ -160,7 +160,7 @@
         <div class="logo">KK Enterprises</div>
         <nav>
             <div class="dropdown">
-                <a href="finance.html">Finance</a>
+                <a href="#">Finance</a>
                 <div class="dropdown-content">
                     <a href="{{ url_for('accounting') }}">Accounting</a>
                     <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
@@ -171,7 +171,7 @@
             <div class="dropdown">
                 <a href="#">Sales</a>
                 <div class="dropdown-content">
-                    <a href="#">Leads</a>
+                    <a href="{{ url_for('leads.show_leads') }}">Leads</a>
                     <a href="#">Transactions</a>
                     <a href="#">Reports</a>
                     <a href="#">Revenue</a>
@@ -188,6 +188,7 @@
             </div>
         </nav>
     </header>
+
     <div class="container">
         <h1>Welcome, {{ current_user.username }}</h1>
         <h2>Dashboard</h2>
@@ -198,6 +199,7 @@
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </div>
+
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>

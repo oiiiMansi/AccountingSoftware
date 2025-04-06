@@ -3,23 +3,22 @@ from flask_login import LoginManager
 import mysql.connector
 from models import User, load_user  
 
-# Import Blueprints
+# ✅ Import Blueprints
 from routes.auth import auth
 from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
-from routes.budget import budget_bp  # ✅ Your budget blueprint
+from routes.budget import budget_bp
+from routes.leads import leads  # ✅ New Leads Blueprint
 
-# Initialize Flask app
+# ✅ Initialize Flask app
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # ✅ Use a strong key in production
+app.secret_key = "your_secret_key"  # ⚠️ Change this in production
 
-# Initialize Flask-Login
+# ✅ Setup Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
-
-# Register the user loader function
 login_manager.user_loader(load_user)
 
 # ✅ Register Blueprints
@@ -28,6 +27,7 @@ app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
+app.register_blueprint(leads)  # ✅ Register Leads Blueprint
 
 # ✅ Routes
 @app.route("/")
@@ -41,7 +41,6 @@ def accounting():
 @app.route("/invoicing")
 def invoicing():
     return render_template("invoicing.html")
-
 
 
 if __name__ == "__main__":
