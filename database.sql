@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 9.2.0, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
 -- Host: localhost    Database: accounting
 -- ------------------------------------------------------
--- Server version	9.2.0
+-- Server version	8.0.41
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -28,7 +28,7 @@ CREATE TABLE `bills` (
   `amount` decimal(10,2) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,31 +38,6 @@ CREATE TABLE `bills` (
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `budget`
---
-
-DROP TABLE IF EXISTS `budget`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `budget` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `category` varchar(255) DEFAULT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  `month` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `budget`
---
-
-LOCK TABLES `budget` WRITE;
-/*!40000 ALTER TABLE `budget` DISABLE KEYS */;
-/*!40000 ALTER TABLE `budget` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -79,7 +54,7 @@ CREATE TABLE `expenses` (
   `category` varchar(100) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -88,8 +63,37 @@ CREATE TABLE `expenses` (
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
-INSERT INTO `expenses` VALUES (1,'samosa',20.00,'khan pan','2025-04-05 14:57:49');
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `leads`
+--
+
+DROP TABLE IF EXISTS `leads`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `leads` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `contact` varchar(100) NOT NULL,
+  `company` varchar(100) DEFAULT NULL,
+  `source` varchar(100) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `assigned_to` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `leads`
+--
+
+LOCK TABLES `leads` WRITE;
+/*!40000 ALTER TABLE `leads` DISABLE KEYS */;
+INSERT INTO `leads` VALUES (1,'Akshita Sharma','7014778141','APM tech ','website','New','mansi saini ','2025-04-06 16:36:01');
+/*!40000 ALTER TABLE `leads` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -128,4 +132,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-06  9:00:14
+-- Dump completed on 2025-04-06 22:57:19
