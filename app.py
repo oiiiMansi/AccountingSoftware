@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for
+=======
+from flask import Flask, render_template
+>>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 from flask_login import LoginManager
 import mysql.connector
 from models import User, load_user  
@@ -29,6 +33,7 @@ app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
 app.register_blueprint(leads)  # ✅ Register Leads Blueprint
 
+<<<<<<< HEAD
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -53,6 +58,8 @@ def revenue():
     return render_template("revenue.html", revenues=records)
 
 
+=======
+>>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 # ✅ Routes
 @app.route("/")
 def home():
