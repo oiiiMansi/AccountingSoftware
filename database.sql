@@ -41,6 +41,31 @@ LOCK TABLES `bills` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `budget`
+--
+
+DROP TABLE IF EXISTS `budget`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `budget` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `category` varchar(255) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `month` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `budget`
+--
+
+LOCK TABLES `budget` WRITE;
+/*!40000 ALTER TABLE `budget` DISABLE KEYS */;
+/*!40000 ALTER TABLE `budget` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `expenses`
 --
 
@@ -54,7 +79,7 @@ CREATE TABLE `expenses` (
   `category` varchar(100) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,6 +88,7 @@ CREATE TABLE `expenses` (
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
+INSERT INTO `expenses` VALUES (1,'samosa',20.00,'khan pan','2025-04-05 14:57:49');
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -102,4 +128,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-04  9:20:44
+-- Dump completed on 2025-04-06  9:00:14
