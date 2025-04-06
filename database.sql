@@ -1,16 +1,8 @@
-<<<<<<< HEAD
--- MySQL dump 10.13  Distrib 9.2.0, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
 -- Host: localhost    Database: accounting
 -- ------------------------------------------------------
--- Server version	9.2.0
-=======
--- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
---
--- Host: localhost    Database: accounting
--- ------------------------------------------------------
--- Server version	8.0.41
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
+-- Server version	8.0.38
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -36,11 +28,7 @@ CREATE TABLE `bills` (
   `amount` decimal(10,2) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-<<<<<<< HEAD
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-=======
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,7 +41,6 @@ LOCK TABLES `bills` WRITE;
 UNLOCK TABLES;
 
 --
-<<<<<<< HEAD
 -- Table structure for table `budget`
 --
 
@@ -62,11 +49,13 @@ DROP TABLE IF EXISTS `budget`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `budget` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `category` varchar(255) DEFAULT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  `month` varchar(50) DEFAULT NULL,
+  `year` int NOT NULL,
+  `account_name` varchar(100) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `version` enum('Actual','Budget','Forecast') DEFAULT 'Budget',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,8 +68,33 @@ LOCK TABLES `budget` WRITE;
 UNLOCK TABLES;
 
 --
-=======
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
+-- Table structure for table `budget_planning`
+--
+
+DROP TABLE IF EXISTS `budget_planning`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `budget_planning` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `account_id` int DEFAULT NULL,
+  `year` varchar(10) DEFAULT NULL,
+  `version` varchar(50) DEFAULT NULL,
+  `amount` decimal(12,2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `budget_planning`
+--
+
+LOCK TABLES `budget_planning` WRITE;
+/*!40000 ALTER TABLE `budget_planning` DISABLE KEYS */;
+/*!40000 ALTER TABLE `budget_planning` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `expenses`
 --
 
@@ -94,11 +108,7 @@ CREATE TABLE `expenses` (
   `category` varchar(100) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-<<<<<<< HEAD
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-=======
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -107,47 +117,36 @@ CREATE TABLE `expenses` (
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
-<<<<<<< HEAD
-INSERT INTO `expenses` VALUES (1,'samosa',20.00,'khan pan','2025-04-05 14:57:49');
-=======
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
-<<<<<<< HEAD
-=======
--- Table structure for table `leads`
+-- Table structure for table `revenue`
 --
 
-DROP TABLE IF EXISTS `leads`;
+DROP TABLE IF EXISTS `revenue`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `leads` (
+CREATE TABLE `revenue` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `contact` varchar(100) NOT NULL,
-  `company` varchar(100) DEFAULT NULL,
-  `source` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `assigned_to` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `source` varchar(255) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `leads`
+-- Dumping data for table `revenue`
 --
 
-LOCK TABLES `leads` WRITE;
-/*!40000 ALTER TABLE `leads` DISABLE KEYS */;
-INSERT INTO `leads` VALUES (1,'Akshita Sharma','7014778141','APM tech ','website','New','mansi saini ','2025-04-06 16:36:01');
-/*!40000 ALTER TABLE `leads` ENABLE KEYS */;
+LOCK TABLES `revenue` WRITE;
+/*!40000 ALTER TABLE `revenue` DISABLE KEYS */;
+INSERT INTO `revenue` VALUES (1,'saling',40000.00,'2025-04-08');
+/*!40000 ALTER TABLE `revenue` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 -- Table structure for table `users`
 --
 
@@ -183,8 +182,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-<<<<<<< HEAD
--- Dump completed on 2025-04-06  9:00:14
-=======
--- Dump completed on 2025-04-06 22:57:19
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
+-- Dump completed on 2025-04-07  0:02:57

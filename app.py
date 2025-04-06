@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for
-=======
-from flask import Flask, render_template
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
 from flask_login import LoginManager
 import mysql.connector
 from models import User, load_user  
@@ -33,7 +29,6 @@ app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
 app.register_blueprint(leads)  # ✅ Register Leads Blueprint
 
-<<<<<<< HEAD
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -58,8 +53,54 @@ def revenue():
     return render_template("revenue.html", revenues=records)
 
 
-=======
->>>>>>> e007abf2464ee3d5b95246d269ae82b7166d003b
+# ✅ Routes
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/accounting")
+def accounting():
+    return render_template("accounting.html")
+
+@app.route("/invoicing")
+def invoicing():
+    return render_template("invoicing.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+from flask import Flask, render_template
+from flask_login import LoginManager
+import mysql.connector
+from models import User, load_user  
+
+# ✅ Import Blueprints
+from routes.auth import auth
+from routes.billing import billing
+from routes.expenses import expenses
+from routes.stock import stock
+from routes.budget import budget_bp
+from routes.leads import leads  # ✅ New Leads Blueprint
+
+# ✅ Initialize Flask app
+app = Flask(__name__)
+app.secret_key = "your_secret_key"  # ⚠️ Change this in production
+
+# ✅ Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "auth.login"
+login_manager.user_loader(load_user)
+
+# ✅ Register Blueprints
+app.register_blueprint(auth)
+app.register_blueprint(billing)
+app.register_blueprint(expenses)
+app.register_blueprint(stock)
+app.register_blueprint(budget_bp)
+app.register_blueprint(leads)  # ✅ Register Leads Blueprint
+
 # ✅ Routes
 @app.route("/")
 def home():
