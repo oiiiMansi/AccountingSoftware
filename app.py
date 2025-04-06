@@ -13,7 +13,13 @@ from routes.leads import leads  # ✅ New Leads Blueprint
 
 # ✅ Initialize Flask app
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # ⚠️ Change this in production
+app.secret_key = "your_secret_key"  
+
+from routes.transactions import transactions
+app.register_blueprint(transactions)
+
+       
+
 
 # ✅ Setup Flask-Login
 login_manager = LoginManager()

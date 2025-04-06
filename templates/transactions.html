@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+        .container { padding: 40px; max-width: 900px; margin: auto; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
+        th { background: #ffa500; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        form { margin-top: 30px; }
+        input[type=text], input[type=date], input[type=number] {
+            padding: 10px;
+            margin-right: 10px;
+            width: 200px;
+        }
+        input[type=submit] {
+            padding: 10px 20px;
+            background: #ffa500;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type=submit]:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Transactions</h1>
+
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Description</th>
+            </tr>
+            {% for txn in transactions %}
+            <tr>
+                <td>{{ txn.date }}</td>
+                <td>{{ txn.amount }}</td>
+                <td>{{ txn.description }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <form action="{{ url_for('transactions.add_transaction') }}" method="post">
+            <input type="date" name="date" placeholder="date" required>
+            <input type="number" name="amount" placeholder="Amount" required>
+            <input type="text" name="description" placeholder="Description" required>
+            <input type="submit" value="Add Transaction">
+        </form>
+    </div>
+</body>
+</html>
