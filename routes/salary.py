@@ -7,7 +7,7 @@ salary = Blueprint("salary", __name__)
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="roxanne",  # 🔐 Replace with your actual MySQL password
+    password="roxanne", 
     database="accounting"
 )
 
