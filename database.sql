@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 9.2.0, for Win64 (x86_64)
 --
 -- Host: localhost    Database: accounting
 -- ------------------------------------------------------
--- Server version	8.0.38
+-- Server version	9.2.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -121,6 +121,36 @@ LOCK TABLES `expenses` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `leads`
+--
+
+DROP TABLE IF EXISTS `leads`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `leads` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `contact` varchar(100) NOT NULL,
+  `company` varchar(100) DEFAULT NULL,
+  `source` varchar(100) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `assigned_to` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `leads`
+--
+
+LOCK TABLES `leads` WRITE;
+/*!40000 ALTER TABLE `leads` DISABLE KEYS */;
+INSERT INTO `leads` VALUES (1,'Akshita Sharma','7014778141','APM tech ','website','New','mansi saini ','2025-04-06 16:36:01');
+/*!40000 ALTER TABLE `leads` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `revenue`
 --
 
@@ -144,6 +174,58 @@ LOCK TABLES `revenue` WRITE;
 /*!40000 ALTER TABLE `revenue` DISABLE KEYS */;
 INSERT INTO `revenue` VALUES (1,'saling',40000.00,'2025-04-08');
 /*!40000 ALTER TABLE `revenue` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `salary`
+--
+
+DROP TABLE IF EXISTS `salary`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `salary` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `employee_name` varchar(255) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `salary`
+--
+
+LOCK TABLES `salary` WRITE;
+/*!40000 ALTER TABLE `salary` DISABLE KEYS */;
+INSERT INTO `salary` VALUES (1,'asd',350.00,'2025-04-09'),(2,'asd',350.00,'2025-04-09');
+/*!40000 ALTER TABLE `salary` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `transactions`
+--
+
+DROP TABLE IF EXISTS `transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transactions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transactions`
+--
+
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+INSERT INTO `transactions` VALUES (1,'2025-04-06',350.00,'paid to nehra ji and betuuu ji');
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -182,4 +264,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-07  0:02:57
+-- Dump completed on 2025-04-09 10:36:16

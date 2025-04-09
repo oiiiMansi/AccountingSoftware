@@ -10,7 +10,9 @@ from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
 from routes.budget import budget_bp
-from routes.leads import leads  # ✅ New Leads Blueprint
+from routes.leads import leads 
+
+
 
 # ✅ Initialize Flask app
 app = Flask(__name__)
@@ -18,6 +20,10 @@ app.secret_key = "your_secret_key"
 
 from routes.transactions import transactions
 app.register_blueprint(transactions)
+
+from routes.salary import salary
+app.register_blueprint(salary)
+
 
        
 
@@ -88,7 +94,9 @@ from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
 from routes.budget import budget_bp
-from routes.leads import leads  # ✅ New Leads Blueprint
+from routes.leads import leads  
+
+
 
 # ✅ Initialize Flask app
 app = Flask(__name__)
@@ -106,9 +114,9 @@ app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
-app.register_blueprint(leads)  # ✅ Register Leads Blueprint
+app.register_blueprint(leads) 
 
-# ✅ Routes
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -120,6 +128,7 @@ def accounting():
 @app.route("/invoicing")
 def invoicing():
     return render_template("invoicing.html")
+
 
 
 if __name__ == "__main__":
