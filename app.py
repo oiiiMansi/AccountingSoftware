@@ -4,7 +4,7 @@ from flask_login import LoginManager
 import mysql.connector
 from models import User, load_user  
 
-# ✅ Import Blueprints
+
 from routes.auth import auth
 from routes.billing import billing
 from routes.expenses import expenses
@@ -14,7 +14,7 @@ from routes.leads import leads
 
 
 
-# ✅ Initialize Flask app
+
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  
 
@@ -28,25 +28,25 @@ app.register_blueprint(salary)
        
 
 
-# ✅ Setup Flask-Login
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 login_manager.user_loader(load_user)
 
-# ✅ Register Blueprints
+
 app.register_blueprint(auth)
 app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
-app.register_blueprint(leads)  # ✅ Register Leads Blueprint
+app.register_blueprint(leads)  
 
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="roxanne",  # 🔁 Replace with your real password
-    database="accounting"      # 👈 Yeh tumne bataya tha already bana hua hai
+    password="roxanne",  
+    database="accounting"     
 )
 
 
@@ -98,17 +98,16 @@ from routes.leads import leads
 
 
 
-# ✅ Initialize Flask app
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # ⚠️ Change this in production
+app.secret_key = "your_secret_key"  
 
-# ✅ Setup Flask-Login
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 login_manager.user_loader(load_user)
 
-# ✅ Register Blueprints
+
 app.register_blueprint(auth)
 app.register_blueprint(billing)
 app.register_blueprint(expenses)
