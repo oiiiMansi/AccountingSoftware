@@ -95,6 +95,41 @@ LOCK TABLES `budget_planning` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `employees`
+--
+
+DROP TABLE IF EXISTS `employees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `employees` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `full_name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(15) DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `gender` varchar(10) DEFAULT NULL,
+  `department` varchar(50) DEFAULT NULL,
+  `position` varchar(50) DEFAULT NULL,
+  `joining_date` date DEFAULT NULL,
+  `salary` decimal(10,2) DEFAULT NULL,
+  `address` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `employees`
+--
+
+LOCK TABLES `employees` WRITE;
+/*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` VALUES (6,'Akshita Sharma','nahipata@mujhe',NULL,NULL,NULL,'Abhi Nahi pata mujhe','CEO',NULL,500000.00,NULL,'2025-04-11 03:13:46');
+/*!40000 ALTER TABLE `employees` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `expenses`
 --
 
@@ -264,4 +299,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-09 10:36:16
+-- Dump completed on 2025-04-11  8:58:36

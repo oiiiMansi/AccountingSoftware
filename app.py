@@ -24,6 +24,10 @@ app.register_blueprint(transactions)
 from routes.salary import salary
 app.register_blueprint(salary)
 
+from routes.employees import employees
+app.register_blueprint(employees)
+
+
 
        
 
