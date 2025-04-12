@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report - KK Enterprises</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .filter-section input,
+        .filter-section select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 45%;
+            font-size: 16px;
+        }
+
+        .filter-section button {
+            padding: 12px 20px;
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-section button:hover {
+            background-color: #333;
+        }
+
+        .report-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-table th, .report-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .report-table th {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .download-btn {
+            display: block;
+            margin-top: 30px;
+            padding: 12px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sales Report</h1>
+
+        <div class="filter-section">
+            <input type="date" id="start-date" placeholder="Start Date">
+            <input type="date" id="end-date" placeholder="End Date">
+            <select id="report-type">
+                <option value="invoices">Invoices</option>
+                <option value="bills">Bills</option>
+            </select>
+            <button onclick="generateReport()">Generate Report</button>
+        </div>
+
+        <table class="report-table" id="report-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Customer Name</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="report-body">
+                <!-- Data will be inserted dynamically -->
+            </tbody>
+        </table>
+
+        <button class="download-btn" id="download-btn" style="display:none;" onclick="downloadReport()">Download as Excel</button>
+    </div>
+
+    <script>
+        function generateReport() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const reportType = document.getElementById('report-type').value;
+
+            if (!startDate || !endDate) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            // Sample data generation - Replace with actual API call or backend processing
+            const sampleData = [
+                { date: "2025-04-01", customer_name: "John Doe", amount: 500.00, status: "Paid" },
+                { date: "2025-04-05", customer_name: "Jane Smith", amount: 300.00, status: "Unpaid" },
+                { date: "2025-04-10", customer_name: "Mark Johnson", amount: 150.00, status: "Paid" }
+            ];
+
+            // Filter data by date range (Example filter)
+            const filteredData = sampleData.filter(item => {
+                return new Date(item.date) >= new Date(startDate) && new Date(item.date) <= new Date(endDate);
+            });
+
+            // Insert data into the table
+            const reportBody = document.getElementById("report-body");
+            reportBody.innerHTML = '';
+            filteredData.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.customer_name}</td>
+                    <td>${item.amount}</td>
+                    <td>${item.status}</td>
+                `;
+                reportBody.appendChild(row);
+            });
+
+            document.getElementById("report-table").style.display = "table";
+            document.getElementById("download-btn").style.display = "inline-block";
+        }
+
+        function downloadReport() {
+            const table = document.getElementById("report-table");
+            const rows = table.querySelectorAll("tr");
+            let csv = '';
+            
+            // Generate CSV from table rows
+            rows.forEach((row, index) => {
+                const columns = row.querySelectorAll("td, th");
+                const rowData = [];
+                columns.forEach(column => rowData.push(column.innerText));
+                csv += rowData.join(",") + "\n";
+            });
+
+            // Create downloadable CSV file
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'sales_report.csv';
+            link.click();
+        }
+    </script>
+
+</body>
+</html>
