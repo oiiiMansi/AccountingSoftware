@@ -171,7 +171,7 @@
             <div class="dropdown">
                 <a href="#">Sales</a>
                 <div class="dropdown-content">
-                    <a href="{{ url_for('leads.show_leads') }}">Leads</a>
+                    <a href="{{ url_for('leads.show_employee_targets') }}">Leads</a>
                     <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
                     <a href="{{ url_for('reports.show_reports') }}">Reports</a>
                     <a href="{{ url_for('revenue') }}">Revenue</a>
@@ -188,7 +188,7 @@
     </header>
 
     <div class="container">
-        <h1>Welcome, {{ current_user.username }}</h1>
+        <h1>Welcome, {{ current_user.username }}</h1>s
         <h2>Dashboard</h2>
         <div class="dashboard">
             <a href="{{ url_for('billing.billing_page') }}">Billing</a>

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 9.2.0, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
 -- Host: localhost    Database: accounting
 -- ------------------------------------------------------
--- Server version	9.2.0
+-- Server version	8.0.38
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,17 +25,10 @@ DROP TABLE IF EXISTS `bills`;
 CREATE TABLE `bills` (
   `id` int NOT NULL AUTO_INCREMENT,
   `customer_name` varchar(255) DEFAULT NULL,
-  `customer_number` varchar(20) DEFAULT NULL,
-  `customer_address` text,
-  `shipping_address` text,
-  `date` date DEFAULT NULL,
-  `basic_amount` decimal(10,2) DEFAULT NULL,
-  `gst_type` enum('IGST','CGST_SGST') DEFAULT 'CGST_SGST',
-  `gst_percentage` decimal(5,2) DEFAULT NULL,
-  `gst_amount` decimal(10,2) DEFAULT NULL,
-  `total_amount` decimal(10,2) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,6 +95,35 @@ LOCK TABLES `budget_planning` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `employee_targets`
+--
+
+DROP TABLE IF EXISTS `employee_targets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `employee_targets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) DEFAULT NULL,
+  `target_per_year` int DEFAULT NULL,
+  `target_per_month` int DEFAULT NULL,
+  `achieved_target_year` int DEFAULT NULL,
+  `achieved_target_month` int DEFAULT NULL,
+  `percentage_achieved` float DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `employee_targets`
+--
+
+LOCK TABLES `employee_targets` WRITE;
+/*!40000 ALTER TABLE `employee_targets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `employee_targets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `employees`
 --
 
@@ -160,36 +182,6 @@ CREATE TABLE `expenses` (
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `leads`
---
-
-DROP TABLE IF EXISTS `leads`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `leads` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `contact` varchar(100) NOT NULL,
-  `company` varchar(100) DEFAULT NULL,
-  `source` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `assigned_to` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `leads`
---
-
-LOCK TABLES `leads` WRITE;
-/*!40000 ALTER TABLE `leads` DISABLE KEYS */;
-INSERT INTO `leads` VALUES (1,'Akshita Sharma','7014778141','APM tech ','website','New','mansi saini ','2025-04-06 16:36:01');
-/*!40000 ALTER TABLE `leads` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -257,7 +249,7 @@ CREATE TABLE `stock` (
   `quantity` int NOT NULL,
   `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -331,4 +323,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-14 12:11:07
+-- Dump completed on 2025-04-15 11:18:19

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager
 import mysql.connector
 
@@ -11,7 +11,7 @@ from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
 from routes.budget import budget_bp
-from routes.leads import leads
+from routes.leads import leads  # Ab yeh Employee Target handle karega
 from routes.reports import reports
 from routes.transactions import transactions
 from routes.salary import salary
@@ -29,7 +29,10 @@ db = mysql.connector.connect(
     database="accounting"
 )
 
-# Flask-Login
+# Make DB available in Blueprints too
+app.db = db
+
+# Flask-Login Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
@@ -41,13 +44,13 @@ app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(budget_bp)
-app.register_blueprint(leads)
+app.register_blueprint(leads)  # employee target handled here
 app.register_blueprint(reports)
 app.register_blueprint(transactions)
 app.register_blueprint(salary)
 app.register_blueprint(employees)
 
-# Routes
+# Home Route
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -74,7 +77,7 @@ def revenue():
         )
         db.commit()
         return redirect(url_for("revenue"))
-    
+
     cursor.execute("SELECT * FROM revenue ORDER BY date DESC")
     records = cursor.fetchall()
     return render_template("revenue.html", revenues=records)
