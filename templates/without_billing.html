@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing Page - KK Enterprises</title>
+    <title>Sales Without Billing - KK Enterprises</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -66,7 +65,6 @@
             opacity: 0;
             transform: translateY(-10px);
             transition: all 0.3s ease-in-out;
-            z-index: 999;
         }
 
         .dropdown:hover .dropdown-content {
@@ -90,29 +88,32 @@
 
         .container {
             padding: 40px 20px;
-            max-width: 900px;
-            margin: auto;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         h1 {
             font-size: 28px;
             margin-bottom: 10px;
             animation: fadeIn 1s ease-in-out;
-            color: #333;
         }
 
         h2 {
             font-size: 22px;
             color: #555;
             animation: fadeIn 1.2s ease-in-out;
+            margin-top: 30px;
+            margin-bottom: 20px;
         }
 
         form {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-bottom: 40px;
+            text-align: left;
         }
 
         label {
@@ -121,14 +122,12 @@
             margin-bottom: 8px;
         }
 
-        input,
-        select,
-        textarea {
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 1em;
         }
 
@@ -137,54 +136,91 @@
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: 0.3s ease;
+            font-size: 1.2em;
+            margin-top: 10px;
         }
 
         button:hover {
-            background-color: #333;
+            background-color: #e69500;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
+        .sale-card {
+            background: #fff;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        table th,
-        table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table th {
-            background-color: #ffa500;
-            color: white;
-        }
-
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            padding: 20px;
+            text-align: left;
+            position: relative;
         }
 
-        li {
-            padding: 10px;
-            background-color: #ffe9cc;
-            border-left: 5px solid #ffa500;
+        .sale-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
             margin-bottom: 10px;
-            border-radius: 5px;
+        }
+
+        .sale-info div {
+            flex: 1;
+            min-width: 150px;
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .description {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            background-color: #ffa500;
+        }
+
+        .edit-btn:hover {
+            background-color: #e69500;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .no-sales {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: #6c757d;
         }
 
         footer {
@@ -192,44 +228,25 @@
             color: white;
             text-align: center;
             padding: 15px;
-            width: 100%;
+            margin-top: 40px;
             font-size: 14px;
-            position: relative;
-            margin-top: 50px;
         }
 
-
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-
 <body>
-
     <header>
         <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
-            <div class="logo">KK Enterprises</div>
+        <div class="logo">KK Enterprises</div>
         </a>
         <nav>
             <div class="dropdown">
@@ -261,91 +278,90 @@
     </header>
 
     <div class="container">
-        <h1>Billing Page</h1>
+        <h1>Sales Without Billing</h1>
 
+        <!-- Display Flash Message -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul>
-            {% for category, message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         {% endwith %}
 
-        <h2>Add New Bill</h2>
-        <form method="POST" action="{{ url_for('sales.billing') }}">
+        <!-- Add Sale Without Billing Form -->
+        <h2>Record New Sale</h2>
+        <form method="POST">
             <label for="customer_name">Customer Name:</label>
             <input type="text" id="customer_name" name="customer_name" required>
 
-            <label for="customer_number">Customer Number:</label>
-            <input type="text" id="customer_number" name="customer_number" required>
+            <label for="contact_number">Contact Number:</label>
+            <input type="text" id="contact_number" name="contact_number" required>
 
-            <label for="customer_address">Customer Address:</label>
-            <textarea id="customer_address" name="customer_address" required></textarea>
+            <label for="item_details">Item Details:</label>
+            <textarea id="item_details" name="item_details" rows="3" required></textarea>
 
-            <label for="shipping_address">Shipping Address:</label>
-            <textarea id="shipping_address" name="shipping_address" required></textarea>
+            <label for="amount">Amount:</label>
+            <input type="number" step="0.01" id="amount" name="amount" required>
 
             <label for="date">Date:</label>
             <input type="date" id="date" name="date" required>
 
-            <label for="basic_amount">Basic Amount:</label>
-            <input type="number" step="0.01" id="basic_amount" name="basic_amount" required>
+            <label for="notes">Additional Notes:</label>
+            <textarea id="notes" name="notes" rows="3"></textarea>
 
-            <label for="gst_type">GST Type:</label>
-            <select id="gst_type" name="gst_type" required>
-                <option value="CGST_SGST" selected>CGST & SGST</option>
-                <option value="IGST">IGST</option>
-            </select>
-
-            <label for="gst_percentage">GST Percentage:</label>
-            <input type="number" step="0.01" id="gst_percentage" name="gst_percentage" required>
-
-            <button type="submit">Add Bill</button>
+            <button type="submit">Record Sale</button>
         </form>
 
-        <h2>All Bills</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Customer Name</th>
-                    <th>Customer Number</th>
-                    <th>Basic Amount</th>
-                    <th>GST Type</th>
-                    <th>GST Percentage</th>
-                    <th>GST Amount</th>
-                    <th>Total Amount</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for bill in bills %}
-                <tr>
-                    <td>{{ bill.customer_name }}</td>
-                    <td>{{ bill.customer_number }}</td>
-                    <td>{{ bill.basic_amount }}</td>
-                    <td>{{ bill.gst_type }}</td>
-                    <td>{{ bill.gst_percentage }}%</td>
-                    <td>{{ bill.gst_amount }}</td>
-                    <td>{{ bill.total_amount }}</td>
-                    <td>{{ bill.date }}</td>
-                    <td class="actions">
-                        <a href="{{ url_for('sales.edit_bill', bill_id=bill.id) }}" class="edit">Edit</a>
-                        <a href="{{ url_for('sales.delete_bill', bill_id=bill.id) }}" class="delete" onclick="return confirm('Are you sure you want to delete this bill?')">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+        <!-- Sales List -->
+        <h2>Recent Sales</h2>
+        
+        {% if sales %}
+            {% for sale in sales %}
+                <div class="sale-card">
+                    <div class="sale-info">
+                        <div>
+                            <div class="label">Customer</div>
+                            <div>{{ sale.customer_name }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Contact</div>
+                            <div>{{ sale.contact_number }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Amount</div>
+                            <div>₹{{ sale.amount }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Date</div>
+                            <div>{{ sale.date }}</div>
+                        </div>
+                    </div>
+                    <div class="description">
+                        <div class="label">Items</div>
+                        <div>{{ sale.item_details }}</div>
+                    </div>
+                    {% if sale.notes %}
+                    <div class="description">
+                        <div class="label">Notes</div>
+                        <div>{{ sale.notes }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="actions">
+                        <a href="{{ url_for('sales.edit_non_billed_sale', sale_id=sale.id) }}" class="btn edit-btn">Edit</a>
+                        <a href="{{ url_for('sales.delete_non_billed_sale', sale_id=sale.id) }}" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this sale?')">Delete</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-sales">No sales have been recorded yet.</div>
+        {% endif %}
     </div>
 
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
-
 </body>
-
 </html>

@@ -16,6 +16,7 @@ from routes.reports import reports
 from routes.transactions import transactions
 from routes.salary import salary
 from routes.employees import employees
+from routes.sales import sales  # Import the new sales blueprint
 
 # Flask App
 app = Flask(__name__)
@@ -49,6 +50,7 @@ app.register_blueprint(reports)
 app.register_blueprint(transactions)
 app.register_blueprint(salary)
 app.register_blueprint(employees)
+app.register_blueprint(sales, url_prefix='/sales')  # Register sales blueprint with prefix
 
 # Home Route
 @app.route("/")
@@ -59,28 +61,11 @@ def home():
 def accounting():
     return render_template("accounting.html")
 
-@app.route("/invoicing")
-def invoicing():
-    return render_template("invoicing.html")
+@app.route('/sales/without_billing')
+def without_billing():
+    return render_template('without_billing.html')
 
-# Revenue Route
-@app.route('/revenue', methods=['GET', 'POST'])
-def revenue():
-    cursor = db.cursor(dictionary=True)
-    if request.method == "POST":
-        source = request.form["source"]
-        amount = request.form["amount"]
-        date = request.form["date"]
-        cursor.execute(
-            "INSERT INTO revenue (source, amount, date) VALUES (%s, %s, %s)",
-            (source, amount, date)
-        )
-        db.commit()
-        return redirect(url_for("revenue"))
-
-    cursor.execute("SELECT * FROM revenue ORDER BY date DESC")
-    records = cursor.fetchall()
-    return render_template("revenue.html", revenues=records)
+# Revenue Route removed
 
 # Run the app
 if __name__ == "__main__":

@@ -286,14 +286,15 @@
 </head>
 <body>
     <header>
-        <div class="logo">KK Enterprises</div>
+        <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
+            <div class="logo">KK Enterprises</div>
+        </a>
         <nav>
             <div class="dropdown">
                 <a href="#">Finance</a>
                 <div class="dropdown-content">
                     <a href="{{ url_for('accounting') }}">Accounting</a>
                     <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
-                    <a href="{{ url_for('invoicing') }}">Invoicing</a>
                     <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
                 </div>
             </div>
@@ -303,7 +304,6 @@
                     <a href="{{ url_for('leads.show_employee_targets') }}">Leads</a>
                     <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
                     <a href="#">Reports</a>
-                    <a href="{{ url_for('revenue') }}">Revenue</a>
                 </div>
             </div>
             <div class="dropdown">

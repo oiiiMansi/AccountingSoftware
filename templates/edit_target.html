@@ -31,9 +31,59 @@
       letter-spacing: 1px;
     }
 
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 10px;
+      transition: 0.3s ease-in-out;
+    }
+
+    .dropdown a:hover {
+      color: #ffa500;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #333;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.4);
+      border-radius: 5px;
+      padding: 10px 0;
+      z-index: 1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: #ddd;
+      padding: 12px 15px;
+      display: block;
+      text-decoration: none;
+      transition: 0.3s ease-in-out;
+    }
+
+    .dropdown-content a:hover {
+      background: #ffa500;
+      color: white;
+    }
+
     .container {
       max-width: 700px;
-      margin: 50px auto;
+      margin: 50px auto 80px;
       background: #1e1e1e;
       padding: 30px;
       border-radius: 12px;
@@ -96,6 +146,17 @@
       text-decoration: underline;
     }
 
+    footer {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      font-size: 14px;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -105,7 +166,36 @@
 <body>
 
   <header>
-    <div class="logo">KK Enterprises</div>
+    <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
+        <div class="logo">KK Enterprises</div>
+    </a>
+    <nav>
+        <div class="dropdown">
+            <a href="#">Finance</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('accounting') }}">Accounting</a>
+                <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
+                <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Sales</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('sales.billing') }}">Billing</a>
+                <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
+                <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
+                <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
+                <a href="{{ url_for('reports.show_reports') }}">Reports</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Human Resource</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('salary.salary_page') }}">Salary</a>
+                <a href="{{ url_for('employees.employees_page') }}">Employees</a>
+            </div>
+        </div>
+    </nav>
   </header>
 
   <div class="container">
@@ -137,5 +227,8 @@
     </div>
   </div>
 
+  <footer>
+    <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+  </footer>
 </body>
 </html>

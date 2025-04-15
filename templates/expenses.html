@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expenses - KK Enterprises</title>
-    
+
     <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: "Poppins", sans-serif;
@@ -17,6 +18,81 @@
             color: #333;
             animation: fadeIn 1s ease-in-out;
         }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: slideInDown 1s ease-in-out;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease-in-out;
+            z-index: 100;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+
+        /* End Header Styles */
 
         .container {
             width: 90%;
@@ -29,7 +105,8 @@
             animation: slideInUp 1s ease-in-out;
         }
 
-        h2, h3 {
+        h2,
+        h3 {
             text-align: center;
             margin-bottom: 20px;
         }
@@ -41,8 +118,15 @@
             text-align: center;
         }
 
-        .success { background: #28a745; color: white; }
-        .error { background: #dc3545; color: white; }
+        .success {
+            background: #28a745;
+            color: white;
+        }
+
+        .error {
+            background: #dc3545;
+            color: white;
+        }
 
         form {
             display: flex;
@@ -135,28 +219,101 @@
 
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
+        footer {
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 14px;
+            animation: slideInUp 1s ease-in-out;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-container p {
+            margin: 5px 0;
+        }
     </style>
 </head>
+
 <body>
+    <header>
+        <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
+            <div class="logo">KK Enterprises</div>
+        </a>
+        <nav>
+            <div class="dropdown">
+                <a href="#">Finance</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('accounting') }}">Accounting</a>
+                    <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
+                    <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Sales</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('sales.billing') }}">Billing</a>
+                    <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
+                    <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
+                    <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
+                    <a href="{{ url_for('reports.show_reports') }}">Reports</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Human Resource</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('salary.salary_page') }}">Salary</a>
+                    <a href="{{ url_for('employees.employees_page') }}">Employees</a>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <div class="container">
         <h2>Expense Management</h2>
 
         {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="flash-message {{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <p class="flash-message {{ category }}">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
 
         <form method="POST">
@@ -171,17 +328,18 @@
         <div class="expense-list">
             <h3>Expense List</h3>
             {% for expense in expenses %}
-                <div class="expense-item">
-                    <span>
-                        {{ expense.date }} - {{ expense.expense_name }} - ₹{{ expense.amount }} 
-                        (GST: ₹{{ expense.gst }})
-                    </span>
-                    <span class="category-badge">{{ expense.category }}</span>
-                    <span>
-                        <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}">✏️</a>
-                        <a href="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}" onclick="return confirm('Are you sure?')">🗑️</a>
-                    </span>
-                </div>
+            <div class="expense-item">
+                <span>
+                    {{ expense.date }} - {{ expense.expense_name }} - ₹{{ expense.amount }}
+                    (GST: ₹{{ expense.gst }})
+                </span>
+                <span class="category-badge">{{ expense.category }}</span>
+                <span>
+                    <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}">✏️</a>
+                    <a href="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}"
+                        onclick="return confirm('Are you sure?')">🗑️</a>
+                </span>
+            </div>
             {% endfor %}
         </div>
 
@@ -190,6 +348,12 @@
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </div>
-
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
 </body>
+
 </html>
