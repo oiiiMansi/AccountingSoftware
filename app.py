@@ -10,7 +10,7 @@ from routes.auth import auth
 from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
-from routes.budget import budget_bp
+# from routes.budget import budget_bp  # Removed budget blueprint import
 from routes.leads import leads  # Ab yeh Employee Target handle karega
 from routes.reports import reports
 from routes.transactions import transactions
@@ -44,7 +44,7 @@ app.register_blueprint(auth)
 app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
-app.register_blueprint(budget_bp)
+# app.register_blueprint(budget_bp)  # Removed budget blueprint registration
 app.register_blueprint(leads)  # employee target handled here
 app.register_blueprint(reports)
 app.register_blueprint(transactions)

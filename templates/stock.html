@@ -200,61 +200,53 @@
         }
 
         .stock-table th {
-            background: linear-gradient(135deg, #333, #555);
+            background-color: #ffa500;
             color: white;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 14px;
         }
 
         .stock-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        .stock-table tr {
-            transition: 0.3s ease;
+            background-color: #f9f9f9;
         }
 
         .stock-table tr:hover {
-            background-color: #fff8e6;
+            background-color: #f1f1f1;
         }
 
         .btn {
-            padding: 8px 16px;
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 0 5px;
             border-radius: 5px;
+            color: white;
+            text-decoration: none;
             font-size: 14px;
             cursor: pointer;
-            transition: 0.3s ease;
             border: none;
-            margin: 0 5px;
+            transition: 0.3s ease-in-out;
         }
 
         .btn-sm {
             padding: 6px 12px;
-            font-size: 13px;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background-color: #ffa500;
         }
 
         .btn-warning {
-            background-color: #ffa500;
-            color: white;
+            background-color: #ffc107;
+            color: #212529;
         }
 
         .btn-danger {
-            background-color: #ff5252;
-            color: white;
+            background-color: #dc3545;
         }
 
         .btn:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-warning:hover {
-            background-color: #e69500;
-        }
-
-        .btn-danger:hover {
-            background-color: #e04747;
         }
 
         footer {
@@ -269,18 +261,90 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes slideInDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* New styles for stock summary section */
+        .stock-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.2s ease-in-out;
+            width: 30%;
+            min-width: 250px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .summary-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffa500;
+            margin-bottom: 10px;
+        }
+        
+        .summary-label {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .stock-by-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1.2s ease-in-out;
+            margin: 30px 0;
+        }
+        
+        .stock-by-item h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: left;
+        }
+        
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .summary-table th, .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .summary-table th {
+            background-color: #f9f9f9;
+            color: #333;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -295,7 +359,6 @@
                 <div class="dropdown-content">
                     <a href="{{ url_for('accounting') }}">Accounting</a>
                     <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
-                    <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -328,6 +391,54 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+
+        <!-- Stock Summary Section -->
+        <div class="stock-summary">
+            <div class="summary-card">
+                <h3>Total Items</h3>
+                <div class="summary-value">{{ stock_totals.total_items }}</div>
+                <div class="summary-label">Unique Items in Stock</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Total Quantity</h3>
+                <div class="summary-value">{{ stock_totals.total_quantity }}</div>
+                <div class="summary-label">Units in Inventory</div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Average per Item</h3>
+                <div class="summary-value">
+                    {% if stock_totals.total_items > 0 %}
+                        {{ (stock_totals.total_quantity / stock_totals.total_items) | round(1) }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </div>
+                <div class="summary-label">Average Units per Item</div>
+            </div>
+        </div>
+        
+        <!-- Stock By Item Summary -->
+        <div class="stock-by-item">
+            <h3>Stock By Item</h3>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Total Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in stock_summary %}
+                    <tr>
+                        <td>{{ item.item_name }}</td>
+                        <td>{{ item.total_quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <!-- Add Stock Form -->
         <form method="POST" action="{{ url_for('stock.stock_page') }}" class="stock-form">
