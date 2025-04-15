@@ -4,6 +4,7 @@ from flask_login import login_required
 
 stock = Blueprint('stock', __name__)
 
+# Database connection
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -12,6 +13,7 @@ def connect_db():
         database="accounting"
     )
 
+# View and Add Stock
 @stock.route('/stock', methods=['GET', 'POST'])
 @login_required
 def stock_page():
@@ -37,6 +39,7 @@ def stock_page():
 
     return render_template('stock.html', stock=stock_items)
 
+# Edit Stock Item
 @stock.route('/stock/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_stock(id):
@@ -48,21 +51,28 @@ def edit_stock(id):
             item_name = request.form['item_name']
             quantity = request.form['quantity']
 
-            cursor.execute("UPDATE stock SET item_name=%s, quantity=%s WHERE id=%s", 
-                           (item_name, quantity, id))
+            cursor.execute(
+                "UPDATE stock SET item_name = %s, quantity = %s WHERE id = %s",
+                (item_name, quantity, id)
+            )
             conn.commit()
             flash("Stock updated successfully!", "success")
             return redirect(url_for('stock.stock_page'))
 
         cursor.execute("SELECT * FROM stock WHERE id = %s", (id,))
-        item = cursor.fetchone()
+        stock_item = cursor.fetchone()
+
+        if not stock_item:
+            flash("Stock item not found.", "danger")
+            return redirect(url_for('stock.stock_page'))
 
     finally:
         cursor.close()
         conn.close()
 
-    return render_template('edit_stock.html', item=item)
+    return render_template('edit_stock.html', stock_item=stock_item)
 
+# Delete Stock Item
 @stock.route('/stock/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_stock(id):

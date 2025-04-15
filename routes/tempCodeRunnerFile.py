@@ -3,6 +3,7 @@ import mysql.connector
 from flask_login import login_required
 from datetime import datetime
 
+
 expenses = Blueprint("expenses", __name__)
 
 # Database connection
@@ -29,9 +30,8 @@ def expenses_page():
 
         # If the date is empty, set it to today's date
         if not date:
-            date = datetime.today().strftime('%Y-%m-%d')  # Default to today's date
+            date = datetime.today().strftime('%Y-%m-%d')
 
-        # Insert the new expense into the database
         cursor.execute("INSERT INTO expenses (expense_name, amount, category, gst, date) VALUES (%s, %s, %s, %s, %s)", 
                        (expense_name, amount, category, gst, date))
         conn.commit()
@@ -55,14 +55,9 @@ def edit_expense(expense_id):
         expense_name = request.form["expense_name"]
         amount = request.form["amount"]
         category = request.form["category"]
-        gst = request.form["gst"]
-        date = request.form.get("date")
+        gst = request.form.get("gst", 0)
+        date = request.form.get("date", datetime.today().strftime('%Y-%m-%d'))
 
-        # If date is not provided, use today's date
-        if not date:
-            date = datetime.today().strftime('%Y-%m-%d')
-
-        # Update the expense in the database
         cursor.execute("""
             UPDATE expenses 
             SET expense_name=%s, amount=%s, category=%s, gst=%s, date=%s
@@ -72,7 +67,6 @@ def edit_expense(expense_id):
         flash("Expense updated successfully!", "success")
         return redirect(url_for("expenses.expenses_page"))
 
-    # Fetch the expense from the database
     cursor.execute("SELECT * FROM expenses WHERE id=%s", (expense_id,))
     expense = cursor.fetchone()
     conn.close()
@@ -86,7 +80,6 @@ def delete_expense(expense_id):
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Delete the expense from the database
     cursor.execute("DELETE FROM expenses WHERE id=%s", (expense_id,))
     conn.commit()
     conn.close()

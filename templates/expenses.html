@@ -163,6 +163,8 @@
             <input type="text" name="expense_name" placeholder="Expense Name" required>
             <input type="number" name="amount" placeholder="Amount" required>
             <input type="text" name="category" placeholder="Category" required>
+            <input type="number" name="gst" placeholder="GST (in ₹)" step="0.01">
+            <input type="date" name="date" placeholder="date">
             <button type="submit">Add Expense</button>
         </form>
 
@@ -170,8 +172,15 @@
             <h3>Expense List</h3>
             {% for expense in expenses %}
                 <div class="expense-item">
-                    <span>{{ expense.expense_name }} - ₹{{ expense.amount }}</span>
+                    <span>
+                        {{ expense.date }} - {{ expense.expense_name }} - ₹{{ expense.amount }} 
+                        (GST: ₹{{ expense.gst }})
+                    </span>
                     <span class="category-badge">{{ expense.category }}</span>
+                    <span>
+                        <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}">✏️</a>
+                        <a href="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}" onclick="return confirm('Are you sure?')">🗑️</a>
+                    </span>
                 </div>
             {% endfor %}
         </div>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Stock - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+            color: #2f3640;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        header {
+            background: linear-gradient(to right, #2f3640, #353b48);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown > a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .dropdown > a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            top: 40px;
+            min-width: 160px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            padding: 10px 15px;
+            display: block;
+            text-decoration: none;
+            color: #2f3640;
+            transition: background 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 60px auto 80px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 400;
+            color: #888;
+            margin-bottom: 25px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        form label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            margin-top: 18px;
+        }
+
+        form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        form input:focus {
+            border-color: #ffa500;
+            box-shadow: 0 0 0 2px rgba(255,165,0,0.2);
+            outline: none;
+        }
+
+        button {
+            margin-top: 25px;
+            background-color: #ffa500;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #2f3640;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #2f3640;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">KK Enterprises</div>
+    <nav>
+        <div class="dropdown">
+            <a href="#">Finance</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('accounting') }}">Accounting</a>
+                <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
+                <a href="{{ url_for('invoicing') }}">Invoicing</a>
+                <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Sales</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('leads.show_employee_targets') }}">Leads</a>
+                <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
+                <a href="#">Reports</a>
+                <a href="{{ url_for('revenue') }}">Revenue</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <a href="#">Human Resource</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('salary.salary_page') }}">Salary</a>
+                <a href="{{ url_for('employees.employees_page') }}">Employees</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <h1>Edit Stock</h1>
+    <h2>Update Stock Item Details</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('stock.edit_stock', id=stock_item.id) }}">
+        <label for="item_name">Item Name:</label>
+        <input type="text" name="item_name" id="item_name" value="{{ stock_item.item_name }}" required>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" name="quantity" id="quantity" value="{{ stock_item.quantity }}" required>
+
+        <button type="submit">Update Stock</button>
+    </form>
+</div>
+
+<footer>
+    <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>
