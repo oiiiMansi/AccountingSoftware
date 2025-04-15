@@ -6,19 +6,98 @@
     <title>Transactions - KK Enterprises</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-        .container { padding: 40px; max-width: 900px; margin: auto; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: #f9f9f9; 
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+        
+        .container { 
+            padding: 40px; 
+            max-width: 900px; 
+            margin: 0 auto 80px; 
+        }
+        
         h1 { color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; border: 1px solid #ccc; text-align: left; }
         th { background: #ffa500; color: white; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         form { margin-top: 30px; }
+        
         input[type=text], input[type=date], input[type=number] {
             padding: 10px;
             margin-right: 10px;
             width: 200px;
         }
+        
         input[type=submit] {
             padding: 10px 20px;
             background: #ffa500;
@@ -26,20 +105,26 @@
             border: none;
             cursor: pointer;
         }
+        
         input[type=submit]:hover {
             background: #333;
+        }
+        
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
-            <div class="logo">KK Enterprises</div>
-        </a>
-        <nav>
-            <!-- navigation items -->
-        </nav>
-    </header>
+    {% include 'includes/header_navigation.html' %}
+    
     <div class="container">
         <h1>Transactions</h1>
 
@@ -65,5 +150,9 @@
             <input type="submit" value="Add Transaction">
         </form>
     </div>
+    
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>

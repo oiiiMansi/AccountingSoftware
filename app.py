@@ -67,6 +67,100 @@ def without_billing():
 
 # Revenue Route removed
 
+# Direct Purchase Route
+@app.route("/purchase")
+def direct_purchase():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Purchase Dashboard</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            h1 {
+                color: #333;
+            }
+            .options {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                margin-top: 30px;
+            }
+            .card {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                width: 200px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .card h2 {
+                margin-top: 0;
+                color: #333;
+            }
+            .card p {
+                color: #666;
+                margin-bottom: 20px;
+            }
+            .btn {
+                display: inline-block;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            .back {
+                display: inline-block;
+                margin-top: 20px;
+                color: #666;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Purchase Management</h1>
+            
+            <div class="options">
+                <div class="card">
+                    <h2>Billed Purchase</h2>
+                    <p>Record purchases with GST</p>
+                    <a href="/sales/billed_purchase" class="btn">Go to</a>
+                </div>
+                
+                <div class="card">
+                    <h2>Non-Billed Purchase</h2>
+                    <p>Record purchases without GST</p>
+                    <a href="/sales/non_billed_purchase" class="btn">Go to</a>
+                </div>
+            </div>
+            
+            <a href="/" class="back">← Back to Dashboard</a>
+        </div>
+    </body>
+    </html>
+    """
+
+# Update the sales purchase route to use the same direct HTML
+@app.route("/sales/purchase")
+def sales_purchase():
+    return redirect(url_for('direct_purchase'))
+
 # Run the app
 if __name__ == "__main__":
     app.run(debug=True)

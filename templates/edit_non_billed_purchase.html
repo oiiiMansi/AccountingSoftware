@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Non-Billed Purchase - KK Enterprises</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .cancel-btn {
+            background-color: #f44336;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('sales.non_billed_purchase') }}" class="back-link">← Back to Non-Billed Purchases</a>
+        <h1>Edit Non-Billed Purchase</h1>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="vendor_name">Vendor Name:</label>
+                <input type="text" id="vendor_name" name="vendor_name" value="{{ purchase.vendor_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" step="0.01" id="amount" name="amount" value="{{ purchase.amount }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" value="{{ purchase.date }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="item_details">Item Details:</label>
+                <textarea id="item_details" name="item_details" rows="3" required>{{ purchase.item_details }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes" rows="3">{{ purchase.notes }}</textarea>
+            </div>
+
+            <div class="buttons">
+                <a href="{{ url_for('sales.non_billed_purchase') }}" class="cancel-btn">Cancel</a>
+                <button type="submit">Update Purchase</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html> 
