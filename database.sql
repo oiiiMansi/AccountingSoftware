@@ -16,6 +16,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `billed_purchases`
+--
+
+DROP TABLE IF EXISTS `billed_purchases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `billed_purchases` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `vendor_name` varchar(255) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `gst_type` enum('CGST_SGST','IGST') DEFAULT 'CGST_SGST',
+  `gst_percentage` decimal(5,2) DEFAULT '18.00',
+  `date` date NOT NULL,
+  `description` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `billed_purchases`
+--
+
+LOCK TABLES `billed_purchases` WRITE;
+/*!40000 ALTER TABLE `billed_purchases` DISABLE KEYS */;
+/*!40000 ALTER TABLE `billed_purchases` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `bills`
 --
 
@@ -36,7 +65,7 @@ CREATE TABLE `bills` (
   `gst_amount` decimal(10,2) DEFAULT NULL,
   `total_amount` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,6 +74,7 @@ CREATE TABLE `bills` (
 
 LOCK TABLES `bills` WRITE;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
+INSERT INTO `bills` VALUES (7,'roxuu',NULL,'2025-04-15 18:30:00','7488379237','ss','ss',10000.00,'CGST_SGST',18.00,1800.00,11800.00);
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -252,6 +282,34 @@ LOCK TABLES `non_billed_sales` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `purchases`
+--
+
+DROP TABLE IF EXISTS `purchases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchases` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `vendor_name` varchar(255) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `date` date NOT NULL,
+  `item_details` text NOT NULL,
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `purchases`
+--
+
+LOCK TABLES `purchases` WRITE;
+/*!40000 ALTER TABLE `purchases` DISABLE KEYS */;
+/*!40000 ALTER TABLE `purchases` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `revenue`
 --
 
@@ -340,8 +398,12 @@ CREATE TABLE `transactions` (
   `date` date NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `description` varchar(255) NOT NULL,
+  `transaction_type` enum('credit','debit') NOT NULL DEFAULT 'credit',
+  `reference_id` int DEFAULT NULL,
+  `reference_type` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -350,7 +412,6 @@ CREATE TABLE `transactions` (
 
 LOCK TABLES `transactions` WRITE;
 /*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
-INSERT INTO `transactions` VALUES (1,'2025-04-06',350.00,'paid to nehra ji and betuuu ji');
 /*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -390,4 +451,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-15 19:10:32
+-- Dump completed on 2025-04-16  9:39:00
