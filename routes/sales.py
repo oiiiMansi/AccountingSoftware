@@ -144,7 +144,7 @@ def without_billing():
             notes = request.form.get('notes', '')
 
             # Start a transaction
-            conn.begin()
+            conn.autocommit = False
             
             try:
                 # Insert into non_billed_sales table
@@ -485,13 +485,7 @@ def billed_purchase():
 def non_billed_purchase():
     # Ensure tables exist with proper schema
     create_purchase_table()
-    
-    # Update transactions table with required columns
-    try:
-        update_transactions_table()
-        print("Transactions table updated successfully")
-    except Exception as e:
-        print(f"Failed to update transactions table: {e}")
+    update_transactions_table()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -520,10 +514,6 @@ def non_billed_purchase():
                 
                 # Add to transactions as debit
                 description = f"Purchase from {vendor_name}: {item_details}"
-                
-                # Debug info
-                print(f"Inserting transaction: description={description}, amount={amount}, date={date}, purchase_id={purchase_id}")
-                
                 cursor.execute(
                     """INSERT INTO transactions 
                        (description, amount, date, transaction_type, reference_id, reference_type) 
@@ -533,24 +523,20 @@ def non_billed_purchase():
                 
                 # Commit both operations
                 conn.commit()
-                flash("Purchase recorded successfully and added to transactions!", "success")
+                flash("Purchase recorded successfully!", "success")
             except Exception as e:
                 # Rollback on error
                 conn.rollback()
                 flash(f"Error: {str(e)}", "error")
-                print(f"Database error in non_billed_purchase: {str(e)}")
             finally:
-                # Reset autocommit
+                # Reset autocommit to default
                 conn.autocommit = True
-            
-            return redirect(url_for('sales.non_billed_purchase'))
         
         # Fetch all purchases
         cursor.execute("SELECT * FROM purchases ORDER BY date DESC")
         purchases = cursor.fetchall()
     except Exception as e:
         flash(f"Error: {str(e)}", "error")
-        print(f"Error in non_billed_purchase route: {str(e)}")
     finally:
         cursor.close()
         conn.close()

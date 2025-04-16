@@ -216,25 +216,25 @@ def download_transactions():
         df = df[[col for col in columns_to_display.keys() if col in df.columns]]
         df = df.rename(columns={col: columns_to_display[col] for col in df.columns if col in columns_to_display})
         
-        # Add summary rows
-        # Calculate totals
-        credit_total = df[df['Type'] == 'credit']['Amount'].sum() if 'Type' in df.columns else 0
-        debit_total = df[df['Type'] == 'debit']['Amount'].sum() if 'Type' in df.columns else 0
-        balance = credit_total - debit_total
-        
-        # Create summary DataFrame
-        summary_df = pd.DataFrame({
-            'Description': ['', 'TOTAL CREDIT (INCOME)', 'TOTAL DEBIT (EXPENSE)', 'BALANCE'],
-            'Amount': ['', credit_total, debit_total, balance]
-        })
-        
         # Create Excel file in memory
         output = io.BytesIO()
         
         # Use openpyxl engine
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, sheet_name='Transactions', index=False)
-            summary_df.to_excel(writer, sheet_name='Summary', index=False)
+            
+            # Add summary info at the bottom of the sheet
+            if 'Type' in df.columns and 'Amount' in df.columns:
+                credit_sum = df[df['Type'] == 'credit']['Amount'].sum()
+                debit_sum = df[df['Type'] == 'debit']['Amount'].sum()
+                
+                # Create a separate summary sheet
+                summary_data = {
+                    'Summary': ['Total Credits (Income)', 'Total Debits (Expenses)', 'Balance'],
+                    'Amount': [credit_sum, debit_sum, credit_sum - debit_sum]
+                }
+                
+                pd.DataFrame(summary_data).to_excel(writer, sheet_name='Summary', index=False)
             
         # Seek to the beginning of the stream
         output.seek(0)
