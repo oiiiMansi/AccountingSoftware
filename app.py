@@ -10,13 +10,12 @@ from routes.auth import auth
 from routes.billing import billing
 from routes.expenses import expenses
 from routes.stock import stock
-# from routes.budget import budget_bp  # Removed budget blueprint import
-from routes.leads import leads  # Ab yeh Employee Target handle karega
+from routes.leads import leads  
 from routes.reports import reports
 from routes.transactions import transactions
 from routes.salary import salary
 from routes.employees import employees
-from routes.sales import sales  # Import the new sales blueprint
+from routes.sales import sales  
 
 # Flask App
 app = Flask(__name__)
@@ -44,13 +43,12 @@ app.register_blueprint(auth)
 app.register_blueprint(billing)
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
-# app.register_blueprint(budget_bp)  # Removed budget blueprint registration
-app.register_blueprint(leads)  # employee target handled here
+app.register_blueprint(leads)  
 app.register_blueprint(reports)
 app.register_blueprint(transactions)
 app.register_blueprint(salary)
 app.register_blueprint(employees)
-app.register_blueprint(sales, url_prefix='/sales')  # Register sales blueprint with prefix
+app.register_blueprint(sales, url_prefix='/sales')  
 
 # Home Route
 @app.route("/")
