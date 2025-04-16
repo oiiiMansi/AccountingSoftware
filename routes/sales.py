@@ -421,25 +421,58 @@ def billed_purchase():
             # Get form data
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['basic_amount'])
-            gst_type = request.form['gst_type']
-            gst_percentage = Decimal(request.form['gst_percentage'])
+            gst_type = request.form.get('gst_type', 'CGST_SGST')
+            gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
             date = request.form['date']
             description = request.form.get('description', '')
+            
+            # Calculate total amount with GST
+            total_amount = amount * (1 + gst_percentage/100)
 
-            # Insert into billed_purchases table
-            cursor.execute(
-                "INSERT INTO billed_purchases (vendor_name, amount, gst_type, gst_percentage, date, description) "
-                "VALUES (%s, %s, %s, %s, %s, %s)",
-                (vendor_name, amount, gst_type, gst_percentage, date, description)
-            )
-            conn.commit()
-            flash("Billed purchase recorded successfully!", "success")
+            # Start transaction
+            conn.autocommit = False
+            
+            try:
+                # Insert into billed_purchases table
+                cursor.execute(
+                    "INSERT INTO billed_purchases (vendor_name, amount, gst_type, gst_percentage, date, description) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    (vendor_name, amount, gst_type, gst_percentage, date, description)
+                )
+                # Get the ID of the inserted purchase
+                purchase_id = cursor.lastrowid
+                
+                # Add to transactions as debit
+                transaction_description = f"Billed purchase from {vendor_name}: {description or 'No description'} (with GST)"
+                
+                cursor.execute(
+                    """INSERT INTO transactions 
+                       (description, amount, date, transaction_type, reference_id, reference_type) 
+                       VALUES (%s, %s, %s, 'debit', %s, 'billed_purchase')""",
+                    (transaction_description, total_amount, date, purchase_id)
+                )
+                
+                # Commit both operations
+                conn.commit()
+                flash("Billed purchase recorded successfully and added to transactions!", "success")
+            except Exception as e:
+                # Rollback on error
+                conn.rollback()
+                flash(f"Error: {str(e)}", "error")
+                print(f"Database error in billed_purchase: {str(e)}")
+            finally:
+                # Reset autocommit
+                conn.autocommit = True
+                
             return redirect(url_for('sales.billed_purchase'))
             
         # Fetch all billed purchases
         cursor.execute("SELECT * FROM billed_purchases ORDER BY date DESC")
         purchases_list = cursor.fetchall()
         
+    except Exception as e:
+        flash(f"Error: {str(e)}", "error")
+        print(f"Error in billed_purchase route: {str(e)}")
     finally:
         cursor.close()
         conn.close()
@@ -452,7 +485,13 @@ def billed_purchase():
 def non_billed_purchase():
     # Ensure tables exist with proper schema
     create_purchase_table()
-    update_transactions_table()
+    
+    # Update transactions table with required columns
+    try:
+        update_transactions_table()
+        print("Transactions table updated successfully")
+    except Exception as e:
+        print(f"Failed to update transactions table: {e}")
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -481,6 +520,10 @@ def non_billed_purchase():
                 
                 # Add to transactions as debit
                 description = f"Purchase from {vendor_name}: {item_details}"
+                
+                # Debug info
+                print(f"Inserting transaction: description={description}, amount={amount}, date={date}, purchase_id={purchase_id}")
+                
                 cursor.execute(
                     """INSERT INTO transactions 
                        (description, amount, date, transaction_type, reference_id, reference_type) 
@@ -490,22 +533,24 @@ def non_billed_purchase():
                 
                 # Commit both operations
                 conn.commit()
-                flash("Purchase recorded successfully!", "success")
+                flash("Purchase recorded successfully and added to transactions!", "success")
             except Exception as e:
                 # Rollback on error
                 conn.rollback()
                 flash(f"Error: {str(e)}", "error")
-                print(f"Database error: {str(e)}")
+                print(f"Database error in non_billed_purchase: {str(e)}")
             finally:
                 # Reset autocommit
                 conn.autocommit = True
+            
+            return redirect(url_for('sales.non_billed_purchase'))
         
         # Fetch all purchases
         cursor.execute("SELECT * FROM purchases ORDER BY date DESC")
         purchases = cursor.fetchall()
     except Exception as e:
         flash(f"Error: {str(e)}", "error")
-        print(f"Database error: {str(e)}")
+        print(f"Error in non_billed_purchase route: {str(e)}")
     finally:
         cursor.close()
         conn.close()
@@ -563,13 +608,27 @@ def delete_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor()
     
+    # Start transaction
+    conn.autocommit = False
+    
     try:
+        # Delete the purchase
         cursor.execute("DELETE FROM billed_purchases WHERE id = %s", (purchase_id,))
+        
+        # Delete associated transaction
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'billed_purchase'", (purchase_id,))
+        
+        # Commit both operations
         conn.commit()
-        flash("Purchase deleted successfully!", "success")
+        flash("Purchase and associated transaction deleted successfully!", "success")
     except Exception as e:
+        # Rollback on error
+        conn.rollback()
         flash(f"Error: {str(e)}", "error")
+        print(f"Error deleting billed purchase: {str(e)}")
     finally:
+        # Reset autocommit
+        conn.autocommit = True
         cursor.close()
         conn.close()
         
@@ -624,13 +683,27 @@ def delete_non_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor()
     
+    # Start transaction
+    conn.autocommit = False
+    
     try:
+        # Delete the purchase
         cursor.execute("DELETE FROM purchases WHERE id = %s", (purchase_id,))
+        
+        # Delete associated transaction
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'purchase'", (purchase_id,))
+        
+        # Commit both operations
         conn.commit()
-        flash("Purchase deleted successfully!", "success")
+        flash("Purchase and associated transaction deleted successfully!", "success")
     except Exception as e:
+        # Rollback on error
+        conn.rollback()
         flash(f"Error: {str(e)}", "error")
+        print(f"Error deleting non-billed purchase: {str(e)}")
     finally:
+        # Reset autocommit
+        conn.autocommit = True
         cursor.close()
         conn.close()
         
@@ -644,7 +717,7 @@ def update_transactions_table():
     try:
         # Check if transaction_type column exists
         cursor.execute("""
-            SELECT COUNT(*) as count FROM information_schema.columns 
+            SELECT COUNT(*) FROM information_schema.columns 
             WHERE table_name = 'transactions' 
             AND column_name = 'transaction_type'
         """)
@@ -652,7 +725,7 @@ def update_transactions_table():
         
         # Check if reference_id column exists
         cursor.execute("""
-            SELECT COUNT(*) as count FROM information_schema.columns 
+            SELECT COUNT(*) FROM information_schema.columns 
             WHERE table_name = 'transactions' 
             AND column_name = 'reference_id'
         """)
@@ -660,7 +733,7 @@ def update_transactions_table():
         
         # Check if reference_type column exists
         cursor.execute("""
-            SELECT COUNT(*) as count FROM information_schema.columns 
+            SELECT COUNT(*) FROM information_schema.columns 
             WHERE table_name = 'transactions' 
             AND column_name = 'reference_type'
         """)
@@ -683,7 +756,7 @@ def update_transactions_table():
         
         # Check for created_at column
         cursor.execute("""
-            SELECT COUNT(*) as count FROM information_schema.columns 
+            SELECT COUNT(*) FROM information_schema.columns 
             WHERE table_name = 'transactions' 
             AND column_name = 'created_at'
         """)
@@ -696,7 +769,6 @@ def update_transactions_table():
         
         conn.commit()
     except Exception as e:
-        conn.rollback()
         print(f"Error updating transactions table: {e}")
     finally:
         cursor.close()
