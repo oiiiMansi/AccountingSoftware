@@ -125,8 +125,9 @@ def billing():
 @sales.route('/without_billing', methods=['GET', 'POST'])
 @login_required
 def without_billing():
-    # Ensure the table exists
+    # Ensure tables exist with proper schema
     create_non_billed_sales_table()
+    update_transactions_table()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -142,14 +143,36 @@ def without_billing():
             date = request.form['date']
             notes = request.form.get('notes', '')
 
-            # Insert into non_billed_sales table
-            cursor.execute(
-                "INSERT INTO non_billed_sales (customer_name, contact_number, item_details, amount, date, notes) "
-                "VALUES (%s, %s, %s, %s, %s, %s)",
-                (customer_name, contact_number, item_details, amount, date, notes)
-            )
-            conn.commit()
-            flash("Sale recorded successfully!", "success")
+            # Start a transaction
+            conn.begin()
+            
+            try:
+                # Insert into non_billed_sales table
+                cursor.execute(
+                    "INSERT INTO non_billed_sales (customer_name, contact_number, item_details, amount, date, notes) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    (customer_name, contact_number, item_details, amount, date, notes)
+                )
+                # Get the ID of the inserted sale
+                sale_id = cursor.lastrowid
+                
+                # Add to transactions as credit
+                description = f"Sale to {customer_name}: {item_details}"
+                cursor.execute(
+                    """INSERT INTO transactions 
+                       (description, amount, date, transaction_type, reference_id, reference_type) 
+                       VALUES (%s, %s, %s, 'credit', %s, 'non_billed_sale')""",
+                    (description, amount, date, sale_id)
+                )
+                
+                # Commit both operations
+                conn.commit()
+                flash("Sale recorded successfully!", "success")
+            except Exception as e:
+                # Rollback on error
+                conn.rollback()
+                flash(f"Error: {str(e)}", "error")
+                
             return redirect(url_for('sales.without_billing'))
             
         # Fetch all non-billed sales
@@ -385,8 +408,9 @@ def purchase():
 @sales.route('/billed_purchase', methods=['GET', 'POST'])
 @login_required
 def billed_purchase():
-    # Ensure the table exists
+    # Ensure tables exist with proper schema
     create_billed_purchase_table()
+    update_transactions_table()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -426,8 +450,9 @@ def billed_purchase():
 @sales.route('/non_billed_purchase', methods=['GET', 'POST'])
 @login_required
 def non_billed_purchase():
-    # Ensure the table exists
+    # Ensure tables exist with proper schema
     create_purchase_table()
+    update_transactions_table()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -442,19 +467,45 @@ def non_billed_purchase():
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
             
-            # Insert purchase record
-            cursor.execute(
-                "INSERT INTO purchases (vendor_name, amount, date, item_details, notes) VALUES (%s, %s, %s, %s, %s)",
-                (vendor_name, amount, date, item_details, notes)
-            )
-            conn.commit()
-            flash("Purchase recorded successfully!", "success")
+            # Start transaction
+            conn.autocommit = False
+            
+            try:
+                # Insert purchase record
+                cursor.execute(
+                    "INSERT INTO purchases (vendor_name, amount, date, item_details, notes) VALUES (%s, %s, %s, %s, %s)",
+                    (vendor_name, amount, date, item_details, notes)
+                )
+                # Get the ID of the inserted purchase
+                purchase_id = cursor.lastrowid
+                
+                # Add to transactions as debit
+                description = f"Purchase from {vendor_name}: {item_details}"
+                cursor.execute(
+                    """INSERT INTO transactions 
+                       (description, amount, date, transaction_type, reference_id, reference_type) 
+                       VALUES (%s, %s, %s, 'debit', %s, 'purchase')""",
+                    (description, amount, date, purchase_id)
+                )
+                
+                # Commit both operations
+                conn.commit()
+                flash("Purchase recorded successfully!", "success")
+            except Exception as e:
+                # Rollback on error
+                conn.rollback()
+                flash(f"Error: {str(e)}", "error")
+                print(f"Database error: {str(e)}")
+            finally:
+                # Reset autocommit
+                conn.autocommit = True
         
         # Fetch all purchases
         cursor.execute("SELECT * FROM purchases ORDER BY date DESC")
         purchases = cursor.fetchall()
     except Exception as e:
         flash(f"Error: {str(e)}", "error")
+        print(f"Database error: {str(e)}")
     finally:
         cursor.close()
         conn.close()
@@ -583,4 +634,70 @@ def delete_non_billed_purchase(purchase_id):
         cursor.close()
         conn.close()
         
-    return redirect(url_for('sales.non_billed_purchase')) 
+    return redirect(url_for('sales.non_billed_purchase'))
+
+def update_transactions_table():
+    """Add required columns to transactions table if they don't exist"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if transaction_type column exists
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM information_schema.columns 
+            WHERE table_name = 'transactions' 
+            AND column_name = 'transaction_type'
+        """)
+        has_transaction_type = cursor.fetchone()[0] > 0
+        
+        # Check if reference_id column exists
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM information_schema.columns 
+            WHERE table_name = 'transactions' 
+            AND column_name = 'reference_id'
+        """)
+        has_reference_id = cursor.fetchone()[0] > 0
+        
+        # Check if reference_type column exists
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM information_schema.columns 
+            WHERE table_name = 'transactions' 
+            AND column_name = 'reference_type'
+        """)
+        has_reference_type = cursor.fetchone()[0] > 0
+        
+        # Add transaction_type column if it doesn't exist
+        if not has_transaction_type:
+            cursor.execute("ALTER TABLE transactions ADD COLUMN transaction_type ENUM('credit', 'debit') NOT NULL DEFAULT 'credit'")
+            print("Added transaction_type column to transactions table")
+        
+        # Add reference_id column if it doesn't exist
+        if not has_reference_id:
+            cursor.execute("ALTER TABLE transactions ADD COLUMN reference_id INT")
+            print("Added reference_id column to transactions table")
+        
+        # Add reference_type column if it doesn't exist
+        if not has_reference_type:
+            cursor.execute("ALTER TABLE transactions ADD COLUMN reference_type VARCHAR(50)")
+            print("Added reference_type column to transactions table")
+        
+        # Check for created_at column
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM information_schema.columns 
+            WHERE table_name = 'transactions' 
+            AND column_name = 'created_at'
+        """)
+        has_created_at = cursor.fetchone()[0] > 0
+        
+        # Add created_at column if it doesn't exist
+        if not has_created_at:
+            cursor.execute("ALTER TABLE transactions ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            print("Added created_at column to transactions table")
+        
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error updating transactions table: {e}")
+    finally:
+        cursor.close()
+        conn.close() 

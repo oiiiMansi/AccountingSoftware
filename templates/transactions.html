@@ -133,21 +133,49 @@
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Description</th>
+                <th>Type</th>
+                <th>Actions</th>
             </tr>
             {% for txn in transactions %}
             <tr>
                 <td>{{ txn.date }}</td>
-                <td>{{ txn.amount }}</td>
+                <td>₹{{ "%.2f"|format(txn.amount|float) }}</td>
                 <td>{{ txn.description }}</td>
+                <td>{{ txn.transaction_type }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('transactions.delete_transaction', id=txn.id) }}" class="btn-delete"
+                       onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</a>
+                </td>
             </tr>
             {% endfor %}
         </table>
 
         <form action="{{ url_for('transactions.add_transaction') }}" method="post">
-            <input type="date" name="date" placeholder="date" required>
-            <input type="number" name="amount" placeholder="Amount" required>
-            <input type="text" name="description" placeholder="Description" required>
-            <input type="submit" value="Add Transaction">
+            <h2>Add New Transaction</h2>
+            <div class="form-group">
+                <div>
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div>
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" required>
+                </div>
+                <div>
+                    <label for="transaction_type">Transaction Type</label>
+                    <select id="transaction_type" name="transaction_type">
+                        <option value="credit">Credit (Income)</option>
+                        <option value="debit">Debit (Expense)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit">Add Transaction</button>
         </form>
     </div>
     
