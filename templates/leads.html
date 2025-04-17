@@ -158,6 +158,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
         }
 
         th, td {
@@ -208,11 +209,13 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s;
+            margin: 2px;
         }
 
         .btn-sm {
             padding: 6px 12px;
             font-size: 12px;
+            white-space: nowrap;
         }
 
         .btn-warning {
@@ -238,6 +241,28 @@
             width: 100%;
             bottom: 0;
             font-size: 14px;
+        }
+
+        .action-column {
+            min-width: 150px;
+            width: 150px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .delete-form {
+            margin: 0;
+            padding: 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
@@ -309,7 +334,7 @@
                     <th>Achieved / Year</th>
                     <th>Achieved / Month</th>
                     <th>% Achieved</th>
-                    <th>Actions</th>
+                    <th class="action-column">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -321,11 +346,369 @@
                     <td>{{ emp.achieved_target_year }}</td>
                     <td>{{ emp.achieved_target_month }}</td>
                     <td>{{ emp.percentage_achieved }}</td>
-                    <td>
+                    <td class="action-column">
                         <a href="{{ url_for('leads.edit_employee_target', id=emp.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ url_for('leads.delete_employee_target', id=emp.id) }}" method="post" style="display:inline;">
+                        <form action="{{ url_for('leads.delete_employee_target', id=emp.id) }}" method="post" style="display:inline-block;">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this target?')">Delete</button>
                         </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
+</body>
+
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Targets - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8f9fa;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto 80px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #555;
+            font-size: 22px;
+            margin: 30px 0 15px 0;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 0 auto 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 12px;
+            font-size: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #ffa500;
+            box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+        }
+
+        button {
+            grid-column: span 2;
+            background-color: #ffa500;
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e69500;
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #ffa500;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .flash-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+
+        .success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .error {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 14px;
+        }
+
+        .action-column {
+            min-width: 140px;
+            white-space: nowrap;
+        }
+
+        @media screen and (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">KK Enterprises</div>
+        <nav>
+            <div class="dropdown">
+                <a href="/">Dashboard</a>
+            </div>
+            <div class="dropdown">
+                <a href="/sales">Sales</a>
+            </div>
+            <div class="dropdown">
+                <a href="/purchase">Purchase</a>
+            </div>
+            <div class="dropdown">
+                <a href="#">Accounts</a>
+                <div class="dropdown-content">
+                    <a href="/expenses">Expenses</a>
+                    <a href="/transactions">Transactions</a>
+                    <a href="/salary">Salary</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#">Management</a>
+                <div class="dropdown-content">
+                    <a href="/stock">Stock</a>
+                    <a href="/employees">Employees</a>
+                    <a href="/sales/leads">Employee Targets</a>
+                    <a href="/reports">Reports</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="/logout">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Employee Target Management</h1>
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="text" name="name" placeholder="Employee Name" required>
+            <input type="number" name="target_per_year" placeholder="Target per Year" required>
+            <input type="number" name="target_per_month" placeholder="Target per Month" required>
+            <input type="number" name="achieved_target_year" placeholder="Achieved Target for Year" required>
+            <input type="number" name="achieved_target_month" placeholder="Achieved Target for Month" required>
+            <input type="number" name="percentage_achieved" placeholder="Percentage of Achieved" required>
+            <button type="submit">Add Employee Target</button>
+        </form>
+
+        <h2>All Employee Targets</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Target / Year</th>
+                    <th>Target / Month</th>
+                    <th>Achieved / Year</th>
+                    <th>Achieved / Month</th>
+                    <th>% Achieved</th>
+                    <th class="action-column">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.name }}</td>
+                    <td>{{ emp.target_per_year }}</td>
+                    <td>{{ emp.target_per_month }}</td>
+                    <td>{{ emp.achieved_target_year }}</td>
+                    <td>{{ emp.achieved_target_month }}</td>
+                    <td>{{ emp.percentage_achieved }}</td>
+                    <td class="action-column">
+                        <div class="action-buttons">
+                            <a href="{{ url_for('leads.edit_employee_target', id=emp.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{{ url_for('leads.delete_employee_target', id=emp.id) }}" method="post" class="delete-form">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this target?')">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

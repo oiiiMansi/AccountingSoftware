@@ -166,35 +166,37 @@
 <body>
 
   <header>
-    <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
-        <div class="logo">KK Enterprises</div>
-    </a>
+    <div class="logo">KK Enterprises</div>
     <nav>
-        <div class="dropdown">
-            <a href="#">Finance</a>
-            <div class="dropdown-content">
-                <a href="{{ url_for('accounting') }}">Accounting</a>
-                <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
-                <a href="{{ url_for('budget.view_budget') }}">Budgeting</a>
-            </div>
+      <div class="dropdown">
+        <a href="/">Dashboard</a>
+      </div>
+      <div class="dropdown">
+        <a href="/sales">Sales</a>
+      </div>
+      <div class="dropdown">
+        <a href="/purchase">Purchase</a>
+      </div>
+      <div class="dropdown">
+        <a href="#">Accounts</a>
+        <div class="dropdown-content">
+          <a href="/expenses">Expenses</a>
+          <a href="/transactions">Transactions</a>
+          <a href="/salary">Salary</a>
         </div>
-        <div class="dropdown">
-            <a href="#">Sales</a>
-            <div class="dropdown-content">
-                <a href="{{ url_for('sales.billing') }}">Billing</a>
-                <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
-                <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
-                <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
-                <a href="{{ url_for('reports.show_reports') }}">Reports</a>
-            </div>
+      </div>
+      <div class="dropdown">
+        <a href="#">Management</a>
+        <div class="dropdown-content">
+          <a href="/stock">Stock</a>
+          <a href="/employees">Employees</a>
+          <a href="/sales/leads">Employee Targets</a>
+          <a href="/reports">Reports</a>
         </div>
-        <div class="dropdown">
-            <a href="#">Human Resource</a>
-            <div class="dropdown-content">
-                <a href="{{ url_for('salary.salary_page') }}">Salary</a>
-                <a href="{{ url_for('employees.employees_page') }}">Employees</a>
-            </div>
-        </div>
+      </div>
+      <div class="dropdown">
+        <a href="/logout">Logout</a>
+      </div>
     </nav>
   </header>
 
