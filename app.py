@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 import mysql.connector
 
 # Models
@@ -40,7 +40,7 @@ login_manager.user_loader(load_user)
 
 # Register Blueprints
 app.register_blueprint(auth)
-app.register_blueprint(billing)
+app.register_blueprint(billing, url_prefix='')
 app.register_blueprint(expenses)
 app.register_blueprint(stock)
 app.register_blueprint(leads)  
@@ -60,8 +60,14 @@ def accounting():
     return render_template("accounting.html")
 
 @app.route('/sales/without_billing')
-def without_billing():
-    return render_template('without_billing.html')
+@login_required
+def without_billing_page():
+    # Check if the route exists in the sales blueprint
+    try:
+        return redirect(url_for('sales.without_billing'))
+    except:
+        # If not, forward to your actual without billing implementation
+        return render_template('without_billing.html')
 
 # Revenue Route removed
 
@@ -158,6 +164,105 @@ def direct_purchase():
 @app.route("/sales/purchase")
 def sales_purchase():
     return redirect(url_for('direct_purchase'))
+
+# Sales Dashboard Route
+@app.route("/sales")
+def sales_dashboard():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Sales Dashboard</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            h1 {
+                color: #333;
+            }
+            .options {
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+                margin-top: 30px;
+            }
+            .card {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                width: 200px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .card h2 {
+                margin-top: 0;
+                color: #333;
+            }
+            .card p {
+                color: #666;
+                margin-bottom: 20px;
+            }
+            .btn {
+                display: inline-block;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            .back {
+                display: inline-block;
+                margin-top: 20px;
+                color: #666;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Sales Management</h1>
+            
+            <div class="options">
+                <div class="card">
+                    <h2>Billing</h2>
+                    <p>Create invoices with GST</p>
+                    <a href="/billing" class="btn">Go to</a>
+                </div>
+                
+                <div class="card">
+                    <h2>Without Billing</h2>
+                    <p>Record sales without invoices</p>
+                    <a href="/sales/without_billing" class="btn">Go to</a>
+                </div>
+            </div>
+            
+            <a href="/" class="back">← Back to Dashboard</a>
+        </div>
+    </body>
+    </html>
+    """
+
+# Update the sales route to use the same direct HTML
+@app.route("/sales/dashboard")
+def sales_route_dashboard():
+    return redirect(url_for('sales_dashboard'))
+
+# Redirect old URLs to new structure
+@app.route('/sales/billing')
+def redirect_sales_billing():
+    return redirect(url_for('billing.billing_page'))
 
 # Run the app
 if __name__ == "__main__":

@@ -244,37 +244,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
-        <div class="logo">KK Enterprises</div>
-        </a>
-        <nav>
-            <div class="dropdown">
-                <a href="#">Finance</a>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('accounting') }}">Accounting</a>
-                    <a href="{{ url_for('expenses.expenses_page') }}">Expense</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#">Sales</a>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('sales.billing') }}">Billing</a>
-                    <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
-                    <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
-                    <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
-                    <a href="{{ url_for('reports.show_reports') }}">Reports</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#">Human Resource</a>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('salary.salary_page') }}">Salary</a>
-                    <a href="{{ url_for('employees.employees_page') }}">Employees</a>
-                </div>
-            </div>
-        </nav>
-    </header>
+    {% include 'includes/header_navigation.html' %}
 
     <div class="container">
         <h1>Sales Without Billing</h1>
@@ -336,23 +306,23 @@
                         <div>
                             <div class="label">Date</div>
                             <div>{{ sale.date }}</div>
-                        </div>
-                    </div>
+                </div>
+            </div>
                     <div class="description">
                         <div class="label">Items</div>
                         <div>{{ sale.item_details }}</div>
-                    </div>
+                </div>
                     {% if sale.notes %}
                     <div class="description">
                         <div class="label">Notes</div>
                         <div>{{ sale.notes }}</div>
-                    </div>
+            </div>
                     {% endif %}
                     <div class="actions">
                         <a href="{{ url_for('sales.edit_non_billed_sale', sale_id=sale.id) }}" class="btn edit-btn">Edit</a>
                         <a href="{{ url_for('sales.delete_non_billed_sale', sale_id=sale.id) }}" class="btn delete-btn" onclick="return confirm('Are you sure you want to delete this sale?')">Delete</a>
-                    </div>
                 </div>
+            </div>
             {% endfor %}
         {% else %}
             <div class="no-sales">No sales have been recorded yet.</div>

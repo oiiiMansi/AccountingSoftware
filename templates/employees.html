@@ -138,10 +138,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <div>KK Enterprises</div>
-        <div><a href="{{ url_for('home') }}" style="color: white; text-decoration: none;" >Dashboard</a></div>
-    </header>
+    {% include 'includes/header_navigation.html' %}
 
     <div class="container">
         <h2>Employee Data</h2>
