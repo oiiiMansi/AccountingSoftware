@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Report - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
         body {
             font-family: "Poppins", sans-serif;
             background-color: #f5f5f5;
@@ -14,6 +13,74 @@
             padding: 0;
         }
 
+        /* Header and Navigation Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+
+        /* Existing Report Page Styles */
         .container {
             max-width: 1200px;
             margin: 50px auto;
@@ -94,9 +161,21 @@
         .download-btn:hover {
             background-color: #218838;
         }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    {% include 'includes/header_navigation.html' %}
 
     <div class="container">
         <h1>Sales Report</h1>
@@ -127,6 +206,10 @@
 
         <button class="download-btn" id="download-btn" style="display:none;" onclick="downloadReport()">Download as Excel</button>
     </div>
+
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
 
     <script>
         function generateReport() {
@@ -190,6 +273,5 @@
             link.click();
         }
     </script>
-
 </body>
 </html>

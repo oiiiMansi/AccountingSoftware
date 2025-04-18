@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, send_file, flash
 import mysql.connector
 from fpdf import FPDF
 import os
+from flask_login import login_required
 
 salary = Blueprint("salary", __name__)
 db = mysql.connector.connect(
@@ -28,6 +29,7 @@ def salary_page():
             (name, amount, date)
         )
         db.commit()
+        flash("Salary record added successfully!", "success")
         return redirect(url_for("salary.salary_page"))
 
     cursor.execute("SELECT id, employee_name, amount, date FROM salary ORDER BY date DESC")
@@ -56,3 +58,16 @@ def download_slip(salary_id):
     pdf.output(pdf_path)
 
     return send_file(pdf_path, as_attachment=True)
+
+@salary.route("/delete-salary/<int:salary_id>", methods=["GET"])
+@login_required
+def delete_salary(salary_id):
+    try:
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM salary WHERE id = %s", (salary_id,))
+        db.commit()
+        flash("Salary record deleted successfully!", "success")
+    except Exception as e:
+        flash(f"Error deleting salary record: {e}", "error")
+    
+    return redirect(url_for("salary.salary_page"))

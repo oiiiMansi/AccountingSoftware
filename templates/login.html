@@ -4,159 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
         body {
-            font-family: "Poppins", sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #333, #ffa500);
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
-
         .login-container {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-            animation: slideInDown 1s ease-in-out;
-        }
-
-        .flash-message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
-        }
-
-        .success { background: #28a745; color: white; }
-        .danger, .error { background: #dc3545; color: white; }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        input {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             width: 100%;
-            font-size: 16px;
-            transition: 0.3s;
-            animation: slideInUp 1s ease-in-out;
+            max-width: 400px;
         }
-
-        input:focus {
-            border-color: #ffa500;
-            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
-            outline: none;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-
-        button {
-            padding: 12px;
-            background: #ffa500;
-            border: none;
-            color: white;
-            font-size: 16px;
+        .header h1 {
+            color: #333;
+            margin: 0;
+        }
+        .header p {
+            color: #666;
+            margin-top: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .form-check input {
+            margin-right: 10px;
+        }
+        .form-check label {
+            color: #555;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s ease-in-out;
-            animation: fadeIn 1.2s ease-in-out;
+            transition: background-color 0.3s;
         }
-
-        button:hover {
-            background: #333;
-            transform: scale(1.05);
+        .btn:hover {
+            background-color: #e69500;
         }
-
-        /* Loading Spinner */
-        .loading {
-            display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #ffa500;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        .footer {
+            text-align: center;
+            margin-top: 20px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .footer a {
+            color: #ffa500;
+            text-decoration: none;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .footer a:hover {
+            text-decoration: underline;
         }
-
-        @keyframes slideInDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .alert {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
         }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
     </style>
 </head>
 <body>
-
     <div class="login-container">
-        <h2>Login</h2>
-
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="flash-message {{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
+        <div class="header">
+            <h1>KK Enterprises</h1>
+            <p>Login to your account</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
-
-        <form method="POST" id="login-form">
-            {% if next %}
-                <input type="hidden" name="next" value="{{ next }}">
-            {% endif %}
-
-            <input type="text" name="username" placeholder="Username" required aria-label="Username" autofocus>
-            <input type="password" name="password" placeholder="Password" required aria-label="Password">
+        
+        <form method="POST">
+            <!-- Hidden field to store next parameter -->
+            <input type="hidden" name="next" value="{{ next }}">
             
-            <button type="submit" id="login-button">Login</button>
-            <div class="loading" id="loading-spinner"></div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            
+            <button type="submit" class="btn">Login</button>
         </form>
+        
+        <div class="footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+        </div>
     </div>
-
-    <script>
-        // Show loading spinner on form submission
-        const loginForm = document.getElementById("login-form");
-        const loginButton = document.getElementById("login-button");
-        const loadingSpinner = document.getElementById("loading-spinner");
-
-        loginForm.addEventListener("submit", function(event) {
-            // Show the loading spinner and disable the button
-            loadingSpinner.style.display = "block";
-            loginButton.disabled = true;
-        });
-    </script>
-
 </body>
 </html>

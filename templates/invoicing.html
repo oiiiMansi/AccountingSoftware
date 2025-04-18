@@ -167,7 +167,22 @@
 <body>
 
 <header>
-    <div class="logo">KK Enterprises</div>
+    <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
+        <div class="logo">KK Enterprises</div>
+    </a>
+    <nav>
+        <div class="dropdown">
+            <a href="#">Sales</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('sales.billing') }}">Billing</a>
+                <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
+                <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
+                <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
+                <a href="{{ url_for('reports.show_reports') }}">Reports</a>
+                <a href="{{ url_for('revenue') }}">Revenue</a>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <div class="button-container">

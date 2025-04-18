@@ -74,6 +74,15 @@
 </head>
 <body>
 
+<header>
+    <a href="{{ url_for('home') }}" style="text-decoration: none; color: white;">
+        <div class="logo">KK Enterprises</div>
+    </a>
+    <nav>
+        <!-- navigation items -->
+    </nav>
+</header>
+
 <div class="container">
     <div class="card">
         <h2>Edit Invoice</h2>
@@ -125,6 +134,17 @@
                 <button type="submit" class="btn">Update Invoice</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="dropdown">
+    <a href="#">Sales</a>
+    <div class="dropdown-content">
+        <a href="{{ url_for('sales.billing') }}">Billing</a>
+        <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
+        <a href="{{ url_for('leads.show_employee_targets') }}">Employee Target</a>
+        <a href="{{ url_for('transactions.show_transactions') }}">Transactions</a>
+        <a href="{{ url_for('reports.show_reports') }}">Reports</a>
     </div>
 </div>
 
