@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User  # Import User class from models
@@ -18,6 +18,10 @@ def connect_db():
 # ✅ Register Route
 @auth.route("/register", methods=["GET", "POST"])
 def register():
+    # Skip registration page if already logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+        
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -60,6 +64,10 @@ def register():
 # ✅ Login Route
 @auth.route("/login", methods=["GET", "POST"])
 def login():
+    # Skip login page if already logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+        
     # For GET, capture ?next from URL
     next_page = request.args.get("next")
 
@@ -79,9 +87,16 @@ def login():
             cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
             user = cursor.fetchone()
             if user and check_password_hash(user["password"], password):
-                login_user(User(user["id"], user["username"], user["role"]))
+                user_obj = User(user["id"], user["username"], user["role"])
+                # Remember me functionality (optional)
+                remember = True if 'remember' in request.form else False
+                login_user(user_obj, remember=remember)
+                
                 # Redirect to the next page or home if not specified
-                next_page = request.form.get("next") or next_page or url_for("home")
+                next_page = request.form.get("next") or next_page
+                if not next_page or next_page == "None" or "//" in next_page:
+                    next_page = url_for("home")
+                flash(f"Welcome back, {username}!", "success")
                 return redirect(next_page)
             else:
                 flash("Invalid credentials! Please check your username and password.", "danger")

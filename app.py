@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, login_required, current_user
 import mysql.connector
 
 # Models
@@ -36,6 +36,8 @@ app.db = db
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
+login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "warning"
 login_manager.user_loader(load_user)
 
 # Register Blueprints
@@ -52,10 +54,12 @@ app.register_blueprint(sales, url_prefix='/sales')
 
 # Home Route
 @app.route("/")
+@login_required
 def home():
     return render_template("index.html")
 
 @app.route("/accounting")
+@login_required
 def accounting():
     return render_template("accounting.html")
 
@@ -73,6 +77,7 @@ def without_billing_page():
 
 # Direct Purchase Route
 @app.route("/purchase")
+@login_required
 def direct_purchase():
     return """
     <!DOCTYPE html>
@@ -162,11 +167,13 @@ def direct_purchase():
 
 # Update the sales purchase route to use the same direct HTML
 @app.route("/sales/purchase")
+@login_required
 def sales_purchase():
     return redirect(url_for('direct_purchase'))
 
 # Sales Dashboard Route
 @app.route("/sales")
+@login_required
 def sales_dashboard():
     return """
     <!DOCTYPE html>
