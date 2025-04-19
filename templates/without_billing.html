@@ -272,6 +272,9 @@
             <label for="item_details">Item Details:</label>
             <textarea id="item_details" name="item_details" rows="3" required></textarea>
 
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+
             <label for="amount">Amount:</label>
             <input type="number" step="0.01" id="amount" name="amount" required>
 
@@ -298,6 +301,10 @@
                         <div>
                             <div class="label">Contact</div>
                             <div>{{ sale.contact_number }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Quantity</div>
+                            <div>{{ sale.quantity or 1 }}</div>
                         </div>
                         <div>
                             <div class="label">Amount</div>

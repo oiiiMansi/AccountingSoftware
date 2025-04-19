@@ -21,12 +21,23 @@ def create_non_billed_sales_table():
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        # Check if quantity column exists
+        cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'quantity'")
+        quantity_exists = cursor.fetchone()
+        
+        if not quantity_exists:
+            cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN quantity INT DEFAULT 1 AFTER item_details")
+            conn.commit()
+            print("Added quantity column to non_billed_sales table")
+            
+        # If table doesn't exist, create it with quantity column
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS non_billed_sales (
             id INT AUTO_INCREMENT PRIMARY KEY,
             customer_name VARCHAR(255) NOT NULL,
             contact_number VARCHAR(50),
             item_details TEXT,
+            quantity INT DEFAULT 1,
             amount DECIMAL(10,2) NOT NULL,
             date DATE NOT NULL,
             notes TEXT,
@@ -35,7 +46,7 @@ def create_non_billed_sales_table():
         """)
         conn.commit()
     except Exception as e:
-        print(f"Error creating non_billed_sales table: {e}")
+        print(f"Error creating/updating non_billed_sales table: {e}")
     finally:
         cursor.close()
         conn.close()
@@ -91,6 +102,9 @@ def create_billed_purchase_table():
 @sales.route('/billing', methods=['GET', 'POST'])
 @login_required
 def billing():
+    # Ensure table has quantity column
+    update_bills_table()
+    
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
 
@@ -99,12 +113,26 @@ def billing():
             # Get form data
             customer_name = request.form['customer_name']
             amount = Decimal(request.form['basic_amount'])
+            quantity = int(request.form.get('quantity', 1))  # Default to 1 if not provided
             date = request.form['date']
+            
+            # Get other form fields if available
+            customer_number = request.form.get('customer_number', '')
+            customer_address = request.form.get('customer_address', '')
+            shipping_address = request.form.get('shipping_address', '')
+            gst_type = request.form.get('gst_type', '')
+            gst_percentage = request.form.get('gst_percentage', '')
 
-            # Insert the bill into the database with only available columns
+            # Insert the bill into the database with all available columns
             cursor.execute(
-                "INSERT INTO bills (customer_name, amount, date) VALUES (%s, %s, %s)",
-                (customer_name, amount, date)
+                """
+                INSERT INTO bills 
+                (customer_name, customer_number, customer_address, shipping_address, 
+                basic_amount, quantity, gst_type, gst_percentage, date) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (customer_name, customer_number, customer_address, shipping_address, 
+                amount, quantity, gst_type, gst_percentage, date)
             )
             conn.commit()
             flash("Invoice added successfully!", "success")
@@ -139,6 +167,7 @@ def without_billing():
             customer_name = request.form['customer_name']
             contact_number = request.form['contact_number']
             item_details = request.form['item_details']
+            quantity = int(request.form.get('quantity', 1))  # Default to 1 if not provided
             amount = Decimal(request.form['amount'])
             date = request.form['date']
             notes = request.form.get('notes', '')
@@ -149,15 +178,18 @@ def without_billing():
             try:
                 # Insert into non_billed_sales table
                 cursor.execute(
-                    "INSERT INTO non_billed_sales (customer_name, contact_number, item_details, amount, date, notes) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)",
-                    (customer_name, contact_number, item_details, amount, date, notes)
+                    """
+                    INSERT INTO non_billed_sales 
+                    (customer_name, contact_number, item_details, quantity, amount, date, notes) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (customer_name, contact_number, item_details, quantity, amount, date, notes)
                 )
                 # Get the ID of the inserted sale
                 sale_id = cursor.lastrowid
                 
                 # Add to transactions as credit
-                description = f"Sale to {customer_name}: {item_details}"
+                description = f"Sale to {customer_name}: {item_details} (Qty: {quantity})"
                 cursor.execute(
                     """INSERT INTO transactions 
                        (description, amount, date, transaction_type, reference_id, reference_type) 
@@ -213,6 +245,7 @@ def edit_non_billed_sale(sale_id):
             customer_name = request.form['customer_name']
             contact_number = request.form['contact_number']
             item_details = request.form['item_details']
+            quantity = int(request.form.get('quantity', 1))
             amount = Decimal(request.form['amount'])
             date = request.form['date']
             notes = request.form.get('notes', '')
@@ -223,12 +256,13 @@ def edit_non_billed_sale(sale_id):
                     customer_name = %s,
                     contact_number = %s,
                     item_details = %s,
+                    quantity = %s,
                     amount = %s,
                     date = %s,
                     notes = %s
                 WHERE id = %s
             """, (
-                customer_name, contact_number, item_details, amount, date, notes, sale_id
+                customer_name, contact_number, item_details, quantity, amount, date, notes, sale_id
             ))
             conn.commit()
             flash("Sale updated successfully!", "success")
@@ -271,25 +305,45 @@ def edit_bill(bill_id):
     cursor = conn.cursor(dictionary=True)
     try:
         if request.method == 'POST':
+            # Get form data
             customer_name = request.form['customer_name']
-            amount = Decimal(request.form['basic_amount'])
+            basic_amount = Decimal(request.form['basic_amount'])
+            quantity = int(request.form.get('quantity', 1))
             date = request.form['date']
+            # Get other form fields if available
+            customer_number = request.form.get('customer_number', '')
+            customer_address = request.form.get('customer_address', '')
+            shipping_address = request.form.get('shipping_address', '')
+            gst_type = request.form.get('gst_type', '')
+            gst_percentage = request.form.get('gst_percentage', '')
 
+            # Update the bill
             cursor.execute("""
                 UPDATE bills SET
-                    customer_name=%s,
-                    amount=%s,
-                    date=%s
-                WHERE id=%s
-            """, (customer_name, amount, date, bill_id))
-            
+                    customer_name = %s,
+                    customer_number = %s,
+                    customer_address = %s,
+                    shipping_address = %s,
+                    basic_amount = %s,
+                    quantity = %s,
+                    gst_type = %s,
+                    gst_percentage = %s,
+                    date = %s
+                WHERE id = %s
+            """, (
+                customer_name, customer_number, customer_address, shipping_address,
+                basic_amount, quantity, gst_type, gst_percentage, date, bill_id
+            ))
             conn.commit()
-            flash("Invoice updated successfully!", "success")
+            flash("Bill updated successfully!", "success")
             return redirect(url_for('sales.billing'))
 
         # For GET request, show existing bill details
         cursor.execute("SELECT * FROM bills WHERE id = %s", (bill_id,))
         bill = cursor.fetchone()
+        if not bill:
+            flash("Bill not found", "error")
+            return redirect(url_for('sales.billing'))
 
     finally:
         cursor.close()
@@ -756,6 +810,25 @@ def update_transactions_table():
         conn.commit()
     except Exception as e:
         print(f"Error updating transactions table: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+# Update the bills table to include quantity if it doesn't already exist
+def update_bills_table():
+    conn = connect_db()
+    cursor = conn.cursor()
+    try:
+        # Check if quantity column exists
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'quantity'")
+        quantity_exists = cursor.fetchone()
+        
+        if not quantity_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN quantity INT DEFAULT 1 AFTER basic_amount")
+            conn.commit()
+            print("Added quantity column to bills table")
+    except Exception as e:
+        print(f"Error updating bills table: {e}")
     finally:
         cursor.close()
         conn.close() 
