@@ -56,11 +56,21 @@ def create_purchase_table():
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        # Check if quantity column exists
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'quantity'")
+        quantity_exists = cursor.fetchone()
+        
+        if not quantity_exists:
+            cursor.execute("ALTER TABLE purchases ADD COLUMN quantity INT DEFAULT 1 AFTER amount")
+            conn.commit()
+            print("Added quantity column to purchases table")
+            
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS purchases (
             id INT AUTO_INCREMENT PRIMARY KEY,
             vendor_name VARCHAR(255) NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
+            quantity INT DEFAULT 1,
             date DATE NOT NULL,
             item_details TEXT NOT NULL,
             notes TEXT,
@@ -69,7 +79,7 @@ def create_purchase_table():
         """)
         conn.commit()
     except Exception as e:
-        print(f"Error creating purchases table: {e}")
+        print(f"Error creating/updating purchases table: {e}")
     finally:
         cursor.close()
         conn.close()
@@ -79,11 +89,21 @@ def create_billed_purchase_table():
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        # Check if quantity column exists
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'quantity'")
+        quantity_exists = cursor.fetchone()
+        
+        if not quantity_exists:
+            cursor.execute("ALTER TABLE billed_purchases ADD COLUMN quantity INT DEFAULT 1 AFTER amount")
+            conn.commit()
+            print("Added quantity column to billed_purchases table")
+            
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS billed_purchases (
             id INT AUTO_INCREMENT PRIMARY KEY,
             vendor_name VARCHAR(255) NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
+            quantity INT DEFAULT 1,
             gst_type ENUM('CGST_SGST', 'IGST') DEFAULT 'CGST_SGST',
             gst_percentage DECIMAL(5,2) DEFAULT 18.00,
             date DATE NOT NULL,
@@ -93,7 +113,7 @@ def create_billed_purchase_table():
         """)
         conn.commit()
     except Exception as e:
-        print(f"Error creating billed_purchases table: {e}")
+        print(f"Error creating/updating billed_purchases table: {e}")
     finally:
         cursor.close()
         conn.close()
@@ -475,6 +495,7 @@ def billed_purchase():
             # Get form data
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['basic_amount'])
+            quantity = int(request.form.get('quantity', 1))
             gst_type = request.form.get('gst_type', 'CGST_SGST')
             gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
             date = request.form['date']
@@ -489,51 +510,45 @@ def billed_purchase():
             try:
                 # Insert into billed_purchases table
                 cursor.execute(
-                    "INSERT INTO billed_purchases (vendor_name, amount, gst_type, gst_percentage, date, description) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)",
-                    (vendor_name, amount, gst_type, gst_percentage, date, description)
+                    """INSERT INTO billed_purchases 
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, date, description) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, date, description)
                 )
+                
                 # Get the ID of the inserted purchase
                 purchase_id = cursor.lastrowid
                 
                 # Add to transactions as debit
-                transaction_description = f"Billed purchase from {vendor_name}: {description or 'No description'} (with GST)"
-                
+                trans_description = f"Purchase from {vendor_name}: {description} (Qty: {quantity})"
                 cursor.execute(
                     """INSERT INTO transactions 
-                       (description, amount, date, transaction_type, reference_id, reference_type) 
-                       VALUES (%s, %s, %s, 'debit', %s, 'billed_purchase')""",
-                    (transaction_description, total_amount, date, purchase_id)
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, %s, 'debit', %s, 'billed_purchase')""",
+                    (trans_description, total_amount, date, purchase_id)
                 )
                 
                 # Commit both operations
                 conn.commit()
-                flash("Billed purchase recorded successfully and added to transactions!", "success")
+                flash("Purchase recorded successfully!", "success")
             except Exception as e:
                 # Rollback on error
                 conn.rollback()
                 flash(f"Error: {str(e)}", "error")
-                print(f"Database error in billed_purchase: {str(e)}")
-            finally:
-                # Reset autocommit
-                conn.autocommit = True
-                
-            return redirect(url_for('sales.billed_purchase'))
             
+            return redirect(url_for('sales.billed_purchase'))
+        
         # Fetch all billed purchases
         cursor.execute("SELECT * FROM billed_purchases ORDER BY date DESC")
         purchases_list = cursor.fetchall()
         
-    except Exception as e:
-        flash(f"Error: {str(e)}", "error")
-        print(f"Error in billed_purchase route: {str(e)}")
     finally:
         cursor.close()
         conn.close()
         
     return render_template('billed_purchase.html', purchases=purchases_list)
 
-# Non-Billed Purchase Route
+# Non-Billed Purchase Route (without GST)
 @sales.route('/non_billed_purchase', methods=['GET', 'POST'])
 @login_required
 def non_billed_purchase():
@@ -543,13 +558,14 @@ def non_billed_purchase():
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
-    purchases = []
+    purchases_list = []
     
     try:
         if request.method == 'POST':
             # Get form data
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['amount'])
+            quantity = int(request.form.get('quantity', 1))
             date = request.form['date']
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
@@ -558,20 +574,23 @@ def non_billed_purchase():
             conn.autocommit = False
             
             try:
-                # Insert purchase record
+                # Insert into purchases table
                 cursor.execute(
-                    "INSERT INTO purchases (vendor_name, amount, date, item_details, notes) VALUES (%s, %s, %s, %s, %s)",
-                    (vendor_name, amount, date, item_details, notes)
+                    """INSERT INTO purchases 
+                    (vendor_name, amount, quantity, date, item_details, notes) 
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, date, item_details, notes)
                 )
+                
                 # Get the ID of the inserted purchase
                 purchase_id = cursor.lastrowid
                 
                 # Add to transactions as debit
-                description = f"Purchase from {vendor_name}: {item_details}"
+                description = f"Purchase from {vendor_name}: {item_details} (Qty: {quantity})"
                 cursor.execute(
                     """INSERT INTO transactions 
-                       (description, amount, date, transaction_type, reference_id, reference_type) 
-                       VALUES (%s, %s, %s, 'debit', %s, 'purchase')""",
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, %s, 'debit', %s, 'purchase')""",
                     (description, amount, date, purchase_id)
                 )
                 
@@ -582,20 +601,18 @@ def non_billed_purchase():
                 # Rollback on error
                 conn.rollback()
                 flash(f"Error: {str(e)}", "error")
-            finally:
-                # Reset autocommit to default
-                conn.autocommit = True
-        
-        # Fetch all purchases
+            
+            return redirect(url_for('sales.non_billed_purchase'))
+            
+        # Fetch all non-billed purchases
         cursor.execute("SELECT * FROM purchases ORDER BY date DESC")
-        purchases = cursor.fetchall()
-    except Exception as e:
-        flash(f"Error: {str(e)}", "error")
+        purchases_list = cursor.fetchall()
+        
     finally:
         cursor.close()
         conn.close()
-    
-    return render_template('non_billed_purchase.html', purchases=purchases)
+        
+    return render_template('non_billed_purchase.html', purchases=purchases_list)
 
 # Edit billed purchase
 @sales.route('/edit_billed_purchase/<int:purchase_id>', methods=['GET', 'POST'])
@@ -609,70 +626,42 @@ def edit_billed_purchase(purchase_id):
             # Get form data
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['basic_amount'])
-            gst_type = request.form['gst_type']
-            gst_percentage = Decimal(request.form['gst_percentage'])
+            quantity = int(request.form.get('quantity', 1))
+            gst_type = request.form.get('gst_type', 'CGST_SGST')
+            gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
             date = request.form['date']
             description = request.form.get('description', '')
             
-            # Update purchase
+            # Update the purchase
             cursor.execute("""
                 UPDATE billed_purchases SET
                     vendor_name = %s,
                     amount = %s,
+                    quantity = %s,
                     gst_type = %s,
                     gst_percentage = %s,
                     date = %s,
                     description = %s
                 WHERE id = %s
-            """, (vendor_name, amount, gst_type, gst_percentage, date, description, purchase_id))
+            """, (
+                vendor_name, amount, quantity, gst_type, gst_percentage, date, description, purchase_id
+            ))
             conn.commit()
             flash("Purchase updated successfully!", "success")
             return redirect(url_for('sales.billed_purchase'))
             
-        # For GET request, show existing purchase
+        # For GET request, show existing purchase details
         cursor.execute("SELECT * FROM billed_purchases WHERE id = %s", (purchase_id,))
         purchase = cursor.fetchone()
         if not purchase:
             flash("Purchase not found", "error")
             return redirect(url_for('sales.billed_purchase'))
             
-        return render_template('edit_billed_purchase.html', purchase=purchase)
     finally:
         cursor.close()
         conn.close()
-
-# Delete billed purchase
-@sales.route('/delete_billed_purchase/<int:purchase_id>', methods=['GET'])
-@login_required
-def delete_billed_purchase(purchase_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-    
-    # Start transaction
-    conn.autocommit = False
-    
-    try:
-        # Delete the purchase
-        cursor.execute("DELETE FROM billed_purchases WHERE id = %s", (purchase_id,))
         
-        # Delete associated transaction
-        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'billed_purchase'", (purchase_id,))
-        
-        # Commit both operations
-        conn.commit()
-        flash("Purchase and associated transaction deleted successfully!", "success")
-    except Exception as e:
-        # Rollback on error
-        conn.rollback()
-        flash(f"Error: {str(e)}", "error")
-        print(f"Error deleting billed purchase: {str(e)}")
-    finally:
-        # Reset autocommit
-        conn.autocommit = True
-        cursor.close()
-        conn.close()
-        
-    return redirect(url_for('sales.billed_purchase'))
+    return render_template('edit_billed_purchase.html', purchase=purchase)
 
 # Edit non-billed purchase
 @sales.route('/edit_non_billed_purchase/<int:purchase_id>', methods=['GET', 'POST'])
@@ -686,68 +675,40 @@ def edit_non_billed_purchase(purchase_id):
             # Get form data
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['amount'])
+            quantity = int(request.form.get('quantity', 1))
             date = request.form['date']
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
             
-            # Update purchase
+            # Update the purchase
             cursor.execute("""
                 UPDATE purchases SET
                     vendor_name = %s,
                     amount = %s,
+                    quantity = %s,
                     date = %s,
                     item_details = %s,
                     notes = %s
                 WHERE id = %s
-            """, (vendor_name, amount, date, item_details, notes, purchase_id))
+            """, (
+                vendor_name, amount, quantity, date, item_details, notes, purchase_id
+            ))
             conn.commit()
             flash("Purchase updated successfully!", "success")
             return redirect(url_for('sales.non_billed_purchase'))
             
-        # For GET request, show existing purchase
+        # For GET request, show existing purchase details
         cursor.execute("SELECT * FROM purchases WHERE id = %s", (purchase_id,))
         purchase = cursor.fetchone()
         if not purchase:
             flash("Purchase not found", "error")
             return redirect(url_for('sales.non_billed_purchase'))
             
-        return render_template('edit_non_billed_purchase.html', purchase=purchase)
     finally:
         cursor.close()
         conn.close()
-
-# Delete non-billed purchase
-@sales.route('/delete_non_billed_purchase/<int:purchase_id>', methods=['GET'])
-@login_required
-def delete_non_billed_purchase(purchase_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-    
-    # Start transaction
-    conn.autocommit = False
-    
-    try:
-        # Delete the purchase
-        cursor.execute("DELETE FROM purchases WHERE id = %s", (purchase_id,))
         
-        # Delete associated transaction
-        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'purchase'", (purchase_id,))
-        
-        # Commit both operations
-        conn.commit()
-        flash("Purchase and associated transaction deleted successfully!", "success")
-    except Exception as e:
-        # Rollback on error
-        conn.rollback()
-        flash(f"Error: {str(e)}", "error")
-        print(f"Error deleting non-billed purchase: {str(e)}")
-    finally:
-        # Reset autocommit
-        conn.autocommit = True
-        cursor.close()
-        conn.close()
-        
-    return redirect(url_for('sales.non_billed_purchase'))
+    return render_template('edit_non_billed_purchase.html', purchase=purchase)
 
 def update_transactions_table():
     """Add required columns to transactions table if they don't exist"""
@@ -831,4 +792,63 @@ def update_bills_table():
         print(f"Error updating bills table: {e}")
     finally:
         cursor.close()
-        conn.close() 
+        conn.close()
+
+# Delete billed purchase
+@sales.route('/delete_billed_purchase/<int:purchase_id>', methods=['GET'])
+@login_required
+def delete_billed_purchase(purchase_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    try:
+        # Start transaction
+        conn.autocommit = False
+        
+        # Delete the transaction associated with this purchase first
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'billed_purchase'", (purchase_id,))
+        
+        # Now delete the purchase
+        cursor.execute("DELETE FROM billed_purchases WHERE id = %s", (purchase_id,))
+        
+        # Commit the transaction
+        conn.commit()
+        flash("Purchase deleted successfully!", "success")
+    except Exception as e:
+        # Rollback on error
+        conn.rollback()
+        flash(f"Error deleting purchase: {str(e)}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('sales.billed_purchase'))
+
+# Delete non-billed purchase
+@sales.route('/delete_non_billed_purchase/<int:purchase_id>', methods=['GET'])
+@login_required
+def delete_non_billed_purchase(purchase_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    try:
+        # Start transaction
+        conn.autocommit = False
+        
+        # Delete the transaction associated with this purchase first
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'purchase'", (purchase_id,))
+        
+        # Now delete the purchase
+        cursor.execute("DELETE FROM purchases WHERE id = %s", (purchase_id,))
+        
+        # Commit the transaction
+        conn.commit()
+        flash("Purchase deleted successfully!", "success")
+    except Exception as e:
+        # Rollback on error
+        conn.rollback()
+        flash(f"Error deleting purchase: {str(e)}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('sales.non_billed_purchase')) 
+    return redirect(url_for('sales.billed_purchase')) 
