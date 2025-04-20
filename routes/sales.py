@@ -253,7 +253,7 @@ def delete_non_billed_sale(sale_id):
 
     return redirect(url_for('sales.without_billing'))
     
-# Edit non-billed sale - GET: Show form with current data, POST: Update data
+# Edit non-billed sale
 @sales.route('/edit_non_billed_sale/<int:sale_id>', methods=['GET', 'POST'])
 @login_required
 def edit_non_billed_sale(sale_id):
@@ -270,22 +270,41 @@ def edit_non_billed_sale(sale_id):
             date = request.form['date']
             notes = request.form.get('notes', '')
 
-            # Update the sale
-            cursor.execute("""
-                UPDATE non_billed_sales SET
-                    customer_name = %s,
-                    contact_number = %s,
-                    item_details = %s,
-                    quantity = %s,
-                    amount = %s,
-                    date = %s,
-                    notes = %s
-                WHERE id = %s
-            """, (
-                customer_name, contact_number, item_details, quantity, amount, date, notes, sale_id
-            ))
-            conn.commit()
-            flash("Sale updated successfully!", "success")
+            # Begin transaction
+            conn.autocommit = False
+            
+            try:
+                # Update the sale record
+                cursor.execute("""
+                    UPDATE non_billed_sales SET
+                        customer_name = %s,
+                        contact_number = %s,
+                        item_details = %s,
+                        quantity = %s,
+                        amount = %s,
+                        date = %s,
+                        notes = %s
+                    WHERE id = %s
+                """, (
+                    customer_name, contact_number, item_details, quantity, amount, date, notes, sale_id
+                ))
+                
+                # Update corresponding transaction record
+                description = f"Sale to {customer_name}: {item_details} (Qty: {quantity})"
+                cursor.execute("""
+                    UPDATE transactions SET
+                        description = %s,
+                        amount = %s,
+                        date = %s
+                    WHERE reference_id = %s AND reference_type = 'non_billed_sale'
+                """, (description, amount, date, sale_id))
+                
+                conn.commit()
+                flash("Sale updated successfully!", "success")
+            except Exception as e:
+                conn.rollback()
+                flash(f"Error updating sale: {str(e)}", "error")
+                
             return redirect(url_for('sales.without_billing'))
 
         # For GET request, show existing sale details
@@ -335,27 +354,58 @@ def edit_bill(bill_id):
             customer_address = request.form.get('customer_address', '')
             shipping_address = request.form.get('shipping_address', '')
             gst_type = request.form.get('gst_type', '')
-            gst_percentage = request.form.get('gst_percentage', '')
+            gst_percentage = Decimal(request.form.get('gst_percentage', 0))
 
-            # Update the bill
-            cursor.execute("""
-                UPDATE bills SET
-                    customer_name = %s,
-                    customer_number = %s,
-                    customer_address = %s,
-                    shipping_address = %s,
-                    basic_amount = %s,
-                    quantity = %s,
-                    gst_type = %s,
-                    gst_percentage = %s,
-                    date = %s
-                WHERE id = %s
-            """, (
-                customer_name, customer_number, customer_address, shipping_address,
-                basic_amount, quantity, gst_type, gst_percentage, date, bill_id
-            ))
-            conn.commit()
-            flash("Bill updated successfully!", "success")
+            # Calculate GST and total amount
+            gst_amount = 0
+            if gst_percentage > 0:
+                gst_amount = basic_amount * gst_percentage / 100
+            total_amount = basic_amount + gst_amount
+
+            # Begin transaction
+            conn.autocommit = False
+            
+            try:
+                # Update the bill
+                cursor.execute("""
+                    UPDATE bills SET
+                        customer_name = %s,
+                        customer_number = %s,
+                        customer_address = %s,
+                        shipping_address = %s,
+                        basic_amount = %s,
+                        quantity = %s,
+                        gst_type = %s,
+                        gst_percentage = %s,
+                        gst_amount = %s,
+                        total_amount = %s,
+                        date = %s
+                    WHERE id = %s
+                """, (
+                    customer_name, customer_number, customer_address, shipping_address,
+                    basic_amount, quantity, gst_type, gst_percentage, gst_amount, total_amount, date, bill_id
+                ))
+                
+                # Check if there's a corresponding transaction
+                cursor.execute("SELECT id FROM transactions WHERE reference_id = %s AND reference_type = 'bill'", (bill_id,))
+                transaction = cursor.fetchone()
+                
+                if transaction:
+                    description = f"Bill from {customer_name} (Qty: {quantity})"
+                    cursor.execute("""
+                        UPDATE transactions SET
+                            description = %s,
+                            amount = %s,
+                            date = %s
+                        WHERE reference_id = %s AND reference_type = 'bill'
+                    """, (description, total_amount, date, bill_id))
+                
+                conn.commit()
+                flash("Bill updated successfully!", "success")
+            except Exception as e:
+                conn.rollback()
+                flash(f"Error updating bill: {str(e)}", "error")
+                
             return redirect(url_for('sales.billing'))
 
         # For GET request, show existing bill details
@@ -632,22 +682,44 @@ def edit_billed_purchase(purchase_id):
             date = request.form['date']
             description = request.form.get('description', '')
             
-            # Update the purchase
-            cursor.execute("""
-                UPDATE billed_purchases SET
-                    vendor_name = %s,
-                    amount = %s,
-                    quantity = %s,
-                    gst_type = %s,
-                    gst_percentage = %s,
-                    date = %s,
-                    description = %s
-                WHERE id = %s
-            """, (
-                vendor_name, amount, quantity, gst_type, gst_percentage, date, description, purchase_id
-            ))
-            conn.commit()
-            flash("Purchase updated successfully!", "success")
+            # Calculate total amount with GST
+            total_amount = amount * (1 + gst_percentage/100)
+            
+            # Begin transaction
+            conn.autocommit = False
+            
+            try:
+                # Update the purchase
+                cursor.execute("""
+                    UPDATE billed_purchases SET
+                        vendor_name = %s,
+                        amount = %s,
+                        quantity = %s,
+                        gst_type = %s,
+                        gst_percentage = %s,
+                        date = %s,
+                        description = %s
+                    WHERE id = %s
+                """, (
+                    vendor_name, amount, quantity, gst_type, gst_percentage, date, description, purchase_id
+                ))
+                
+                # Update corresponding transaction record
+                trans_description = f"Purchase from {vendor_name}: {description} (Qty: {quantity})"
+                cursor.execute("""
+                    UPDATE transactions SET
+                        description = %s,
+                        amount = %s,
+                        date = %s
+                    WHERE reference_id = %s AND reference_type = 'billed_purchase'
+                """, (trans_description, total_amount, date, purchase_id))
+                
+                conn.commit()
+                flash("Purchase updated successfully!", "success")
+            except Exception as e:
+                conn.rollback()
+                flash(f"Error updating purchase: {str(e)}", "error")
+                
             return redirect(url_for('sales.billed_purchase'))
             
         # For GET request, show existing purchase details
@@ -680,21 +752,40 @@ def edit_non_billed_purchase(purchase_id):
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
             
-            # Update the purchase
-            cursor.execute("""
-                UPDATE purchases SET
-                    vendor_name = %s,
-                    amount = %s,
-                    quantity = %s,
-                    date = %s,
-                    item_details = %s,
-                    notes = %s
-                WHERE id = %s
-            """, (
-                vendor_name, amount, quantity, date, item_details, notes, purchase_id
-            ))
-            conn.commit()
-            flash("Purchase updated successfully!", "success")
+            # Begin transaction
+            conn.autocommit = False
+            
+            try:
+                # Update the purchase
+                cursor.execute("""
+                    UPDATE purchases SET
+                        vendor_name = %s,
+                        amount = %s,
+                        quantity = %s,
+                        date = %s,
+                        item_details = %s,
+                        notes = %s
+                    WHERE id = %s
+                """, (
+                    vendor_name, amount, quantity, date, item_details, notes, purchase_id
+                ))
+                
+                # Update corresponding transaction record
+                description = f"Purchase from {vendor_name}: {item_details} (Qty: {quantity})"
+                cursor.execute("""
+                    UPDATE transactions SET
+                        description = %s,
+                        amount = %s,
+                        date = %s
+                    WHERE reference_id = %s AND reference_type = 'purchase'
+                """, (description, amount, date, purchase_id))
+                
+                conn.commit()
+                flash("Purchase updated successfully!", "success")
+            except Exception as e:
+                conn.rollback()
+                flash(f"Error updating purchase: {str(e)}", "error")
+                
             return redirect(url_for('sales.non_billed_purchase'))
             
         # For GET request, show existing purchase details
