@@ -239,7 +239,7 @@
         {% endwith %}
 
         <h2>Add New Bill</h2>
-        <form action="{{ url_for('billing.billing_page') }}" method="post">
+        <form action="{{ url_for('sales.billing') }}" method="post" id="main-billing-form">
             <div class="form-group">
                 <div>
                     <label for="customer_name">Customer Name</label>
@@ -264,6 +264,13 @@
             
             <div class="form-group">
                 <div>
+                    <label for="payment_type">Payment Type</label>
+                    <select id="payment_type" name="payment_type">
+                        <option value="Cash">Cash</option>
+                        <option value="Credit">Credit</option>
+                    </select>
+                </div>
+                <div>
                     <label for="basic_amount">Basic Amount (₹)</label>
                     <input type="number" id="basic_amount" name="basic_amount" step="0.01" required>
                 </div>
@@ -271,6 +278,9 @@
                     <label for="quantity">Quantity</label>
                     <input type="number" id="quantity" name="quantity" min="1" value="1" required>
                 </div>
+            </div>
+            
+            <div class="form-group">
                 <div>
                     <label for="gst_type">GST Type</label>
                     <select id="gst_type" name="gst_type">
@@ -300,7 +310,7 @@
                 <thead>
                     <tr>
                         <th>Customer Name</th>
-                        <th>Customer Number</th>
+                        <th>Payment</th>
                         <th>Basic Amount</th>
                         <th>Quantity</th>
                         <th>GST Type</th>
@@ -315,7 +325,12 @@
                     {% for bill in bills %}
                     <tr>
                         <td>{{ bill.customer_name }}</td>
-                        <td>{{ bill.customer_number if bill.customer_number else 'N/A' }}</td>
+                        <td>
+                            {{ bill.payment_type or 'Cash' }}
+                            {% if bill.payment_type == 'Credit' %}
+                            <span class="status {{ bill.payment_status|lower }}">{{ bill.payment_status }}</span>
+                            {% endif %}
+                        </td>
                         <td>₹{{ "%.2f"|format(bill.basic_amount|float if bill.basic_amount is not none else 0) }}</td>
                         <td>{{ bill.quantity or 1 }}</td>
                         <td>{{ bill.gst_type or 'N/A' }}</td>
@@ -336,10 +351,126 @@
             <p>No bills found. Add a new bill using the form above.</p>
         {% endif %}
 
+        <!-- Add this near your regular form for debugging -->
+        <div style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
+            <h3>Test Credit Sale Entry</h3>
+            <form action="{{ url_for('sales.billing') }}" method="post" id="test-credit-form">
+                <input type="hidden" name="customer_name" value="Test Credit Customer">
+                <input type="hidden" name="basic_amount" value="100">
+                <input type="hidden" name="quantity" value="1">
+                <input type="hidden" name="date" value="{{ today_date }}">
+                <input type="hidden" name="payment_type" value="Credit">
+                <button type="submit" style="background-color: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px;">
+                    Test Add Credit Sale
+                </button>
+            </form>
+            <script>
+                // Generate today's date in YYYY-MM-DD format for the hidden date field
+                document.addEventListener('DOMContentLoaded', function() {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    const formattedDate = `${yyyy}-${mm}-${dd}`;
+                    document.querySelector('#test-credit-form input[name="date"]').value = formattedDate;
+                });
+            </script>
+        </div>
+
+        <!-- Add this simple form for testing after your main form -->
+        <div style="margin-top: 40px; border-top: 2px dashed #ccc; padding-top: 20px;">
+            <h2>Simple Test Form</h2>
+            <p>Use this basic form to test payment type selection:</p>
+        </div>
+
     </div>
 
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        // Remember the selected payment type
+        document.getElementById('payment_type').addEventListener('change', function() {
+            localStorage.setItem('selected_payment_type', this.value);
+        });
+        
+        // Set the selected payment type from local storage if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPaymentType = localStorage.getItem('selected_payment_type');
+            if (savedPaymentType) {
+                document.getElementById('payment_type').value = savedPaymentType;
+            }
+        });
+
+        // Debugging code to check form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date in date field
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+
+            // Add form submission event handler
+            const form = document.getElementById('main-billing-form');
+            
+            form.addEventListener('submit', function(event) {
+                // Prevent default submission temporarily
+                event.preventDefault();
+                
+                // Log all form data
+                console.log('Form submission:');
+                const formData = new FormData(form);
+                for (const [key, value] of formData.entries()) {
+                    console.log(`  ${key}: ${value}`);
+                }
+                
+                // Check specifically for payment_type
+                const paymentType = formData.get('payment_type');
+                console.log('Payment type:', paymentType);
+                
+                // If payment_type is missing or not 'Credit' when Credit is selected, fix it
+                const paymentSelect = document.getElementById('payment_type');
+                if (paymentSelect.value === 'Credit' && paymentType !== 'Credit') {
+                    console.error('Payment type mismatch! Form shows Credit but submission has:', paymentType);
+                    // Add a hidden field to ensure the value is submitted
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'payment_type';
+                    hiddenField.value = 'Credit';
+                    form.appendChild(hiddenField);
+                    console.log('Added hidden field with payment_type=Credit');
+                }
+                
+                // Continue with form submission
+                form.submit();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for duplicate name attributes
+            const inputs = document.querySelectorAll('[name]');
+            const nameMap = {};
+            
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (!nameMap[name]) {
+                    nameMap[name] = [];
+                }
+                nameMap[name].push(input);
+            });
+            
+            // Log inputs with duplicate names
+            for (const [name, elements] of Object.entries(nameMap)) {
+                if (elements.length > 1) {
+                    console.error(`Duplicate name found: "${name}" appears ${elements.length} times:`);
+                    elements.forEach(el => {
+                        console.error(` - ${el.tagName} in ${el.closest('form')?.id || 'unknown form'}`);
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

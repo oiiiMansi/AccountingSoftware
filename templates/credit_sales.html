@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Sales - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .summary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .summary div {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .summary .label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .summary .value {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .paid {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .actions form {
+            display: inline;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .no-credit {
+            background-color: #e9ecef;
+            padding: 50px;
+            text-align: center;
+            border-radius: 8px;
+            color: #6c757d;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown a:hover {
+            color: #ffa500;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 15px;
+            display: block;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background: #ffa500;
+            color: white;
+        }
+        
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/header_navigation.html' %}
+    
+    <div class="container">
+        <h1>Credit Sales</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% if credit_sales %}
+            <div class="summary">
+                <div>
+                    <div class="label">Total Credit Sales</div>
+                    <div class="value">{{ credit_sales|length }}</div>
+                </div>
+                <div>
+                    <div class="label">Total Pending Amount</div>
+                    <div class="value">₹{{ credit_sales|selectattr('payment_status', 'equalto', 'Pending')|sum(attribute='amount')|round(2) }}</div>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in credit_sales %}
+                    <tr>
+                        <td>{{ sale.customer_name }}</td>
+                        <td>₹{{ sale.amount }}</td>
+                        <td>{{ sale.date }}</td>
+                        <td>{{ "Billed" if sale.sale_type == "bill" else "Without Bill" }}</td>
+                        <td>
+                            <span class="status {{ sale.payment_status|lower }}">{{ sale.payment_status }}</span>
+                        </td>
+                        <td class="actions">
+                            {% if sale.payment_status == 'Pending' %}
+                            <form action="{{ url_for('sales.mark_as_paid', sale_type=sale.sale_type, sale_id=sale.id) }}" method="post">
+                                <button type="submit" class="btn" onclick="return confirm('Mark this sale as paid?')">Mark as Paid</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-credit">
+                <h2>No Credit Sales Found</h2>
+                <p>All your sales are paid in cash. Create a new sale with Credit payment type to see it here.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
+</body>
+</html> 

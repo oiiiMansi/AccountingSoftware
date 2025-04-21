@@ -6,6 +6,13 @@
         </div>
         <div class="dropdown">
             <a href="/sales">Sales</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('sales.billing') }}">Billing</a>
+                <a href="{{ url_for('sales.without_billing') }}">Without Billing</a>
+                <a href="{{ url_for('sales.credit_sales') }}">Credit Sales</a>
+                <a href="{{ url_for('leads.show_employee_targets') }}">Employee Targets</a>
+                <a href="{{ url_for('reports.show_reports') }}">Reports</a>
+            </div>
         </div>
         <div class="dropdown">
             <a href="/purchase">Purchase</a>
@@ -23,12 +30,92 @@
             <div class="dropdown-content">
                 <a href="/stock">Stock</a>
                 <a href="/employees">Employees</a>
-                <a href="/sales/leads">Employee Targets</a>
-                <a href="/reports">Reports</a>
             </div>
         </div>
         <div class="dropdown">
             <a href="/logout">Logout</a>
         </div>
     </nav>
-</header> 
+</header>
+
+<style>
+    /* Fix for horizontal scrollbar */
+    body {
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #333, #555);
+        color: white;
+        padding: 15px 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 180px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        padding: 8px 0;
+        z-index: 1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown-content a {
+        color: #333;
+        padding: 10px 15px;
+        display: block;
+        text-decoration: none;
+        transition: 0.3s ease-in-out;
+    }
+
+    .dropdown-content a:hover {
+        background: #ffa500;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        nav {
+            margin-top: 10px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .dropdown {
+            margin-bottom: 5px;
+        }
+        
+        .dropdown-content {
+            width: 100%;
+            position: relative;
+        }
+    }
+</style> 
