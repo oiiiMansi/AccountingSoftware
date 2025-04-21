@@ -244,9 +244,22 @@ def delete_non_billed_sale(sale_id):
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        # Start transaction
+        conn.autocommit = False
+        
+        # Delete the transaction associated with this sale first
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'non_billed_sale'", (sale_id,))
+        
+        # Now delete the sale
         cursor.execute("DELETE FROM non_billed_sales WHERE id = %s", (sale_id,))
+        
+        # Commit the transaction
         conn.commit()
         flash("Sale deleted successfully!", "success")
+    except Exception as e:
+        # Rollback on error
+        conn.rollback()
+        flash(f"Error deleting sale: {str(e)}", "error")
     finally:
         cursor.close()
         conn.close()
@@ -327,9 +340,22 @@ def delete_bill(bill_id):
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        # Start transaction
+        conn.autocommit = False
+        
+        # Delete the transaction associated with this bill first
+        cursor.execute("DELETE FROM transactions WHERE reference_id = %s AND reference_type = 'bill'", (bill_id,))
+        
+        # Now delete the bill
         cursor.execute("DELETE FROM bills WHERE id = %s", (bill_id,))
+        
+        # Commit the transaction
         conn.commit()
         flash("Invoice deleted successfully!", "success")
+    except Exception as e:
+        # Rollback on error
+        conn.rollback()
+        flash(f"Error deleting invoice: {str(e)}", "error")
     finally:
         cursor.close()
         conn.close()
@@ -942,4 +968,3 @@ def delete_non_billed_purchase(purchase_id):
         conn.close()
 
     return redirect(url_for('sales.non_billed_purchase')) 
-    return redirect(url_for('sales.billed_purchase')) 
