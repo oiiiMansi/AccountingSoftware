@@ -401,10 +401,60 @@
             if (savedPaymentType) {
                 document.getElementById('payment_type').value = savedPaymentType;
             }
-        });
+            
+            // Add GST calculation functionality
+            const basicAmountInput = document.getElementById('basic_amount');
+            const gstPercentageInput = document.getElementById('gst_percentage');
+            const gstTypeSelect = document.getElementById('gst_type');
+            
+            // Add display elements for GST and total amount
+            const billingForm = document.getElementById('main-billing-form');
+            
+            // Add GST amount and total amount display after GST percentage
+            const gstDiv = document.createElement('div');
+            gstDiv.innerHTML = `
+                <div class="form-group">
+                    <div>
+                        <label for="gst_amount_display">GST Amount (₹)</label>
+                        <input type="text" id="gst_amount_display" readonly>
+                        <input type="hidden" id="gst_amount" name="gst_amount">
+                    </div>
+                    <div>
+                        <label for="total_amount_display">Total Amount (₹)</label>
+                        <input type="text" id="total_amount_display" readonly>
+                        <input type="hidden" id="total_amount" name="total_amount">
+                    </div>
+                </div>
+            `;
+            
+            // Insert before the date group
+            const dateFormGroup = document.querySelector('label[for="date"]').closest('.form-group');
+            billingForm.insertBefore(gstDiv, dateFormGroup);
+            
+            // Function to calculate GST and total amount
+            function calculateGSTAndTotal() {
+                const basicAmount = parseFloat(basicAmountInput.value) || 0;
+                const gstPercentage = parseFloat(gstPercentageInput.value) || 0;
+                
+                // Calculate GST amount
+                const gstAmount = basicAmount * (gstPercentage / 100);
+                const totalAmount = basicAmount + gstAmount;
+                
+                // Update display and hidden fields
+                document.getElementById('gst_amount_display').value = gstAmount.toFixed(2);
+                document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+                document.getElementById('total_amount_display').value = totalAmount.toFixed(2);
+                document.getElementById('total_amount').value = totalAmount.toFixed(2);
+            }
+            
+            // Calculate initially
+            calculateGSTAndTotal();
+            
+            // Add event listeners for input changes
+            basicAmountInput.addEventListener('input', calculateGSTAndTotal);
+            gstPercentageInput.addEventListener('input', calculateGSTAndTotal);
+            gstTypeSelect.addEventListener('change', calculateGSTAndTotal);
 
-        // Debugging code to check form submission
-        document.addEventListener('DOMContentLoaded', function() {
             // Set current date in date field
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -413,15 +463,15 @@
             document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
 
             // Add form submission event handler
-            const form = document.getElementById('main-billing-form');
+            const submissionForm = document.getElementById('main-billing-form');
             
-            form.addEventListener('submit', function(event) {
+            submissionForm.addEventListener('submit', function(event) {
                 // Prevent default submission temporarily
                 event.preventDefault();
                 
                 // Log all form data
                 console.log('Form submission:');
-                const formData = new FormData(form);
+                const formData = new FormData(submissionForm);
                 for (const [key, value] of formData.entries()) {
                     console.log(`  ${key}: ${value}`);
                 }
@@ -439,12 +489,12 @@
                     hiddenField.type = 'hidden';
                     hiddenField.name = 'payment_type';
                     hiddenField.value = 'Credit';
-                    form.appendChild(hiddenField);
+                    submissionForm.appendChild(hiddenField);
                     console.log('Added hidden field with payment_type=Credit');
                 }
                 
                 // Continue with form submission
-                form.submit();
+                submissionForm.submit();
             });
         });
 

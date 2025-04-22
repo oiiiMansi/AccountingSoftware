@@ -146,6 +146,16 @@ def billing():
             quantity = int(request.form.get('quantity', 1))
             date = request.form.get('date', '')
             
+            # Get GST-related fields
+            gst_type = request.form.get('gst_type', '')
+            gst_percentage = Decimal(request.form.get('gst_percentage', 0))
+            
+            # Calculate GST and total amount
+            gst_amount = 0
+            if gst_percentage > 0:
+                gst_amount = amount * gst_percentage / 100
+            total_amount = amount + gst_amount
+            
             # Force use request.form.get for payment_type to debug
             raw_payment_type = request.form.get('payment_type')
             logger.info(f"Raw payment_type from request.form.get: {raw_payment_type}")
@@ -176,15 +186,23 @@ def billing():
             logger.info(f"FINAL DECISION: payment_type={payment_type}, payment_status={payment_status}")
             
             # Get other form fields
-            # (rest of your code for getting other fields)
+            customer_number = request.form.get('customer_number', '')
+            customer_address = request.form.get('customer_address', '')
+            shipping_address = request.form.get('shipping_address', '')
             
-            # Insert with explicit payment_type value
+            # Insert with explicit payment_type value and GST fields
             sql = """
             INSERT INTO bills 
-            (customer_name, basic_amount, quantity, payment_type, payment_status, date) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (customer_name, customer_number, customer_address, shipping_address, 
+            basic_amount, quantity, gst_type, gst_percentage, gst_amount, total_amount,
+            payment_type, payment_status, date) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            params = (customer_name, amount, quantity, payment_type, payment_status, date)
+            params = (
+                customer_name, customer_number, customer_address, shipping_address,
+                amount, quantity, gst_type, gst_percentage, gst_amount, total_amount,
+                payment_type, payment_status, date
+            )
             
             cursor.execute(sql, params)
             conn.commit()
@@ -978,6 +996,49 @@ def update_bills_table():
             cursor.execute("ALTER TABLE bills ADD COLUMN quantity INT DEFAULT 1 AFTER basic_amount")
             conn.commit()
             print("Added quantity column to bills table")
+            
+        # Check GST-related columns
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'gst_type'")
+        gst_type_exists = cursor.fetchone()
+        
+        if not gst_type_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN gst_type VARCHAR(20) DEFAULT NULL AFTER quantity")
+            conn.commit()
+            print("Added gst_type column to bills table")
+            
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'gst_percentage'")
+        gst_percentage_exists = cursor.fetchone()
+        
+        if not gst_percentage_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN gst_percentage DECIMAL(5,2) DEFAULT 0 AFTER gst_type")
+            conn.commit()
+            print("Added gst_percentage column to bills table")
+            
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'gst_amount'")
+        gst_amount_exists = cursor.fetchone()
+        
+        if not gst_amount_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN gst_amount DECIMAL(10,2) DEFAULT 0 AFTER gst_percentage")
+            conn.commit()
+            print("Added gst_amount column to bills table")
+            
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'total_amount'")
+        total_amount_exists = cursor.fetchone()
+        
+        if not total_amount_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN total_amount DECIMAL(10,2) DEFAULT 0 AFTER gst_amount")
+            conn.commit()
+            print("Added total_amount column to bills table")
+            
+        # Update total_amount for any records that have it null but have basic_amount set
+        cursor.execute("""
+            UPDATE bills 
+            SET total_amount = basic_amount + COALESCE(gst_amount, 0)
+            WHERE (total_amount IS NULL OR total_amount = 0) AND basic_amount > 0
+        """)
+        conn.commit()
+        print("Updated total_amount values where necessary")
+            
     except Exception as e:
         print(f"Error updating bills table: {e}")
     finally:

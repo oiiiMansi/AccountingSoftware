@@ -70,6 +70,9 @@
             justify-content: flex-end;
             gap: 10px;
         }
+        .read-only {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -86,7 +89,7 @@
 <div class="container">
     <div class="card">
         <h2>Edit Invoice</h2>
-        <form method="POST">
+        <form method="POST" action="{{ url_for('sales.edit_bill', bill_id=bill.id) }}">
             <div class="row">
                 <div class="col-md-6">
                     <label for="customer_name">Customer Name</label>
@@ -129,8 +132,19 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="gst_amount">GST Amount (₹)</label>
+                    <input type="number" step="0.01" id="gst_amount" name="gst_amount" value="{{ bill.gst_amount }}" class="read-only" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="total_amount">Total Amount (₹)</label>
+                    <input type="number" step="0.01" id="total_amount" name="total_amount" value="{{ bill.total_amount }}" class="read-only" readonly>
+                </div>
+            </div>
+
             <div class="d-flex">
-                <a href="{{ url_for('billing.billing_page') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ url_for('sales.billing') }}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn">Update Invoice</button>
             </div>
         </form>
@@ -147,6 +161,38 @@
         <a href="{{ url_for('reports.show_reports') }}">Reports</a>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const basicAmountInput = document.getElementById('basic_amount');
+        const gstPercentageInput = document.getElementById('gst_percentage');
+        const gstTypeSelect = document.getElementById('gst_type');
+        const gstAmountInput = document.getElementById('gst_amount');
+        const totalAmountInput = document.getElementById('total_amount');
+        
+        // Function to calculate GST and total amount
+        function calculateGSTAndTotal() {
+            const basicAmount = parseFloat(basicAmountInput.value) || 0;
+            const gstPercentage = parseFloat(gstPercentageInput.value) || 0;
+            
+            // Calculate GST amount
+            const gstAmount = basicAmount * (gstPercentage / 100);
+            const totalAmount = basicAmount + gstAmount;
+            
+            // Update display and hidden fields
+            gstAmountInput.value = gstAmount.toFixed(2);
+            totalAmountInput.value = totalAmount.toFixed(2);
+        }
+        
+        // Calculate initially
+        calculateGSTAndTotal();
+        
+        // Add event listeners for input changes
+        basicAmountInput.addEventListener('input', calculateGSTAndTotal);
+        gstPercentageInput.addEventListener('input', calculateGSTAndTotal);
+        gstTypeSelect.addEventListener('change', calculateGSTAndTotal);
+    });
+</script>
 
 </body>
 </html>
