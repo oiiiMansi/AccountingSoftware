@@ -373,6 +373,10 @@ def edit_non_billed_sale(sale_id):
             amount = Decimal(request.form['amount'])
             date = request.form['date']
             notes = request.form.get('notes', '')
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
 
             # Begin transaction
             conn.autocommit = False
@@ -386,11 +390,14 @@ def edit_non_billed_sale(sale_id):
                         item_details = %s,
                         quantity = %s,
                         amount = %s,
+                        payment_type = %s,
+                        payment_status = %s,
                         date = %s,
                         notes = %s
                     WHERE id = %s
                 """, (
-                    customer_name, contact_number, item_details, quantity, amount, date, notes, sale_id
+                    customer_name, contact_number, item_details, quantity, amount, 
+                    payment_type, payment_status, date, notes, sale_id
                 ))
                 
                 # Update corresponding transaction record
