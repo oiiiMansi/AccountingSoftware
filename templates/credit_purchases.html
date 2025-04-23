@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Purchases - KK Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .btn-mark-paid {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-mark-paid:hover {
+            background-color: #45a049;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #ffecb3;
+            color: #8a6d3b;
+        }
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/header_navigation.html' %}
+    
+    <div class="container">
+        <a href="{{ url_for('sales.purchase') }}" class="back-link">← Back to Purchase Options</a>
+        <h1>Credit Purchases</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if credit_purchases %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Details</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Payment Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in credit_purchases %}
+                    <tr>
+                        <td>{{ purchase.vendor_name }}</td>
+                        <td>{{ purchase.details }}</td>
+                        <td>{{ purchase.quantity or 1 }}</td>
+                        <td>₹{{ purchase.amount }}</td>
+                        <td>{{ purchase.date }}</td>
+                        <td>
+                            <span class="status {% if purchase.payment_status == 'Pending' %}status-pending{% else %}status-paid{% endif %}">
+                                {{ purchase.payment_status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if purchase.payment_status == 'Pending' %}
+                            <form action="{{ url_for('sales.mark_purchase_as_paid', purchase_type=purchase.purchase_type, purchase_id=purchase.id) }}" method="POST">
+                                <button type="submit" class="btn-mark-paid" onclick="return confirm('Are you sure you want to mark this purchase as paid?')">Mark as Paid</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No credit purchases found.</p>
+        {% endif %}
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
+    </footer>
+</body>
+</html> 

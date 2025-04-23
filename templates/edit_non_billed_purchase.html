@@ -46,7 +46,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -97,6 +97,14 @@
             <div class="form-group">
                 <label for="amount">Amount (₹):</label>
                 <input type="number" id="amount" name="amount" step="0.01" value="{{ purchase.amount }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_type">Payment Mode:</label>
+                <select id="payment_type" name="payment_type" required>
+                    <option value="Cash" {% if purchase.payment_type == 'Cash' %}selected{% endif %}>Cash</option>
+                    <option value="Credit" {% if purchase.payment_type == 'Credit' %}selected{% endif %}>Credit</option>
+                </select>
             </div>
 
             <div class="form-group">

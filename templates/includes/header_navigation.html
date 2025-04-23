@@ -16,6 +16,11 @@
         </div>
         <div class="dropdown">
             <a href="/purchase">Purchase</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('sales.billed_purchase') }}">Billed Purchase</a>
+                <a href="{{ url_for('sales.non_billed_purchase') }}">Non-Billed Purchase</a>
+                <a href="{{ url_for('sales.credit_purchases') }}">Credit Purchases</a>
+            </div>
         </div>
         <div class="dropdown">
             <a href="#">Accounts</a>

@@ -69,6 +69,24 @@ def create_purchase_table():
             cursor.execute("ALTER TABLE purchases ADD COLUMN quantity INT DEFAULT 1 AFTER amount")
             conn.commit()
             print("Added quantity column to purchases table")
+        
+        # Check if payment_type column exists
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'payment_type'")
+        payment_type_exists = cursor.fetchone()
+        
+        if not payment_type_exists:
+            cursor.execute("ALTER TABLE purchases ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER quantity")
+            conn.commit()
+            print("Added payment_type column to purchases table")
+            
+        # Check if payment_status column exists
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'payment_status'")
+        payment_status_exists = cursor.fetchone()
+        
+        if not payment_status_exists:
+            cursor.execute("ALTER TABLE purchases ADD COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid' AFTER payment_type")
+            conn.commit()
+            print("Added payment_status column to purchases table")
             
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS purchases (
@@ -76,6 +94,8 @@ def create_purchase_table():
             vendor_name VARCHAR(255) NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
             quantity INT DEFAULT 1,
+            payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash',
+            payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid',
             date DATE NOT NULL,
             item_details TEXT NOT NULL,
             notes TEXT,
@@ -103,12 +123,32 @@ def create_billed_purchase_table():
             conn.commit()
             print("Added quantity column to billed_purchases table")
             
+        # Check if payment_type column exists
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'payment_type'")
+        payment_type_exists = cursor.fetchone()
+        
+        if not payment_type_exists:
+            cursor.execute("ALTER TABLE billed_purchases ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER quantity")
+            conn.commit()
+            print("Added payment_type column to billed_purchases table")
+            
+        # Check if payment_status column exists
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'payment_status'")
+        payment_status_exists = cursor.fetchone()
+        
+        if not payment_status_exists:
+            cursor.execute("ALTER TABLE billed_purchases ADD COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid' AFTER payment_type")
+            conn.commit()
+            print("Added payment_status column to billed_purchases table")
+            
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS billed_purchases (
             id INT AUTO_INCREMENT PRIMARY KEY,
             vendor_name VARCHAR(255) NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
             quantity INT DEFAULT 1,
+            payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash',
+            payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid',
             gst_type ENUM('CGST_SGST', 'IGST') DEFAULT 'CGST_SGST',
             gst_percentage DECIMAL(5,2) DEFAULT 18.00,
             date DATE NOT NULL,
@@ -674,6 +714,10 @@ def billed_purchase():
             gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
             date = request.form['date']
             description = request.form.get('description', '')
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
             # Calculate total amount with GST
             total_amount = amount * (1 + gst_percentage/100)
@@ -685,9 +729,9 @@ def billed_purchase():
                 # Insert into billed_purchases table
                 cursor.execute(
                     """INSERT INTO billed_purchases 
-                    (vendor_name, amount, quantity, gst_type, gst_percentage, date, description) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, gst_type, gst_percentage, date, description)
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date, description) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date, description)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -704,7 +748,12 @@ def billed_purchase():
                 
                 # Commit both operations
                 conn.commit()
-                flash("Purchase recorded successfully!", "success")
+                
+                # Show different message based on payment type
+                if payment_type == 'Credit':
+                    flash("Credit purchase recorded successfully!", "success")
+                else:
+                    flash("Purchase recorded successfully!", "success")
             except Exception as e:
                 # Rollback on error
                 conn.rollback()
@@ -743,6 +792,10 @@ def non_billed_purchase():
             date = request.form['date']
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
             # Start transaction
             conn.autocommit = False
@@ -751,9 +804,9 @@ def non_billed_purchase():
                 # Insert into purchases table
                 cursor.execute(
                     """INSERT INTO purchases 
-                    (vendor_name, amount, quantity, date, item_details, notes) 
-                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, date, item_details, notes)
+                    (vendor_name, amount, quantity, payment_type, payment_status, date, item_details, notes) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, payment_type, payment_status, date, item_details, notes)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -770,7 +823,12 @@ def non_billed_purchase():
                 
                 # Commit both operations
                 conn.commit()
-                flash("Purchase recorded successfully!", "success")
+                
+                # Show different message based on payment type
+                if payment_type == 'Credit':
+                    flash("Credit purchase recorded successfully!", "success")
+                else:
+                    flash("Purchase recorded successfully!", "success")
             except Exception as e:
                 # Rollback on error
                 conn.rollback()
@@ -805,6 +863,10 @@ def edit_billed_purchase(purchase_id):
             gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
             date = request.form['date']
             description = request.form.get('description', '')
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
             # Calculate total amount with GST
             total_amount = amount * (1 + gst_percentage/100)
@@ -821,11 +883,14 @@ def edit_billed_purchase(purchase_id):
                         quantity = %s,
                         gst_type = %s,
                         gst_percentage = %s,
+                        payment_type = %s,
+                        payment_status = %s,
                         date = %s,
                         description = %s
                     WHERE id = %s
                 """, (
-                    vendor_name, amount, quantity, gst_type, gst_percentage, date, description, purchase_id
+                    vendor_name, amount, quantity, gst_type, gst_percentage, 
+                    payment_type, payment_status, date, description, purchase_id
                 ))
                 
                 # Update corresponding transaction record
@@ -875,6 +940,10 @@ def edit_non_billed_purchase(purchase_id):
             date = request.form['date']
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
             # Begin transaction
             conn.autocommit = False
@@ -886,12 +955,15 @@ def edit_non_billed_purchase(purchase_id):
                         vendor_name = %s,
                         amount = %s,
                         quantity = %s,
+                        payment_type = %s,
+                        payment_status = %s,
                         date = %s,
                         item_details = %s,
                         notes = %s
                     WHERE id = %s
                 """, (
-                    vendor_name, amount, quantity, date, item_details, notes, purchase_id
+                    vendor_name, amount, quantity, payment_type, payment_status,
+                    date, item_details, notes, purchase_id
                 ))
                 
                 # Update corresponding transaction record
@@ -1244,6 +1316,79 @@ def mark_as_paid(sale_type, sale_id):
         conn.close()
     
     return redirect(url_for('sales.credit_sales'))
+
+# Credit Purchases Route
+@sales.route('/credit_purchases', methods=['GET'])
+@login_required
+def credit_purchases():
+    conn = connect_db()
+    cursor = conn.cursor(dictionary=True)
+    credit_purchases = []
+    
+    try:
+        # Get credit purchases from both tables
+        cursor.execute("""
+            SELECT 
+                'billed_purchase' as purchase_type, 
+                id, 
+                vendor_name, 
+                amount,
+                quantity,
+                date, 
+                payment_status,
+                description as details
+            FROM billed_purchases 
+            WHERE payment_type = 'Credit'
+            
+            UNION
+            
+            SELECT 
+                'purchase' as purchase_type, 
+                id, 
+                vendor_name, 
+                amount,
+                quantity, 
+                date, 
+                payment_status,
+                item_details as details 
+            FROM purchases 
+            WHERE payment_type = 'Credit'
+            
+            ORDER BY date DESC
+        """)
+        credit_purchases = cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('credit_purchases.html', credit_purchases=credit_purchases)
+
+# Mark Credit Purchase as Paid
+@sales.route('/mark_purchase_as_paid/<string:purchase_type>/<int:purchase_id>', methods=['POST'])
+@login_required
+def mark_purchase_as_paid(purchase_type, purchase_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Begin transaction
+        conn.autocommit = False
+        
+        if purchase_type == 'billed_purchase':
+            cursor.execute("UPDATE billed_purchases SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (purchase_id,))
+        elif purchase_type == 'purchase':
+            cursor.execute("UPDATE purchases SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (purchase_id,))
+        
+        conn.commit()
+        flash("Payment status updated successfully!", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error updating payment status: {str(e)}", "error")
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('sales.credit_purchases'))
 
 @sales.route('/test_db_structure', methods=['GET'])
 @login_required
