@@ -259,6 +259,7 @@
                         <th>Vendor</th>
                         <th>Quantity</th>
                         <th>Amount</th>
+                        <th>Payment Mode</th>
                         <th>Date</th>
                         <th>Item Details</th>
                         <th>Actions</th>
@@ -271,6 +272,7 @@
                         <td>{{ purchase.vendor_name }}</td>
                         <td>{{ purchase.quantity or 1 }}</td>
                         <td>₹{{ purchase.amount }}</td>
+                        <td>{{ purchase.payment_type }}</td>
                         <td>{{ purchase.date }}</td>
                         <td>{{ purchase.item_details }}</td>
                         <td class="actions">
