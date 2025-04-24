@@ -157,6 +157,12 @@ def direct_purchase():
                     <p>Record purchases without GST</p>
                     <a href="/sales/non_billed_purchase" class="btn">Go to</a>
                 </div>
+                
+                <div class="card">
+                    <h2>Credit Purchases</h2>
+                    <p>Manage pending credits</p>
+                    <a href="/sales/credit_purchases" class="btn">Go to</a>
+                </div>
             </div>
             
             <a href="/" class="back">← Back to Dashboard</a>

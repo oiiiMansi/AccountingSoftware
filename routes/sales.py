@@ -684,6 +684,12 @@ def purchase():
                     <p>Record simple purchases without GST. Ideal for small vendors or cash purchases.</p>
                     <a href="/sales/non_billed_purchase" class="btn">Go to Non-Billed Purchase</a>
                 </div>
+                
+                <div class="option-card">
+                    <h2>Credit Purchases</h2>
+                    <p>Manage pending credit purchases and mark them as paid.</p>
+                    <a href="/sales/credit_purchases" class="btn">Go to Credit Purchases</a>
+                </div>
             </div>
             
             <a href="/" class="home-link">← Back to Dashboard</a>
