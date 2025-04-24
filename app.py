@@ -210,6 +210,7 @@ def sales_dashboard():
                 justify-content: center;
                 gap: 20px;
                 margin-top: 30px;
+                flex-wrap: wrap;
             }
             .card {
                 background-color: #fff;
@@ -218,6 +219,7 @@ def sales_dashboard():
                 padding: 20px;
                 width: 200px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                margin-bottom: 15px;
             }
             .card h2 {
                 margin-top: 0;
@@ -258,6 +260,12 @@ def sales_dashboard():
                     <h2>Without Billing</h2>
                     <p>Record sales without invoices</p>
                     <a href="/sales/without_billing" class="btn">Go to</a>
+                </div>
+                
+                <div class="card">
+                    <h2>Credit Sales</h2>
+                    <p>Manage pending credit sales</p>
+                    <a href="/sales/credit" class="btn">Go to</a>
                 </div>
             </div>
             
