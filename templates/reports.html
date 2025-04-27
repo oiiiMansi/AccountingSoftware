@@ -26,15 +26,19 @@
             box-sizing: border-box;
         }
         
+        html, body {
+            height: 100%;
+        }
+        
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
-            /* Flex container for footer positioning */
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
         
         /* Header and Navigation Styles */
@@ -105,10 +109,16 @@
         }
 
         /* Main Layout */
-        .main-container {
+        .page-container {
             display: flex;
-            /* Changed to flex-grow: 1 to ensure this takes available space */
-            flex-grow: 1;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .content-wrap {
+            flex: 1;
+            display: flex;
+            margin-top: 10px;
         }
         
         .sidebar {
@@ -117,8 +127,9 @@
             box-shadow: 2px 0 5px rgba(0,0,0,0.05);
             padding: 20px 0;
             position: fixed;
-            height: calc(100vh - 65px);
+            height: calc(100vh - 75px);
             overflow-y: auto;
+            z-index: 100;
         }
         
         .sidebar-menu {
@@ -150,6 +161,7 @@
             flex: 1;
             margin-left: var(--sidebar-width);
             padding: 20px;
+            padding-bottom: 50px;
         }
         
         /* Summary Cards */
@@ -365,15 +377,17 @@
         
         /* Footer Styles */
         .footer {
-            background-color: white;
-            color: var(--gray);
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
             text-align: center;
             padding: 15px 0;
             font-size: 14px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            margin-top: auto;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 999;
             width: 100%;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+            margin-top: auto;
         }
         
         /* Responsive */
@@ -406,6 +420,12 @@
                 display: none;
             }
             
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+            
             .section-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -424,150 +444,151 @@
     </style>
 </head>
 <body>
-    {% include 'includes/header_navigation.html' %}
-    
-    <div class="main-container">
-        <div class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="#summary" class="active" onclick="showReport('summary')"><span>Dashboard</span></a></li>
-                <li><a href="#income-statement" onclick="showReport('income-statement')"><span>Income Statement</span></a></li>
-                <li><a href="#balance-sheet" onclick="showReport('balance-sheet')"><span>Balance Sheet</span></a></li>
-                <li><a href="#cash-flow" onclick="showReport('cash-flow')"><span>Cash Flow</span></a></li>
-                <li><a href="#sales" onclick="showReport('sales')"><span>Sales Report</span></a></li>
-                <li><a href="#expenses" onclick="showReport('expenses')"><span>Expense Report</span></a></li>
-                <li><a href="#receivables" onclick="showReport('receivables')"><span>Accounts Receivable</span></a></li>
-                <li><a href="#payables" onclick="showReport('payables')"><span>Accounts Payable</span></a></li>
-                <li><a href="#salary" onclick="showReport('salary')"><span>Salary Report</span></a></li>
-            </ul>
+    <div class="page-container">
+        {% include 'includes/header_navigation.html' %}
+        
+        <div class="content-wrap">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="#summary" class="active" onclick="showReport('summary')"><span>Dashboard</span></a></li>
+                    <li><a href="#income-statement" onclick="showReport('income-statement')"><span>Income Statement</span></a></li>
+                    <li><a href="#balance-sheet" onclick="showReport('balance-sheet')"><span>Balance Sheet</span></a></li>
+                    <li><a href="#cash-flow" onclick="showReport('cash-flow')"><span>Cash Flow</span></a></li>
+                    <li><a href="#sales" onclick="showReport('sales')"><span>Sales Report</span></a></li>
+                    <li><a href="#expenses" onclick="showReport('expenses')"><span>Expense Report</span></a></li>
+                    <li><a href="#receivables" onclick="showReport('receivables')"><span>Accounts Receivable</span></a></li>
+                    <li><a href="#payables" onclick="showReport('payables')"><span>Accounts Payable</span></a></li>
+                    <li><a href="#salary" onclick="showReport('salary')"><span>Salary Report</span></a></li>
+                </ul>
+            </div>
+            
+            <div class="content">
+                <h1>Financial Reports</h1>
+                
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label class="filter-label">Date Range:</label>
+                        <select id="date-range" class="filter-select" onchange="updateReports()">
+                            <option value="today">Today</option>
+                            <option value="week">Last 7 Days</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group" id="custom-date-range" style="display: none;">
+                        <label class="filter-label">From:</label>
+                        <input type="date" id="start-date" class="date-input">
+                        <label class="filter-label" style="margin-left: 10px;">To:</label>
+                        <input type="date" id="end-date" class="date-input">
+                        <button class="btn btn-primary" style="margin-left: 10px;" onclick="updateReports()">Apply</button>
+                    </div>
+                    
+                    <div class="filter-group" style="margin-left: auto;">
+                        <button class="btn btn-success" onclick="downloadCurrentReport()">
+                            <i class="fas fa-download"></i> Download Report
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Summary Section -->
+                <div id="summary" class="report-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Financial Overview</h2>
+                    </div>
+                    
+                    <div class="summary-cards">
+                        <div class="card summary-card">
+                            <div class="card-title">Total Revenue</div>
+                            <div class="card-value" id="total-revenue">₹0.00</div>
+                            <div class="card-change positive-change">
+                                <i class="fas fa-arrow-up"></i> <span id="revenue-change">0%</span> vs previous period
+                            </div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Total Expenses</div>
+                            <div class="card-value" id="total-expenses">₹0.00</div>
+                            <div class="card-change negative-change">
+                                <i class="fas fa-arrow-up"></i> <span id="expenses-change">0%</span> vs previous period
+                            </div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Net Profit</div>
+                            <div class="card-value" id="net-profit">₹0.00</div>
+                            <div class="card-change positive-change">
+                                <i class="fas fa-arrow-up"></i> <span id="profit-change">0%</span> vs previous period
+                            </div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Accounts Receivable</div>
+                            <div class="card-value" id="accounts-receivable">₹0.00</div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Accounts Payable</div>
+                            <div class="card-value" id="accounts-payable">₹0.00</div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Total Purchases</div>
+                            <div class="card-value" id="total-purchases">₹0.00</div>
+                        </div>
+                        
+                        <div class="card summary-card">
+                            <div class="card-title">Salary Expenses</div>
+                            <div class="card-value" id="total-salary">₹0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="summary-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Other report sections will go here -->
+                <div id="income-statement" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="balance-sheet" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="cash-flow" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="sales" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="expenses" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="receivables" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="payables" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="salary" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+            </div>
         </div>
         
-        <div class="content">
-            <h1>Financial Reports</h1>
-            
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label class="filter-label">Date Range:</label>
-                    <select id="date-range" class="filter-select" onchange="updateReports()">
-                        <option value="today">Today</option>
-                        <option value="week">Last 7 Days</option>
-                        <option value="month" selected>This Month</option>
-                        <option value="quarter">This Quarter</option>
-                        <option value="year">This Year</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group" id="custom-date-range" style="display: none;">
-                    <label class="filter-label">From:</label>
-                    <input type="date" id="start-date" class="date-input">
-                    <label class="filter-label" style="margin-left: 10px;">To:</label>
-                    <input type="date" id="end-date" class="date-input">
-                    <button class="btn btn-primary" style="margin-left: 10px;" onclick="updateReports()">Apply</button>
-                </div>
-                
-                <div class="filter-group" style="margin-left: auto;">
-                    <button class="btn btn-success" onclick="downloadCurrentReport()">
-                        <i class="fas fa-download"></i> Download Report
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Summary Section -->
-            <div id="summary" class="report-section">
-                <div class="section-header">
-                    <h2 class="section-title">Financial Overview</h2>
-                </div>
-                
-                <div class="summary-cards">
-                    <div class="card summary-card">
-                        <div class="card-title">Total Revenue</div>
-                        <div class="card-value" id="total-revenue">₹0.00</div>
-                        <div class="card-change positive-change">
-                            <i class="fas fa-arrow-up"></i> <span id="revenue-change">0%</span> vs previous period
-                        </div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Total Expenses</div>
-                        <div class="card-value" id="total-expenses">₹0.00</div>
-                        <div class="card-change negative-change">
-                            <i class="fas fa-arrow-up"></i> <span id="expenses-change">0%</span> vs previous period
-                        </div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Net Profit</div>
-                        <div class="card-value" id="net-profit">₹0.00</div>
-                        <div class="card-change positive-change">
-                            <i class="fas fa-arrow-up"></i> <span id="profit-change">0%</span> vs previous period
-                        </div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Accounts Receivable</div>
-                        <div class="card-value" id="accounts-receivable">₹0.00</div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Accounts Payable</div>
-                        <div class="card-value" id="accounts-payable">₹0.00</div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Total Purchases</div>
-                        <div class="card-value" id="total-purchases">₹0.00</div>
-                    </div>
-                    
-                    <div class="card summary-card">
-                        <div class="card-title">Salary Expenses</div>
-                        <div class="card-value" id="total-salary">₹0.00</div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <canvas id="summary-chart"></canvas>
-                </div>
-            </div>
-
-            <!-- Other report sections will go here -->
-            <div id="income-statement" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="balance-sheet" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="cash-flow" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="sales" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="expenses" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="receivables" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="payables" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-            
-            <div id="salary" class="report-section" style="display:none;">
-                <!-- Will be filled dynamically -->
-            </div>
-        </div>
+        <footer class="footer">
+            &copy; 2025 KK Enterprises. All Rights Reserved.
+        </footer>
     </div>
-    
-    <!-- Footer -->
-    <footer class="footer">
-        &copy; 2025 KK Enterprises. All Rights Reserved.
-    </footer>
     
     <script>
         // Global variables
