@@ -359,6 +359,10 @@ def download_report():
     """Generate Excel report for download"""
     try:
         report_type = request.form.get("report_type")
+        if not report_type:
+            flash("Report type is required", "danger")
+            return redirect(request.referrer)
+            
         date_range = request.form.get("date_range", "month")
         start_date, end_date = get_date_range(date_range)
         
@@ -397,11 +401,16 @@ def download_report():
         
         output.seek(0)
         
+        # Generate filename with current date
+        filename = f"{report_type}_report_{datetime.now().strftime('%Y%m%d')}.xlsx"
+        
         # Send the Excel file as a download
         return send_file(
             output,
-            download_name=f"{report_type}_report_{datetime.now().strftime('%Y%m%d')}.xlsx",
-            as_attachment=True
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename,
+            max_age=0
         )
     except Exception as e:
         flash(f"Error generating report: {str(e)}", "danger")

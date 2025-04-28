@@ -933,25 +933,34 @@
         
         // Download current report
         function downloadCurrentReport() {
+            // Only allow download for valid report types
+            const downloadableReports = [
+                'income-statement', 'cash-flow', 'sales', 'expenses', 'receivables', 'payables', 'salary'
+            ];
+            if (!downloadableReports.includes(currentReport)) {
+                alert('Please select a specific report tab (not Dashboard) to download.');
+                return;
+            }
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/download-report';
-            
-            // Add report type
+            form.enctype = 'multipart/form-data';
+
+            // Add report type (convert dash to underscore for backend)
             const reportTypeInput = document.createElement('input');
             reportTypeInput.type = 'hidden';
             reportTypeInput.name = 'report_type';
-            reportTypeInput.value = currentReport;
+            reportTypeInput.value = currentReport.replace('-', '_');
             form.appendChild(reportTypeInput);
-            
+
             // Add date range
             const dateRangeInput = document.createElement('input');
             dateRangeInput.type = 'hidden';
             dateRangeInput.name = 'date_range';
             dateRangeInput.value = getDateRangeParam();
             form.appendChild(dateRangeInput);
-            
-            // Submit form
+
             document.body.appendChild(form);
             form.submit();
             document.body.removeChild(form);
