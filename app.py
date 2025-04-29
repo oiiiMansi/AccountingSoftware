@@ -52,6 +52,11 @@ app.register_blueprint(salary)
 app.register_blueprint(employees)
 app.register_blueprint(sales, url_prefix='/sales')  
 
+# Redirect old reports URL to new one
+@app.route("/reports")
+def redirect_reports():
+    return redirect(url_for('reports.show_reports'))
+
 # Home Route
 @app.route("/")
 @login_required

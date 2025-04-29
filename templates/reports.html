@@ -699,8 +699,18 @@
         // Load summary data
         function loadSummaryData(dateRange) {
             fetch(`/api/report/summary?date_range=${dateRange}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        console.error('Error loading summary data:', data.error);
+                        return;
+                    }
+                    
                     summaryData = data;
                     
                     // Update summary cards
@@ -715,7 +725,11 @@
                     // Update summary chart
                     updateSummaryChart(data);
                 })
-                .catch(error => console.error('Error loading summary data:', error));
+                .catch(error => {
+                    console.error('Error loading summary data:', error);
+                    // Show error message to user
+                    alert('Error loading summary data. Please try refreshing the page.');
+                });
         }
         
         // Update summary chart
@@ -792,8 +806,17 @@
             container.innerHTML = '<div class="section-header"><h2 class="section-title">Income Statement</h2></div><p>Loading data...</p>';
             
             fetch(`/api/report/income-statement?date_range=${dateRange}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
                     // Calculate totals
                     let totalRevenue = 0;
                     data.revenue.forEach(item => {
@@ -937,33 +960,59 @@
             const downloadableReports = [
                 'income-statement', 'cash-flow', 'sales', 'expenses', 'receivables', 'payables', 'salary'
             ];
+            
             if (!downloadableReports.includes(currentReport)) {
                 alert('Please select a specific report tab (not Dashboard) to download.');
                 return;
             }
 
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/download-report';
-            form.enctype = 'multipart/form-data';
+            try {
+                console.log('Starting download process...'); // Debug logging
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/reports/download-report'; // Updated to use the correct route
+                
+                // Add report type (convert dash to underscore for backend)
+                const reportTypeInput = document.createElement('input');
+                reportTypeInput.type = 'hidden';
+                reportTypeInput.name = 'report_type';
+                reportTypeInput.value = currentReport.replace(/-/g, '_');
+                form.appendChild(reportTypeInput);
+                console.log('Report type:', reportTypeInput.value); // Debug logging
 
-            // Add report type (convert dash to underscore for backend)
-            const reportTypeInput = document.createElement('input');
-            reportTypeInput.type = 'hidden';
-            reportTypeInput.name = 'report_type';
-            reportTypeInput.value = currentReport.replace('-', '_');
-            form.appendChild(reportTypeInput);
+                // Add date range
+                const dateRangeInput = document.createElement('input');
+                dateRangeInput.type = 'hidden';
+                dateRangeInput.name = 'date_range';
+                dateRangeInput.value = getDateRangeParam();
+                form.appendChild(dateRangeInput);
+                console.log('Date range:', dateRangeInput.value); // Debug logging
 
-            // Add date range
-            const dateRangeInput = document.createElement('input');
-            dateRangeInput.type = 'hidden';
-            dateRangeInput.name = 'date_range';
-            dateRangeInput.value = getDateRangeParam();
-            form.appendChild(dateRangeInput);
+                // Add CSRF token if using Flask-WTF
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (csrfToken) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+                }
 
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+                // Submit the form
+                document.body.appendChild(form);
+                console.log('Submitting form...'); // Debug logging
+                form.submit();
+                
+                // Remove the form after a short delay
+                setTimeout(() => {
+                    document.body.removeChild(form);
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error in downloadCurrentReport:', error);
+                alert('Error downloading report. Please check the console for details and try again.');
+            }
         }
         
         // Additional report loading functions
