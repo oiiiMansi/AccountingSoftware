@@ -228,6 +228,7 @@
             padding: 25px;
             margin-bottom: 30px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
         
         .section-header {
@@ -249,6 +250,7 @@
             display: flex;
             gap: 15px;
             margin-bottom: 25px;
+            transition: all 0.3s ease;
         }
         
         .filter-group {
@@ -278,9 +280,40 @@
             cursor: pointer;
             text-align: center;
             border: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-family: inherit;
             font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
         }
         
         .btn-primary {
@@ -441,6 +474,61 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Add new styles for interactive elements */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4361ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .report-section.loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -590,6 +678,14 @@
         </footer>
     </div>
     
+    <!-- Add loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Add toast notification -->
+    <div class="toast" id="toast"></div>
+    
     <script>
         // Global variables
         let currentReport = 'summary';
@@ -611,6 +707,36 @@
             
             // Initialize with summary data
             updateReports();
+
+            // Add hover effects to cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add click effects to buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.classList.add('active');
+                    setTimeout(() => {
+                        this.classList.remove('active');
+                    }, 200);
+                });
+            });
+
+            // Add smooth scrolling for sidebar links
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    showReport(targetId);
+                });
+            });
         });
         
         // Show selected report section
@@ -626,7 +752,9 @@
             });
             
             // Show selected report section
-            document.getElementById(reportId).style.display = 'block';
+            const selectedSection = document.getElementById(reportId);
+            selectedSection.style.display = 'block';
+            selectedSection.classList.add('loading');
             
             // Add active class to selected menu item
             document.querySelector(`.sidebar-menu a[href="#${reportId}"]`).classList.add('active');
@@ -665,6 +793,11 @@
         // Update all reports based on filters
         function updateReports() {
             const dateRange = getDateRangeParam();
+            const currentSection = document.getElementById(currentReport);
+            
+            // Show loading state
+            currentSection.classList.add('loading');
+            document.querySelector('.filter-controls').classList.add('loading');
             
             // Load data based on current report
             switch (currentReport) {
@@ -698,6 +831,8 @@
         
         // Load summary data
         function loadSummaryData(dateRange) {
+            showLoading();
+            
             fetch(`/api/report/summary?date_range=${dateRange}`)
                 .then(response => {
                     if (!response.ok) {
@@ -707,28 +842,47 @@
                 })
                 .then(data => {
                     if (data.error) {
-                        console.error('Error loading summary data:', data.error);
-                        return;
+                        throw new Error(data.error);
                     }
                     
                     summaryData = data;
                     
-                    // Update summary cards
-                    document.getElementById('total-revenue').textContent = formatCurrency(data.total_revenue);
-                    document.getElementById('total-expenses').textContent = formatCurrency(data.total_expenses);
-                    document.getElementById('net-profit').textContent = formatCurrency(data.net_profit);
-                    document.getElementById('accounts-receivable').textContent = formatCurrency(data.accounts_receivable);
-                    document.getElementById('accounts-payable').textContent = formatCurrency(data.accounts_payable);
-                    document.getElementById('total-purchases').textContent = formatCurrency(data.total_purchases);
-                    document.getElementById('total-salary').textContent = formatCurrency(data.total_salary);
+                    // Update summary cards with animation
+                    const cards = [
+                        { id: 'total-revenue', value: data.total_revenue },
+                        { id: 'total-expenses', value: data.total_expenses },
+                        { id: 'net-profit', value: data.net_profit },
+                        { id: 'accounts-receivable', value: data.accounts_receivable },
+                        { id: 'accounts-payable', value: data.accounts_payable },
+                        { id: 'total-purchases', value: data.total_purchases },
+                        { id: 'total-salary', value: data.total_salary }
+                    ];
+                    
+                    cards.forEach(card => {
+                        const element = document.getElementById(card.id);
+                        if (element) {
+                            element.style.opacity = '0';
+                            setTimeout(() => {
+                                element.textContent = formatCurrency(card.value);
+                                element.style.opacity = '1';
+                            }, 100);
+                        }
+                    });
                     
                     // Update summary chart
                     updateSummaryChart(data);
+                    
+                    // Show success message
+                    showToast('Data updated successfully');
                 })
                 .catch(error => {
                     console.error('Error loading summary data:', error);
-                    // Show error message to user
-                    alert('Error loading summary data. Please try refreshing the page.');
+                    showToast('Error loading data. Please try again.', 'error');
+                })
+                .finally(() => {
+                    hideLoading();
+                    document.getElementById('summary').classList.remove('loading');
+                    document.querySelector('.filter-controls').classList.remove('loading');
                 });
         }
         
@@ -962,24 +1116,25 @@
             ];
             
             if (!downloadableReports.includes(currentReport)) {
-                alert('Please select a specific report tab (not Dashboard) to download.');
+                showToast('Please select a specific report tab (not Dashboard) to download.', 'error');
                 return;
             }
 
             try {
-                console.log('Starting download process...'); // Debug logging
+                showLoading();
+                console.log('Starting download process...');
                 
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/reports/download-report'; // Updated to use the correct route
+                form.action = '/reports/download-report';
                 
-                // Add report type (convert dash to underscore for backend)
+                // Add report type
                 const reportTypeInput = document.createElement('input');
                 reportTypeInput.type = 'hidden';
                 reportTypeInput.name = 'report_type';
                 reportTypeInput.value = currentReport.replace(/-/g, '_');
                 form.appendChild(reportTypeInput);
-                console.log('Report type:', reportTypeInput.value); // Debug logging
+                console.log('Report type:', reportTypeInput.value);
 
                 // Add date range
                 const dateRangeInput = document.createElement('input');
@@ -987,7 +1142,7 @@
                 dateRangeInput.name = 'date_range';
                 dateRangeInput.value = getDateRangeParam();
                 form.appendChild(dateRangeInput);
-                console.log('Date range:', dateRangeInput.value); // Debug logging
+                console.log('Date range:', dateRangeInput.value);
 
                 // Add CSRF token if using Flask-WTF
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -1001,17 +1156,19 @@
 
                 // Submit the form
                 document.body.appendChild(form);
-                console.log('Submitting form...'); // Debug logging
+                console.log('Submitting form...');
                 form.submit();
                 
                 // Remove the form after a short delay
                 setTimeout(() => {
                     document.body.removeChild(form);
+                    hideLoading();
                 }, 1000);
                 
             } catch (error) {
                 console.error('Error in downloadCurrentReport:', error);
-                alert('Error downloading report. Please check the console for details and try again.');
+                showToast('Error downloading report. Please try again.', 'error');
+                hideLoading();
             }
         }
         
@@ -1039,6 +1196,26 @@
         
         function loadSalaryReport() {
             // Implementation coming soon
+        }
+
+        // Add new utility functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
