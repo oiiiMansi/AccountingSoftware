@@ -40,6 +40,11 @@ login_manager.login_message = "Please log in to access this page."
 login_manager.login_message_category = "warning"
 login_manager.user_loader(load_user)
 
+# Context processor to make current_user available in all templates
+@app.context_processor
+def inject_user():
+    return dict(current_user=current_user)
+
 # Register Blueprints
 app.register_blueprint(auth)
 app.register_blueprint(billing, url_prefix='')

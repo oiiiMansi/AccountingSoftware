@@ -1,0 +1,27 @@
+{% macro has_permission(role) %}
+    {% if current_user and current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+            true
+        {% elif current_user.role == 'accountant' and role in ['accountant', 'viewer'] %}
+            true
+        {% elif current_user.role == 'viewer' and role == 'viewer' %}
+            true
+        {% else %}
+            false
+        {% endif %}
+    {% else %}
+        false
+    {% endif %}
+{% endmacro %}
+
+{% macro show_for_role(role) %}
+    {% if has_permission(role) %}
+        {{ caller() }}
+    {% endif %}
+{% endmacro %}
+
+{% macro hide_for_role(role) %}
+    {% if not has_permission(role) %}
+        {{ caller() }}
+    {% endif %}
+{% endmacro %} 

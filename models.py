@@ -17,6 +17,18 @@ class User(UserMixin):
         self.username = username
         self.role = role
 
+    def is_admin(self):
+        return self.role == 'admin'
+
+    def is_accountant(self):
+        return self.role == 'accountant'
+
+    def is_viewer(self):
+        return self.role == 'viewer'
+
+    def has_role(self, role):
+        return self.role == role
+
 # User loader function for Flask-Login (Fixing RecursionError)
 def load_user(user_id):
     conn = connect_db()

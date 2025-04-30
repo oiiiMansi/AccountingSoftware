@@ -1,9 +1,13 @@
+{% from 'macros.html' import show_for_role %}
+
 <header>
     <div class="logo">KK Enterprises</div>
     <nav>
         <div class="dropdown">
             <a href="/" class="nav-link">Dashboard</a>
         </div>
+        
+        {% call show_for_role('accountant') %}
         <div class="dropdown">
             <a href="/sales" class="nav-link">Sales</a>
             <div class="dropdown-content">
@@ -14,6 +18,9 @@
                 <a href="{{ url_for('reports.show_reports') }}">Reports</a>
             </div>
         </div>
+        {% endcall %}
+        
+        {% call show_for_role('accountant') %}
         <div class="dropdown">
             <a href="/purchase" class="nav-link">Purchase</a>
             <div class="dropdown-content">
@@ -22,14 +29,23 @@
                 <a href="{{ url_for('sales.credit_purchases') }}">Credit Purchases</a>
             </div>
         </div>
+        {% endcall %}
+        
         <div class="dropdown">
             <a href="#" class="nav-link">Accounts</a>
             <div class="dropdown-content">
+                {% call show_for_role('accountant') %}
                 <a href="/expenses">Expenses</a>
                 <a href="/transactions">Transactions</a>
                 <a href="/salary">Salary</a>
+                {% endcall %}
+                {% call show_for_role('viewer') %}
+                <a href="/reports">Reports</a>
+                {% endcall %}
             </div>
         </div>
+        
+        {% call show_for_role('accountant') %}
         <div class="dropdown">
             <a href="#" class="nav-link">Management</a>
             <div class="dropdown-content">
@@ -37,6 +53,8 @@
                 <a href="/employees">Employees</a>
             </div>
         </div>
+        {% endcall %}
+        
         <div class="dropdown">
             <a href="/logout" class="nav-link">Logout</a>
         </div>

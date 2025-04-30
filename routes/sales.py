@@ -4,6 +4,7 @@ import mysql.connector
 from decimal import Decimal
 from datetime import datetime
 import logging
+from rbac import accountant_required, viewer_required
 
 # Define the Blueprint for sales
 sales = Blueprint('sales', __name__)
@@ -166,6 +167,7 @@ def create_billed_purchase_table():
 # Billing Route (GET and POST)
 @sales.route('/billing', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def billing():
     # Ensure table has required columns
     update_bills_table()
@@ -268,6 +270,7 @@ def billing():
 # Without Billing Route (GET and POST)
 @sales.route('/without_billing', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def without_billing():
     # Ensure tables exist with proper schema
     create_non_billed_sales_table()
@@ -371,6 +374,7 @@ def without_billing():
 # Delete non-billed sale
 @sales.route('/delete_non_billed_sale/<int:sale_id>', methods=['GET'])
 @login_required
+@accountant_required
 def delete_non_billed_sale(sale_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -400,6 +404,7 @@ def delete_non_billed_sale(sale_id):
 # Edit non-billed sale
 @sales.route('/edit_non_billed_sale/<int:sale_id>', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def edit_non_billed_sale(sale_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -474,6 +479,7 @@ def edit_non_billed_sale(sale_id):
 # Delete a bill
 @sales.route('/delete_bill/<int:bill_id>', methods=['GET'])
 @login_required
+@accountant_required
 def delete_bill(bill_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -503,6 +509,7 @@ def delete_bill(bill_id):
 # Edit a bill
 @sales.route('/edit_bill/<int:bill_id>', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def edit_bill(bill_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -701,6 +708,7 @@ def purchase():
 # Billed Purchase Route (with GST)
 @sales.route('/billed_purchase', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def billed_purchase():
     # Ensure tables exist with proper schema
     create_billed_purchase_table()
@@ -780,6 +788,7 @@ def billed_purchase():
 # Non-Billed Purchase Route (without GST)
 @sales.route('/non_billed_purchase', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def non_billed_purchase():
     # Ensure tables exist with proper schema
     create_purchase_table()
@@ -855,6 +864,7 @@ def non_billed_purchase():
 # Edit billed purchase
 @sales.route('/edit_billed_purchase/<int:purchase_id>', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def edit_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -933,6 +943,7 @@ def edit_billed_purchase(purchase_id):
 # Edit non-billed purchase
 @sales.route('/edit_non_billed_purchase/<int:purchase_id>', methods=['GET', 'POST'])
 @login_required
+@accountant_required
 def edit_non_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -1133,6 +1144,7 @@ def update_bills_table():
 # Delete billed purchase
 @sales.route('/delete_billed_purchase/<int:purchase_id>', methods=['GET'])
 @login_required
+@accountant_required
 def delete_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -1162,6 +1174,7 @@ def delete_billed_purchase(purchase_id):
 # Delete non-billed purchase
 @sales.route('/delete_non_billed_purchase/<int:purchase_id>', methods=['GET'])
 @login_required
+@accountant_required
 def delete_non_billed_purchase(purchase_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -1254,9 +1267,10 @@ def update_sales_tables():
         cursor.close()
         conn.close()
 
-# Credit Sales Route
+# Credit Sales Route (View Only)
 @sales.route('/credit', methods=['GET'])
 @login_required
+@viewer_required
 def credit_sales():
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -1299,6 +1313,7 @@ def credit_sales():
 # Mark Credit Sale as Paid
 @sales.route('/mark_as_paid/<string:sale_type>/<int:sale_id>', methods=['POST'])
 @login_required
+@accountant_required
 def mark_as_paid(sale_type, sale_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -1326,6 +1341,7 @@ def mark_as_paid(sale_type, sale_id):
 # Credit Purchases Route
 @sales.route('/credit_purchases', methods=['GET'])
 @login_required
+@accountant_required
 def credit_purchases():
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -1372,6 +1388,7 @@ def credit_purchases():
 # Mark Credit Purchase as Paid
 @sales.route('/mark_purchase_as_paid/<string:purchase_type>/<int:purchase_id>', methods=['POST'])
 @login_required
+@accountant_required
 def mark_purchase_as_paid(purchase_type, purchase_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -1398,6 +1415,7 @@ def mark_purchase_as_paid(purchase_type, purchase_id):
 
 @sales.route('/test_db_structure', methods=['GET'])
 @login_required
+@accountant_required
 def test_db_structure():
     """A diagnostic route to check database structure"""
     conn = connect_db()
