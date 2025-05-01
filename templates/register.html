@@ -1,44 +1,321 @@
 {% extends "base.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Register - KK Enterprises{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 150px);
+        padding: 20px 15px;
+    }
+    
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .auth-header {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+    }
+    
+    .auth-header h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .auth-body {
+        padding: 35px 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+        width: 100%;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 500;
+        color: #444;
+        font-size: 15px;
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: #ffa500;
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.15);
+    }
+    
+    .input-group {
+        position: relative;
+        width: 100%;
+    }
+    
+    .input-group input {
+        padding-right: 45px;
+        width: 100%;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #666;
+        padding: 8px;
+        font-size: 16px;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+    }
+    
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #ff8c00, #ffa500);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255, 165, 0, 0.25);
+    }
+    
+    .auth-footer {
+        text-align: center;
+        padding: 20px 30px;
+        background: #f9f9f9;
+        border-top: 1px solid #eee;
+    }
+    
+    .auth-footer p {
+        margin: 0;
+        color: #555;
+        font-size: 15px;
+    }
+    
+    .auth-footer a {
+        color: #ffa500;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+        margin-left: 5px;
+    }
+    
+    .auth-footer a:hover {
+        color: #ff8c00;
+        text-decoration: underline;
+    }
+    
+    .role-icons {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+    
+    .role-option {
+        flex: 1;
+        text-align: center;
+        padding: 15px 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 0 6px;
+        transition: all 0.3s;
+    }
+    
+    .role-option:hover {
+        background-color: #f8f8f8;
+    }
+    
+    .role-option.selected {
+        border-color: #ffa500;
+        background-color: rgba(255, 165, 0, 0.1);
+    }
+    
+    .role-option i {
+        font-size: 26px;
+        color: #ffa500;
+        margin-bottom: 12px;
+        display: block;
+    }
+    
+    .role-option span {
+        display: block;
+        font-weight: 500;
+        color: #555;
+    }
+    
+    /* Custom flash message styles for auth pages */
+    .flash-container {
+        position: fixed;
+        top: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        min-width: 320px;
+        max-width: 90%;
+    }
+    
+    .flash-message {
+        padding: 16px 22px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        display: flex;
+        align-items: center;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .flash-message.success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+    }
+    
+    .flash-message.danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+    
+    .flash-message.warning {
+        background-color: #ffc107;
+        color: #333;
+        border: none;
+    }
+    
+    .flash-message:before {
+        content: "!";
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+    
+    .flash-message.success:before {
+        content: "✓";
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Input field highlight color */
+    input:focus, select:focus {
+        outline-color: #ffa500;
+    }
+    
+    /* Fix form field width */
+    form {
+        width: 100%;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h2 class="text-center mb-0">Register</h2>
+<!-- Flash messages with new styling -->
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+        </div>
+        <div class="auth-body">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autofocus>
                 </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="">Select a role</option>
-                                <option value="viewer">Viewer</option>
-                                <option value="accountant">Accountant</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Register</button>
-                        </div>
-                    </form>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" required>
+                        <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                    </div>
                 </div>
-                <div class="card-footer text-center">
-                    <p class="mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+                <div class="form-group">
+                    <label for="role">Select Role</label>
+                    <select id="role" name="role" required>
+                        <option value="">Choose a role</option>
+                        <option value="viewer">Viewer</option>
+                        <option value="accountant">Accountant</option>
+                        <option value="admin">Administrator</option>
+                    </select>
                 </div>
-            </div>
+                <button type="submit" class="submit-btn">Register</button>
+            </form>
+        </div>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+    }
+    
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s ease-out';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            });
+        }, 5000);
+    });
+</script>
 {% endblock %} 
