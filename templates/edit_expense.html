@@ -1,102 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Expense</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-            animation: fadeIn 1s ease-in-out;
+{% extends "base.html" %}
+
+{% block title %}Edit Expense - KK Enterprises{% endblock %}
+
+{% block additional_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .edit-expense-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .edit-header {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+    }
+    
+    .edit-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .edit-body {
+        padding: 30px;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
         }
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #444;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #ffa500;
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.15);
+    }
+    
+    .btn-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .btn {
+        padding: 14px 20px;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
+        border: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #ff8c00, #ffa500);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.25);
+    }
+    
+    .btn-secondary {
+        background: #f4f4f4;
+        color: #444;
+    }
+    
+    .btn-secondary:hover {
+        background: #e0e0e0;
+    }
+    
+    .expense-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .category-option {
+        padding: 8px 12px;
+        background-color: #f4f4f4;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .category-option:hover, .category-option.active {
+        background-color: #ffa500;
+        color: white;
+    }
+</style>
+{% endblock %}
 
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: slideInUp 1s ease-in-out;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-            font-size: 16px;
-            transition: 0.3s ease-in-out;
-        }
-
-        input:focus {
-            border-color: #ffa500;
-            outline: none;
-            box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
-        }
-
-        button {
-            padding: 12px;
-            background: #ffa500;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s ease-in-out;
-        }
-
-        button:hover {
-            background: #333;
-            transform: scale(1.05);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <h2>Edit Expense</h2>
-
+{% block content %}
+<div class="edit-expense-container">
+    <div class="edit-header">
+        <h2><i class="fas fa-edit"></i> Edit Expense</h2>
+    </div>
+    
+    <div class="edit-body">
         <form method="POST">
-            <input type="text" name="expense_name" placeholder="Expense Name" value="{{ expense.expense_name }}" required>
-            <input type="number" name="amount" placeholder="Amount" value="{{ expense.amount }}" required>
-            <input type="text" name="category" placeholder="Category" value="{{ expense.category }}" required>
-            <input type="number" name="gst" placeholder="GST (in ₹)" value="{{ expense.gst }}" step="0.01">
-            <input type="date" name="date" placeholder="date" value="{{ expense.date }}">
-            <button type="submit">Update Expense</button>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expense_name">Expense Name</label>
+                    <input type="text" name="expense_name" id="expense_name" class="form-control" value="{{ expense.expense_name }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Amount (₹)</label>
+                    <input type="number" name="amount" id="amount" class="form-control" value="{{ expense.amount }}" required step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select Category</option>
+                        <option value="Office Supplies" {% if expense.category == 'Office Supplies' %}selected{% endif %}>Office Supplies</option>
+                        <option value="Utilities" {% if expense.category == 'Utilities' %}selected{% endif %}>Utilities</option>
+                        <option value="Rent" {% if expense.category == 'Rent' %}selected{% endif %}>Rent</option>
+                        <option value="Salaries" {% if expense.category == 'Salaries' %}selected{% endif %}>Salaries</option>
+                        <option value="Travel" {% if expense.category == 'Travel' %}selected{% endif %}>Travel</option>
+                        <option value="Maintenance" {% if expense.category == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                        <option value="Marketing" {% if expense.category == 'Marketing' %}selected{% endif %}>Marketing</option>
+                        {% if expense.category and expense.category not in ['Office Supplies', 'Utilities', 'Rent', 'Salaries', 'Travel', 'Maintenance', 'Marketing', 'Other'] %}
+                            <option value="{{ expense.category }}" selected>{{ expense.category }}</option>
+                        {% endif %}
+                        <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gst">GST (₹)</label>
+                    <input type="number" name="gst" id="gst" class="form-control" value="{{ expense.gst }}" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" name="date" id="date" class="form-control" value="{{ expense.date }}">
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <a href="{{ url_for('expenses.expenses_page') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Expense
+                </button>
+            </div>
         </form>
     </div>
+</div>
 
-</body>
-</html>
+<script>
+    // Auto-calculate GST (18%) when amount changes
+    document.getElementById('amount').addEventListener('input', function() {
+        const amount = parseFloat(this.value) || 0;
+        const gst = Math.round(amount * 0.18 * 100) / 100; // 18% GST rounded to 2 decimal places
+        document.getElementById('gst').value = gst;
+    });
+</script>
+{% endblock %}

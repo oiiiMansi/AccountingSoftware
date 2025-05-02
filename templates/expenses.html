@@ -1,327 +1,793 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expenses - KK Enterprises</title>
+{% block title %}Expense Management - KK Enterprises{% endblock %}
 
-    <!-- Google Font: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
-            animation: fadeIn 1s ease-in-out;
+{% block additional_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .expense-dashboard {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .expense-dashboard {
+            grid-template-columns: 1fr;
         }
-
-        /* Header Styles */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #333, #555);
-            color: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            animation: slideInDown 1s ease-in-out;
+    }
+    
+    .card {
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stats-card {
+        background: linear-gradient(to right, #ffa500, #ff8c00);
+        color: white;
+        text-align: center;
+    }
+    
+    .stats-card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    
+    .stats-card .value {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .stats-card .change {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .add-expense-card {
+        background-color: white;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #444;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: 'Poppins', sans-serif;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #ffa500;
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.15);
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        background: linear-gradient(to right, #ffa500, #ff8c00);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn:hover {
+        background: linear-gradient(to right, #ff8c00, #ffa500);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.25);
+    }
+    
+    .btn-block {
+        width: 100%;
+    }
+    
+    .expense-table-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .expense-table-header {
+        background: linear-gradient(to right, #ffa500, #ff8c00);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .expense-table-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    
+    .expense-filters {
+        display: flex;
+        gap: 10px;
+        padding: 15px 20px;
+        background-color: #f8f8f8;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .expense-table th {
+        background-color: #f4f4f4;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 500;
+        color: #444;
+        border-bottom: 2px solid #ffa500;
+    }
+    
+    .expense-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .expense-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .category-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        background-color: #ffa500;
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .action-btns {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .action-btn {
+        padding: 6px;
+        border-radius: 4px;
+        background-color: #f4f4f4;
+        color: #444;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+    
+    .action-btn:hover {
+        background-color: #ffa500;
+        color: white;
+    }
+    
+    .action-btn.edit:hover {
+        background-color: #28a745;
+    }
+    
+    .action-btn.delete:hover {
+        background-color: #dc3545;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 20px;
+    }
+    
+    .pagination-btn {
+        padding: 8px 12px;
+        border-radius: 4px;
+        background-color: #f4f4f4;
+        color: #444;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+    
+    .pagination-btn:hover, .pagination-btn.active {
+        background-color: #ffa500;
+        color: white;
+    }
+    
+    .expense-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .summary-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .summary-card h3 {
+        margin-top: 0;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+    
+    .summary-card .value {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .text-danger { color: #dc3545; }
+    .text-success { color: #28a745; }
+    
+    .modal-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+    
+    .modal-bg.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal {
+        background-color: white;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        overflow: hidden;
+        transform: translateY(-20px);
+        transition: all 0.3s;
+    }
+    
+    .modal-bg.active .modal {
+        transform: translateY(0);
+    }
+    
+    .modal-header {
+        background: linear-gradient(to right, #ffa500, #ff8c00);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    
+    .modal-close {
+        cursor: pointer;
+        font-size: 20px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .expense-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .category-option {
+        padding: 8px 12px;
+        background-color: #f4f4f4;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .category-option:hover, .category-option.active {
+        background-color: #ffa500;
+        color: white;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .expense-summary {
+            grid-template-columns: 1fr;
         }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 1px;
+        
+        .form-grid {
+            grid-template-columns: 1fr;
         }
-
-        nav {
-            display: flex;
-            gap: 20px;
+        
+        .form-group.full-width {
+            grid-column: span 1;
         }
+    }
+</style>
+{% endblock %}
 
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+{% block content %}
+<h1>Expense Management</h1>
 
-        .dropdown a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 10px;
-            transition: 0.3s ease-in-out;
-        }
-
-        .dropdown a:hover {
-            color: #ffa500;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            padding: 10px 0;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease-in-out;
-            z-index: 100;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 15px;
-            display: block;
-            text-decoration: none;
-            transition: 0.3s ease-in-out;
-        }
-
-        .dropdown-content a:hover {
-            background: #ffa500;
-            color: white;
-        }
-
-        /* End Header Styles */
-
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: slideInUp 1s ease-in-out;
-        }
-
-        h2,
-        h3 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .flash-message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .success {
-            background: #28a745;
-            color: white;
-        }
-
-        .error {
-            background: #dc3545;
-            color: white;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-            font-size: 16px;
-            transition: 0.3s ease-in-out;
-        }
-
-        input:focus {
-            border-color: #ffa500;
-            outline: none;
-            box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
-        }
-
-        button {
-            padding: 12px;
-            background: #ffa500;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s ease-in-out;
-        }
-
-        button:hover {
-            background: #333;
-            transform: scale(1.05);
-        }
-
-        .expense-list {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1.2s ease-in-out;
-        }
-
-        .expense-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .expense-item:last-child {
-            border-bottom: none;
-        }
-
-        .category-badge {
-            background: #ffa500;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .actions {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .actions a {
-            text-decoration: none;
-            background: #ffa500;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin: 5px;
-            display: inline-block;
-            transition: 0.3s ease-in-out;
-        }
-
-        .actions a:hover {
-            background: #333;
-            transform: scale(1.05);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        footer {
-            background: linear-gradient(135deg, #333, #555);
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-            font-size: 14px;
-            animation: slideInUp 1s ease-in-out;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-container p {
-            margin: 5px 0;
-        }
-    </style>
-</head>
-
-<body>
-    {% include 'includes/header_navigation.html' %}
-
-    <div class="container">
-        <h2>Expense Management</h2>
-
-        {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
         {% for category, message in messages %}
-        <p class="flash-message {{ category }}">{{ message }}</p>
+            <div class="flash-message {{ category }} fade-in">{{ message }}</div>
         {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Expense Summary -->
+<div class="expense-summary">
+    <div class="summary-card">
+        <h3>Current Month</h3>
+        <div class="value">₹{{ current_month_total }}</div>
+    </div>
+    <div class="summary-card">
+        <h3>Previous Month</h3>
+        <div class="value">₹{{ previous_month_total }}</div>
+        
+        {% if month_change > 0 %}
+            <small class="text-danger">↑ {{ month_change }}% increase</small>
+        {% elif month_change < 0 %}
+            <small class="text-success">↓ {{ month_change|abs }}% decrease</small>
+        {% else %}
+            <small>No change</small>
         {% endif %}
-        {% endwith %}
+    </div>
+    <div class="summary-card">
+        <h3>Total Expenses (YTD)</h3>
+        <div class="value">₹{{ ytd_total }}</div>
+    </div>
+</div>
 
-        <form method="POST">
-            <input type="text" name="expense_name" placeholder="Expense Name" required>
-            <input type="number" name="amount" placeholder="Amount" required>
-            <input type="text" name="category" placeholder="Category" required>
-            <input type="number" name="gst" placeholder="GST (in ₹)" step="0.01">
-            <input type="date" name="date" placeholder="date">
-            <button type="submit">Add Expense</button>
-        </form>
-
-        <div class="expense-list">
-            <h3>Expense List</h3>
-            {% for expense in expenses %}
-            <div class="expense-item">
-                <span>
-                    {{ expense.date }} - {{ expense.expense_name }} - ₹{{ expense.amount }}
-                    (GST: ₹{{ expense.gst }})
-                </span>
-                <span class="category-badge">{{ expense.category }}</span>
-                <span>
-                    <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}">✏️</a>
-                    <a href="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}"
-                        onclick="return confirm('Are you sure?')">🗑️</a>
-                </span>
+<!-- Expense Dashboard -->
+<div class="expense-dashboard">
+    <div class="card add-expense-card">
+        <h3>Add New Expense</h3>
+        <form method="POST" id="expenseForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="expense_name">Expense Name</label>
+                    <input type="text" name="expense_name" id="expense_name" class="form-control" required placeholder="e.g. Office Supplies">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount (₹)</label>
+                    <input type="number" name="amount" id="amount" class="form-control" required placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select Category</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Salaries">Salaries</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gst">GST (₹)</label>
+                    <input type="number" name="gst" id="gst" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" name="date" id="date" class="form-control" value="{{ today_date }}">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-block"><i class="fas fa-plus"></i> Add Expense</button>
+                </div>
             </div>
-            {% endfor %}
-        </div>
+        </form>
+    </div>
+    
+    <div class="card stats-card">
+        <div id="expenseChart" style="width: 100%; height: 250px;"></div>
+    </div>
+</div>
 
-        <div class="actions">
-            <a href="{{ url_for('expenses.expenses_page') }}">Refresh</a>
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
+<!-- Expense Table -->
+<div class="expense-table-container">
+    <div class="expense-table-header">
+        <h3>Expense Records</h3>
+        <div>
+            <button id="downloadBtn" class="btn"><i class="fas fa-download"></i> Export</button>
         </div>
     </div>
-    <footer>
-        <div class="footer-container">
-            <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
-        </div>
-    </footer>
-</body>
+    
+    <div class="expense-filters">
+        <input type="text" id="searchExpense" class="form-control" placeholder="Search expenses...">
+        <select id="categoryFilter" class="form-control">
+            <option value="">All Categories</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Rent">Rent</option>
+            <option value="Salaries">Salaries</option>
+            <option value="Travel">Travel</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Other">Other</option>
+        </select>
+        <select id="dateFilter" class="form-control">
+            <option value="">All Time</option>
+            <option value="this-month">This Month</option>
+            <option value="last-month">Last Month</option>
+            <option value="this-year">This Year</option>
+        </select>
+    </div>
+    
+    <div id="expenseTableContainer" style="max-height: 400px; overflow-y: auto;">
+        <table class="expense-table" id="expenseTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Expense</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>GST</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr data-expense-id="{{ expense.id }}" data-category="{{ expense.category }}">
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.expense_name }}</td>
+                    <td><span class="category-badge">{{ expense.category }}</span></td>
+                    <td>₹{{ expense.amount }}</td>
+                    <td>₹{{ expense.gst }}</td>
+                    <td class="action-btns">
+                        <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}" class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" onclick="confirmDelete({{ expense.id }})" class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="pagination" id="pagination">
+        <!-- Pagination buttons will be added dynamically -->
+    </div>
+</div>
 
-</html>
+<!-- Delete Confirmation Modal -->
+<div class="modal-bg" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete this expense? This action cannot be undone.</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn" style="background: #f4f4f4; color: #444;" onclick="closeModal()">Cancel</button>
+                <a href="#" id="confirmDeleteBtn" class="btn" style="background: #dc3545;">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    // Chart initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Expense data for chart
+        const categories = [
+            {% for category in expense_categories %}
+                "{{ category }}",
+            {% endfor %}
+        ];
+        
+        const amounts = [
+            {% for amount in category_totals %}
+                {{ amount }},
+            {% endfor %}
+        ];
+        
+        const options = {
+            series: [{
+                name: 'Expenses',
+                data: amounts
+            }],
+            chart: {
+                type: 'bar',
+                height: 250,
+                width: '100%',
+                toolbar: {
+                    show: false
+                },
+                fontFamily: 'Poppins, sans-serif'
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: '55%',
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            colors: ['#ffffff'],
+            xaxis: {
+                categories: categories,
+                labels: {
+                    style: {
+                        colors: '#ffffff'
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: '#ffffff'
+                    },
+                    formatter: function (value) {
+                        return '₹' + value;
+                    }
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                y: {
+                    formatter: function (value) {
+                        return '₹' + value;
+                    }
+                }
+            },
+            title: {
+                text: 'Expenses by Category',
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    color: '#ffffff'
+                }
+            }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#expenseChart"), options);
+        chart.render();
+        
+        // Table search and filter functionality
+        const searchInput = document.getElementById('searchExpense');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const expenseTable = document.getElementById('expenseTable');
+        const tableRows = expenseTable.querySelectorAll('tbody tr');
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            const selectedDateFilter = dateFilter.value;
+            
+            let visibleRows = 0;
+            
+            tableRows.forEach(row => {
+                const expenseName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const category = row.getAttribute('data-category');
+                const date = new Date(row.querySelector('td:nth-child(1)').textContent);
+                
+                // Check if row matches all filters
+                let showRow = expenseName.includes(searchTerm);
+                
+                if (selectedCategory && category !== selectedCategory) {
+                    showRow = false;
+                }
+                
+                if (selectedDateFilter) {
+                    const now = new Date();
+                    const thisMonth = now.getMonth();
+                    const thisYear = now.getFullYear();
+                    
+                    if (selectedDateFilter === 'this-month' && 
+                        (date.getMonth() !== thisMonth || date.getFullYear() !== thisYear)) {
+                        showRow = false;
+                    } else if (selectedDateFilter === 'last-month') {
+                        const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+                        const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+                        if (date.getMonth() !== lastMonth || date.getFullYear() !== lastMonthYear) {
+                            showRow = false;
+                        }
+                    } else if (selectedDateFilter === 'this-year' && date.getFullYear() !== thisYear) {
+                        showRow = false;
+                    }
+                }
+                
+                // Hide or show based on filters and pagination
+                if (showRow) {
+                    visibleRows++;
+                    const rowIndex = visibleRows - 1;
+                    const inCurrentPage = Math.floor(rowIndex / rowsPerPage) + 1 === currentPage;
+                    row.style.display = inCurrentPage ? '' : 'none';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update pagination
+            updatePagination(visibleRows);
+        }
+        
+        function updatePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.textContent = '«';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    filterTable();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // Page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-btn';
+                if (i === currentPage) pageBtn.classList.add('active');
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    filterTable();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.textContent = '»';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    filterTable();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        
+        // Initialize table filters
+        searchInput.addEventListener('input', filterTable);
+        categoryFilter.addEventListener('change', filterTable);
+        dateFilter.addEventListener('change', filterTable);
+        
+        // Initialize pagination
+        filterTable();
+        
+        // Export functionality
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            // Get visible rows
+            const filteredRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+            
+            // Create CSV content
+            let csvContent = "Date,Expense,Category,Amount,GST\n";
+            
+            filteredRows.forEach(row => {
+                const date = row.querySelector('td:nth-child(1)').textContent;
+                const expense = row.querySelector('td:nth-child(2)').textContent;
+                const category = row.querySelector('td:nth-child(3) .category-badge').textContent;
+                const amount = row.querySelector('td:nth-child(4)').textContent.replace('₹', '');
+                const gst = row.querySelector('td:nth-child(5)').textContent.replace('₹', '');
+                
+                csvContent += `${date},"${expense}",${category},${amount},${gst}\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'expenses.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+    
+    // Confirmation modal for delete
+    function confirmDelete(expenseId) {
+        const modal = document.getElementById('deleteModal');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        
+        confirmBtn.href = `/delete_expense/${expenseId}`;
+        modal.classList.add('active');
+    }
+    
+    function closeModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('active');
+    }
+    
+    // Calculate GST when amount changes
+    document.getElementById('amount').addEventListener('input', function() {
+        const amount = parseFloat(this.value) || 0;
+        const gst = Math.round(amount * 0.18 * 100) / 100; // 18% GST rounded to 2 decimal places
+        document.getElementById('gst').value = gst;
+    });
+</script>
+{% endblock %}
