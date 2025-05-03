@@ -25,6 +25,7 @@ def create_transactions_table():
             date DATE NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
             description VARCHAR(255) NOT NULL,
+            narration TEXT,
             transaction_type ENUM('credit', 'debit') NOT NULL DEFAULT 'credit',
             reference_id INT,
             reference_type VARCHAR(50),
@@ -89,6 +90,17 @@ def update_transactions_table():
         if not has_created_at:
             cursor.execute("ALTER TABLE transactions ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
         
+        # Check if narration column exists
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM information_schema.columns 
+            WHERE table_name = 'transactions' 
+            AND column_name = 'narration'
+        """)
+        has_narration = cursor.fetchone()[0] > 0
+        
+        if not has_narration:
+            cursor.execute("ALTER TABLE transactions ADD COLUMN narration TEXT")
+        
         db.commit()
         print("Transactions table updated successfully")
     except Exception as e:
@@ -122,11 +134,12 @@ def add_transaction():
         amount = request.form['amount']
         date = request.form['date']
         transaction_type = request.form.get('transaction_type', 'credit')
+        narration = request.form.get('narration', '')
         
         db = get_db_connection()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO transactions (description, amount, date, transaction_type) VALUES (%s, %s, %s, %s)",
-                      (description, amount, date, transaction_type))
+        cursor.execute("INSERT INTO transactions (description, amount, date, transaction_type, narration) VALUES (%s, %s, %s, %s, %s)",
+                      (description, amount, date, transaction_type, narration))
         db.commit()
         db.close()
         flash("Transaction added successfully!", "success")
@@ -160,7 +173,8 @@ def download_transactions():
         cursor.execute("""
             SELECT 
                 date, 
-                description, 
+                description,
+                narration, 
                 amount, 
                 transaction_type,
                 reference_type,
@@ -206,6 +220,7 @@ def download_transactions():
         columns_to_display = {
             'date': 'Date',
             'description': 'Description',
+            'narration': 'Narration',
             'amount': 'Amount',
             'transaction_type': 'Type',
             'source': 'Source',

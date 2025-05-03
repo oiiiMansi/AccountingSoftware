@@ -324,6 +324,16 @@
             bottom: 0;
             font-size: 14px;
         }
+        
+        .form-control textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            min-height: 80px;
+        }
     </style>
 </head>
 <body>
@@ -434,6 +444,10 @@
                         <label for="description">Description</label>
                         <input type="text" id="description" name="description" required>
                     </div>
+                    <div class="form-control">
+                        <label for="narration">Narration</label>
+                        <textarea id="narration" name="narration" placeholder="E.g., Payment for office rent, Invoice #123, Refund to customer, etc."></textarea>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Transaction</button>
             </form>
@@ -448,6 +462,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Description</th>
+                            <th>Narration</th>
                             <th>Amount</th>
                             <th>Type</th>
                             <th>Source</th>
@@ -459,6 +474,7 @@
                         <tr class="{{ txn.transaction_type if txn.transaction_type else 'credit' }}">
                             <td>{{ txn.date }}</td>
                             <td>{{ txn.description }}</td>
+                            <td>{{ txn.narration if txn.narration else "" }}</td>
                             <td>₹{{ "%.2f"|format(txn.amount|float) }}</td>
                             <td>
                                 <span class="tag {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
