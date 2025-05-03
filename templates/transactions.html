@@ -334,6 +334,167 @@
             resize: vertical;
             min-height: 80px;
         }
+        
+        /* Add improved styles for the add transaction form */
+        .transaction-form-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-top: 4px solid #ffa500;
+        }
+        
+        .transaction-form-card h2 {
+            color: #444;
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .transaction-form-card h2 i {
+            margin-right: 10px;
+            color: #ffa500;
+        }
+        
+        .transaction-form {
+            margin-top: 10px;
+        }
+        
+        .field-group {
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .field input, 
+        .field select, 
+        .field textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .field input:focus, 
+        .field select:focus, 
+        .field textarea:focus {
+            outline: none;
+            border-color: #ffa500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.15);
+        }
+        
+        .field textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .field select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="gray" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+        
+        .submit-btn {
+            background-color: #ffa500;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .submit-btn:hover {
+            background-color: #e69500;
+        }
+        
+        .submit-btn i {
+            margin-right: 8px;
+        }
+        
+        .transaction-type-selector {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .type-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .type-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-option input[type="radio"]:checked + label {
+            border-color: transparent;
+        }
+        
+        .type-option.credit input[type="radio"]:checked + label {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+            color: #28a745;
+        }
+        
+        .type-option.debit input[type="radio"]:checked + label {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .type-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .type-option .label-text {
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -418,38 +579,59 @@
             </a>
         </div>
         
-        <!-- Add New Transaction Form -->
-        <div class="card">
-            <h2>Add New Transaction</h2>
-            <form action="{{ url_for('transactions.add_transaction') }}" method="post">
-                <div class="form-group">
-                    <div class="form-control">
-                        <label for="date">Date</label>
-                        <input type="date" id="date" name="date" required>
+        <!-- Add New Transaction Form with improved UI -->
+        <div class="transaction-form-card">
+            <h2><i class="fas fa-plus-circle"></i> Add New Transaction</h2>
+            
+            <form action="{{ url_for('transactions.add_transaction') }}" method="post" class="transaction-form">
+                <!-- Transaction Type Selection -->
+                <div class="transaction-type-selector">
+                    <div class="type-option credit">
+                        <input type="radio" id="type_credit" name="transaction_type" value="credit" checked>
+                        <label for="type_credit">
+                            <i class="fas fa-arrow-down"></i>
+                            <span class="label-text">Credit (Income)</span>
+                        </label>
                     </div>
-                    <div class="form-control">
-                        <label for="amount">Amount (₹)</label>
-                        <input type="number" id="amount" name="amount" step="0.01" required>
-                    </div>
-                    <div class="form-control">
-                        <label for="transaction_type">Transaction Type</label>
-                        <select id="transaction_type" name="transaction_type" required>
-                            <option value="credit">Credit (Income)</option>
-                            <option value="debit">Debit (Expense)</option>
-                        </select>
+                    <div class="type-option debit">
+                        <input type="radio" id="type_debit" name="transaction_type" value="debit">
+                        <label for="type_debit">
+                            <i class="fas fa-arrow-up"></i>
+                            <span class="label-text">Debit (Expense)</span>
+                        </label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="form-control">
-                        <label for="description">Description</label>
-                        <input type="text" id="description" name="description" required>
+                
+                <!-- Date and Amount -->
+                <div class="field-group">
+                    <div class="field">
+                        <label for="date"><i class="far fa-calendar-alt"></i> Transaction Date</label>
+                        <input type="date" id="date" name="date" required>
                     </div>
-                    <div class="form-control">
-                        <label for="narration">Narration</label>
+                    <div class="field">
+                        <label for="amount"><i class="fas fa-rupee-sign"></i> Amount</label>
+                        <input type="number" id="amount" name="amount" step="0.01" placeholder="Enter amount" required>
+                    </div>
+                </div>
+                
+                <!-- Description and Narration -->
+                <div class="field-group">
+                    <div class="field">
+                        <label for="description"><i class="fas fa-tag"></i> Description</label>
+                        <input type="text" id="description" name="description" placeholder="Short description" required>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field">
+                        <label for="narration"><i class="fas fa-file-alt"></i> Narration</label>
                         <textarea id="narration" name="narration" placeholder="E.g., Payment for office rent, Invoice #123, Refund to customer, etc."></textarea>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Transaction</button>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Add Transaction
+                </button>
             </form>
         </div>
         
