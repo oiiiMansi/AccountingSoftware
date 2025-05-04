@@ -495,6 +495,182 @@
         .type-option .label-text {
             font-weight: 500;
         }
+        
+        /* Add improved styles for the transactions table */
+        .transactions-table-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            border-top: 4px solid #555;
+            overflow-x: auto;
+        }
+        
+        .transactions-table-card h2 {
+            color: #444;
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .transactions-table-card h2 i {
+            margin-right: 10px;
+            color: #555;
+        }
+        
+        .transactions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
+        }
+        
+        .transactions-table th {
+            background: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #e1e1e1;
+            text-align: left;
+        }
+        
+        .transactions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #444;
+            vertical-align: middle;
+        }
+        
+        .transactions-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .transactions-table tbody tr:hover {
+            background-color: #f9f9f9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .transactions-table tr.credit {
+            border-left: 4px solid #28a745;
+        }
+        
+        .transactions-table tr.debit {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .transaction-date {
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        .transaction-description {
+            font-weight: 500;
+        }
+        
+        .transaction-narration {
+            color: #666;
+            max-width: 250px;
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+            text-align: right;
+            white-space: nowrap;
+        }
+        
+        .transaction-amount.credit {
+            color: #28a745;
+        }
+        
+        .transaction-amount.debit {
+            color: #dc3545;
+        }
+        
+        .transaction-type {
+            text-align: center;
+        }
+        
+        .transaction-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .transaction-tag.credit {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .transaction-tag.debit {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .transaction-source {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .transaction-actions {
+            text-align: right;
+        }
+        
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn i {
+            margin-right: 6px;
+        }
+        
+        .action-btn.delete {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .action-btn.delete:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            color: #888;
+            font-size: 16px;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -635,11 +811,12 @@
             </form>
         </div>
         
-        <!-- Transactions Table -->
-        <h2>All Transactions</h2>
-        {% if transactions %}
-            <div class="card">
-                <table>
+        <!-- Transactions Table with improved UI -->
+        <div class="transactions-table-card">
+            <h2><i class="fas fa-list"></i> All Transactions</h2>
+            
+            {% if transactions %}
+                <table class="transactions-table">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -654,43 +831,48 @@
                     <tbody>
                         {% for txn in transactions %}
                         <tr class="{{ txn.transaction_type if txn.transaction_type else 'credit' }}">
-                            <td>{{ txn.date }}</td>
-                            <td>{{ txn.description }}</td>
-                            <td>{{ txn.narration if txn.narration else "" }}</td>
-                            <td>₹{{ "%.2f"|format(txn.amount|float) }}</td>
-                            <td>
-                                <span class="tag {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
+                            <td class="transaction-date">{{ txn.date.strftime('%d %b %Y') if txn.date.strftime else txn.date }}</td>
+                            <td class="transaction-description">{{ txn.description }}</td>
+                            <td class="transaction-narration">{{ txn.narration if txn.narration else "" }}</td>
+                            <td class="transaction-amount {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
+                                ₹{{ "%.2f"|format(txn.amount|float) }}
+                            </td>
+                            <td class="transaction-type">
+                                <span class="transaction-tag {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
                                     {{ txn.transaction_type|capitalize if txn.transaction_type else 'Credit' }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="transaction-source">
                                 {% if txn.reference_type == 'purchase' %}
-                                    Purchase #{{ txn.reference_id }}
+                                    <i class="fas fa-shopping-cart"></i> Purchase #{{ txn.reference_id }}
                                 {% elif txn.reference_type == 'billed_purchase' %}
-                                    Billed Purchase #{{ txn.reference_id }}
+                                    <i class="fas fa-file-invoice"></i> Billed Purchase #{{ txn.reference_id }}
                                 {% elif txn.reference_type == 'non_billed_sale' %}
-                                    Non-billed Sale #{{ txn.reference_id }}
+                                    <i class="fas fa-shopping-bag"></i> Non-billed Sale #{{ txn.reference_id }}
                                 {% elif txn.reference_type == 'bill' %}
-                                    Bill #{{ txn.reference_id }}
+                                    <i class="fas fa-receipt"></i> Bill #{{ txn.reference_id }}
                                 {% else %}
-                                    Manual Entry
+                                    <i class="fas fa-keyboard"></i> Manual Entry
                                 {% endif %}
                             </td>
-                            <td class="actions">
+                            <td class="transaction-actions">
                                 <a href="{{ url_for('transactions.delete_transaction', id=txn.id) }}" 
-                                   class="btn btn-danger"
-                                   onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</a>
+                                   class="action-btn delete"
+                                   onclick="return confirm('Are you sure you want to delete this transaction?')">
+                                   <i class="fas fa-trash-alt"></i> Delete
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-        {% else %}
-            <div class="card">
-                <p>No transactions found. Add a new transaction using the form above.</p>
-            </div>
-        {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>No transactions found. Add a new transaction using the form above.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
     
     <footer>
