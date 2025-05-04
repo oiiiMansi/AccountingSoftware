@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Employees - KK Enterprises</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: "Poppins", sans-serif;
@@ -81,105 +82,259 @@
             color: white;
         }
 
-        /* Employee Page Styles */
-        .container {
-            max-width: 1000px;
+        /* Main Container */
+        .page-container {
+            max-width: 1200px;
             margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
         }
 
-        h2 {
-            text-align: center;
+        .page-title {
             color: #333;
+            font-size: 28px;
             margin-bottom: 30px;
+            font-weight: 600;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 14px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #333;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        a.button, button {
-            text-decoration: none;
-            background-color: #ffa500;
-            color: white;
-            padding: 10px 18px;
+        /* Employee Form Card */
+        .employee-form-card {
+            background-color: white;
             border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s ease;
-            margin-right: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-top: 4px solid #ffa500;
         }
 
-        a.button:hover, button:hover {
-            background-color: #333;
+        .card-header {
+            margin-bottom: 25px;
         }
 
-        .add-form {
+        .card-title {
+            color: #444;
+            font-size: 22px;
+            margin: 0;
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
+            align-items: center;
         }
 
-        .add-form input {
-            flex: 1 1 200px;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+        .card-title i {
+            margin-right: 10px;
+            color: #ffa500;
         }
 
-        .employee-form .form-grid {
+        .employee-form {
+            margin-top: 20px;
+        }
+
+        .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            gap: 20px;
         }
 
-        .employee-form .form-grid div {
+        .form-field {
             display: flex;
             flex-direction: column;
         }
 
-        .employee-form .form-grid .full-width {
-            grid-column: span 2; /* expands across the grid */
+        .form-field label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+            display: flex;
+            align-items: center;
         }
 
-        .employee-form input {
-            padding: 8px;
-            border: 1px solid #ccc;
+        .form-field label i {
+            margin-right: 8px;
+            color: #ffa500;
+            font-size: 14px;
+        }
+
+        .form-field input, .form-field select {
+            padding: 12px 15px;
+            border: 1px solid #e1e1e1;
             border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
-        .employee-form button.btn {
-            background-color: orange;
-            border: none;
-            padding: 10px 20px;
+        .form-field input:focus, .form-field select:focus {
+            outline: none;
+            border-color: #ffa500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.15);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .submit-btn {
+            background-color: #ffa500;
             color: white;
-            font-weight: bold;
+            padding: 12px 24px;
+            border: none;
             border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            width: fit-content;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-btn:hover {
+            background-color: #e69500;
+        }
+
+        .submit-btn i {
+            margin-right: 8px;
+        }
+
+        /* Employees Table Card */
+        .employees-table-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-top: 4px solid #ffa500;
+        }
+
+        .employees-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+        }
+
+        .employees-table th {
+            background: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            border-bottom: 2px solid #e1e1e1;
+            text-align: left;
+        }
+
+        .employees-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #444;
+            vertical-align: middle;
+        }
+
+        .employees-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .employees-table tbody tr:hover {
+            background-color: #f9f9f9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .employee-id {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .employee-name {
+            font-weight: 500;
+        }
+
+        .employee-position {
+            color: #555;
+        }
+
+        .employee-department {
+            background-color: rgba(255, 165, 0, 0.1);
+            color: #e69500;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .employee-email {
+            color: #555;
+            font-size: 13px;
+        }
+
+        .employee-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn i {
+            margin-right: 6px;
+        }
+
+        .action-btn.edit {
+            background-color: rgba(255, 165, 0, 0.1);
+            color: #ffa500;
+        }
+
+        .action-btn.edit:hover {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: #e74a3b;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #e74a3b;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            color: #888;
+            font-size: 16px;
+            margin: 0;
         }
 
         footer {
@@ -195,52 +350,119 @@
 <body>
     {% include 'includes/header_navigation.html' %}
 
-    <div class="container">
-        <h2>Employee Data</h2>
+    <div class="page-container">
+        <h1 class="page-title">Employee Management</h1>
 
-        <form class="employee-form" method="POST" action="{{ url_for('employees.add_employee') }}">
-            <div class="form-grid">
-              <div><label>Full Name</label><input type="text" name="full_name" placeholder="Enter full name" required></div>
-              <div><label>Email</label><input type="email" name="email" placeholder="Enter email address" required></div>
-              <div><label>Phone</label><input type="text" name="phone" placeholder="Enter phone number"></div>
-              <div><label>Date of Birth</label><input type="date" name="dob" placeholder="dob" required></div>
-              <div><label>Gender</label><input type="text" name="gender" placeholder="Enter gender"></div>
-              <div><label>Department</label><input type="text" name="department" placeholder="Enter department"></div>
-              <div><label>Position</label><input type="text" name="position" placeholder="Enter position"></div>
-              <div><label>Joining Date</label><input type="date" name="joining_date" placeholder="joining_date"></div>
-              <div><label>Salary</label><input type="number" step="0.01" name="salary" placeholder="Enter salary"></div>
-              <div class="full-width"><label>Address</label><input type="text" name="address" placeholder="Enter address"></div>
-              <div class="full-width"><button type="submit" class="btn">Add Employee</button></div>
+        <!-- Add Employee Form -->
+        <div class="employee-form-card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-user-plus"></i> Add New Employee</h2>
             </div>
-        </form>
+            
+            <form class="employee-form" method="POST" action="{{ url_for('employees.add_employee') }}">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" name="full_name" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" name="email" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-phone"></i> Phone</label>
+                        <input type="text" name="phone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-calendar"></i> Date of Birth</label>
+                        <input type="date" name="dob" required>
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-venus-mars"></i> Gender</label>
+                        <select name="gender">
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-building"></i> Department</label>
+                        <input type="text" name="department" placeholder="Enter department">
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-briefcase"></i> Position</label>
+                        <input type="text" name="position" placeholder="Enter position">
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-user-clock"></i> Joining Date</label>
+                        <input type="date" name="joining_date">
+                    </div>
+                    <div class="form-field">
+                        <label><i class="fas fa-rupee-sign"></i> Salary</label>
+                        <input type="number" step="0.01" name="salary" placeholder="Enter salary">
+                    </div>
+                    <div class="form-field full-width">
+                        <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <input type="text" name="address" placeholder="Enter address">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-save"></i> Add Employee
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Department</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for emp in employees %}
-                <tr>
-                    <td>{{ emp.id }}</td>
-                    <td>{{ emp.full_name }}</td>
-                    <td>{{ emp.position }}</td>
-                    <td>{{ emp.department }}</td>
-                    <td>{{ emp.email }}</td>
-                    <td>
-                        <a class="button" href="{{ url_for('employees.edit_employee', id=emp.id) }}">Edit</a>
-                        <a class="button" href="{{ url_for('employees.delete_employee', id=emp.id) }}" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Employees Table -->
+        <div class="employees-table-card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-users"></i> Employee List</h2>
+            </div>
+            
+            {% if employees %}
+                <table class="employees-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td class="employee-id">#{{ emp.id }}</td>
+                            <td class="employee-name">{{ emp.full_name }}</td>
+                            <td class="employee-position">{{ emp.position }}</td>
+                            <td>
+                                <span class="employee-department">{{ emp.department }}</span>
+                            </td>
+                            <td class="employee-email">{{ emp.email }}</td>
+                            <td class="employee-actions">
+                                <a class="action-btn edit" href="{{ url_for('employees.edit_employee', id=emp.id) }}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a class="action-btn delete" href="{{ url_for('employees.delete_employee', id=emp.id) }}" 
+                                   onclick="return confirm('Are you sure you want to delete this employee?');">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No employees found. Add a new employee using the form above.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
     <footer>
