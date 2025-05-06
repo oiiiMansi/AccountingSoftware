@@ -654,6 +654,280 @@
                 width: 100%;
             }
         }
+
+        /* Enhanced Data Table Styles */
+        .stock-data-container {
+            margin: 40px 0;
+        }
+        
+        .stock-data-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .stock-data-header h3 {
+            color: #333;
+            margin: 0;
+            font-size: 20px;
+            text-align: left;
+            border-bottom: 2px solid #ffa500;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .stock-data-icon {
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .stock-data-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stock-data-search {
+            position: relative;
+            max-width: 300px;
+            flex-grow: 1;
+        }
+        
+        .stock-data-search input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .stock-data-search input:focus {
+            border-color: #ffa500;
+            box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+            outline: none;
+        }
+        
+        .stock-data-search::before {
+            content: "🔍";
+            position: absolute;
+            left: 15px;
+            top: 9px;
+            color: #777;
+        }
+        
+        .stock-data-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .stock-data-actions select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #555;
+        }
+        
+        .stock-table-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+        
+        .stock-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 0;
+            box-shadow: none;
+            animation: none;
+            overflow-x: auto;
+        }
+        
+        .stock-table th {
+            background-color: #333;
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .stock-table th.sortable {
+            cursor: pointer;
+        }
+        
+        .stock-table th.sortable:hover {
+            background-color: #444;
+        }
+        
+        .stock-table th.sortable::after {
+            content: "↕️";
+            font-size: 12px;
+            margin-left: 5px;
+            opacity: 0.5;
+        }
+        
+        .stock-table th.sorted-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        .stock-table th.sorted-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        .stock-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        
+        .stock-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .stock-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .stock-id {
+            font-size: 12px;
+            color: #777;
+            font-family: monospace;
+        }
+        
+        .stock-quantity {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .stock-date {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        
+        .btn-warning {
+            background-color: #f0ad4e;
+            border: none;
+        }
+        
+        .btn-danger {
+            background-color: #d9534f;
+            border: none;
+        }
+        
+        .table-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .pagination-controls button {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: #ccc;
+        }
+        
+        .pagination-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-controls button.active {
+            background-color: #ffa500;
+            color: white;
+            border-color: #ffa500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+        
+        .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .stock-data-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stock-data-search {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .stock-table-container {
+                border-radius: 8px;
+                overflow-x: auto;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .table-pagination {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -823,37 +1097,104 @@
 
         <hr>
 
-        <!-- Stock Table -->
-        <table class="stock-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Added At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in stock %}
-                <tr>
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.item_name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.added_at }}</td>
-                    <td>
-                        <!-- Edit Button -->
-                        <a href="{{ url_for('stock.edit_stock', id=item.id) }}" class="btn btn-warning btn-sm">Edit</a>
+        <!-- Enhanced Stock Data Table -->
+        <div class="stock-data-container">
+            <div class="stock-data-header">
+                <div class="stock-data-icon">📋</div>
+                <h3>Stock Entries</h3>
+            </div>
+            
+            <div class="stock-data-controls">
+                <div class="stock-data-search">
+                    <input type="text" id="stockDataSearch" placeholder="Search entries..." onkeyup="filterStockData()">
+                </div>
+                
+                <div class="stock-data-actions">
+                    <select id="entriesFilter" onchange="filterByEntries()">
+                        <option value="all">All Entries</option>
+                        <option value="recent">Recent (7 days)</option>
+                        <option value="positive">Positive Quantity</option>
+                        <option value="low">Low Quantity (< 5)</option>
+                    </select>
+                    
+                    <button onclick="exportStockData()" class="btn btn-primary btn-sm">
+                        Export Data
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stock-table-container">
+                <div style="overflow-x: auto;">
+                    <table class="stock-table" id="stockDataTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="sortTable(0)">ID</th>
+                                <th class="sortable" onclick="sortTable(1)">Item Name</th>
+                                <th class="sortable" onclick="sortTable(2)">Quantity</th>
+                                <th class="sortable" onclick="sortTable(3)">Added At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockDataTableBody">
+                            {% if stock %}
+                                {% for item in stock %}
+                                <tr class="stock-data-row">
+                                    <td><span class="stock-id">#{{ item.id }}</span></td>
+                                    <td>{{ item.item_name }}</td>
+                                    <td>
+                                        <span class="stock-quantity 
+                                            {% if item.quantity <= 0 %}text-danger{% endif %}
+                                            {% if item.quantity > 20 %}text-success{% endif %}
+                                        ">
+                                            {{ item.quantity }}
+                                        </span>
+                                    </td>
+                                    <td><span class="stock-date">{{ item.added_at }}</span></td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <!-- Edit Button -->
+                                            <a href="{{ url_for('stock.edit_stock', id=item.id) }}" class="btn btn-warning btn-sm">
+                                                Edit
+                                            </a>
 
-                        <!-- Delete Form -->
-                        <form action="{{ url_for('stock.delete_stock', id=item.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this stock item?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                            <!-- Delete Form -->
+                                            <form action="{{ url_for('stock.delete_stock', id=item.id) }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this stock item?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">📦</div>
+                                            <p>No stock entries found</p>
+                                            <p>Add your first item using the form above</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-pagination">
+                    <div class="pagination-info">
+                        Showing <span id="currentEntries">{{ stock|length }}</span> of <span id="totalEntries">{{ stock|length }}</span> entries
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
+                        <button id="page1" class="active" onclick="goToPage(1)">1</button>
+                        <button id="nextPage" onclick="changePage(1)" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -898,6 +1239,134 @@
                 tableBtn.classList.remove('active');
                 cardBtn.classList.add('active');
             }
+        }
+        
+        // New functions for enhanced stock data table
+        function filterStockData() {
+            const searchTerm = document.getElementById('stockDataSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('.stock-data-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const itemName = row.cells[1].textContent.toLowerCase();
+                const shouldShow = itemName.includes(searchTerm);
+                row.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+            
+            document.getElementById('currentEntries').textContent = visibleCount;
+            updatePagination();
+        }
+        
+        function filterByEntries() {
+            const filterValue = document.getElementById('entriesFilter').value;
+            const rows = document.querySelectorAll('.stock-data-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const quantity = parseInt(row.cells[2].textContent.trim());
+                const dateStr = row.cells[3].textContent.trim();
+                const date = new Date(dateStr);
+                const now = new Date();
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(now.getDate() - 7);
+                
+                let shouldShow = true;
+                
+                if (filterValue === 'recent') {
+                    shouldShow = date >= sevenDaysAgo;
+                } else if (filterValue === 'positive') {
+                    shouldShow = quantity > 0;
+                } else if (filterValue === 'low') {
+                    shouldShow = quantity < 5;
+                }
+                
+                row.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+            
+            document.getElementById('currentEntries').textContent = visibleCount;
+            updatePagination();
+        }
+        
+        function sortTable(columnIndex) {
+            const table = document.getElementById('stockDataTable');
+            const headers = table.querySelectorAll('th.sortable');
+            const header = headers[columnIndex];
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove sorted classes from all headers
+            headers.forEach(h => {
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            
+            // Add sorted class to current header
+            header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+            
+            const rows = Array.from(table.querySelectorAll('tbody tr:not(.empty-state)'));
+            const sortedRows = rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.trim();
+                let bValue = b.cells[columnIndex].textContent.trim();
+                
+                // Handle numeric values
+                if (columnIndex === 0) {
+                    // ID column - remove # and convert to number
+                    aValue = parseInt(aValue.replace('#', ''));
+                    bValue = parseInt(bValue.replace('#', ''));
+                } else if (columnIndex === 2) {
+                    // Quantity column - convert to number
+                    aValue = parseInt(aValue);
+                    bValue = parseInt(bValue);
+                } else if (columnIndex === 3) {
+                    // Date column - convert to date
+                    aValue = new Date(aValue);
+                    bValue = new Date(bValue);
+                }
+                
+                if (aValue < bValue) return isAscending ? -1 : 1;
+                if (aValue > bValue) return isAscending ? 1 : -1;
+                return 0;
+            });
+            
+            // Remove rows and re-add in sorted order
+            const tbody = table.querySelector('tbody');
+            rows.forEach(row => tbody.removeChild(row));
+            sortedRows.forEach(row => tbody.appendChild(row));
+        }
+        
+        function exportStockData() {
+            alert('Stock data will be exported as CSV');
+            // In a real implementation, this would generate a CSV file
+            // and trigger a download
+        }
+        
+        function updatePagination() {
+            // Simple pagination update for demo
+            const visibleRows = document.querySelectorAll('.stock-data-row:not([style*="display: none"])');
+            const hasPrevious = false; // In a real implementation, this would be determined by current page
+            const hasNext = false; // In a real implementation, this would be determined by current page and total pages
+            
+            document.getElementById('prevPage').disabled = !hasPrevious;
+            document.getElementById('nextPage').disabled = !hasNext;
+        }
+        
+        function changePage(direction) {
+            // In a real implementation, this would handle page changes
+            // For this demo, we'll just update the active button
+            const currentPage = parseInt(document.querySelector('.pagination-controls button.active').textContent);
+            goToPage(currentPage + direction);
+        }
+        
+        function goToPage(pageNumber) {
+            // In a real implementation, this would load the specified page
+            // For this demo, we'll just update the active button
+            const pageButtons = document.querySelectorAll('.pagination-controls button:not(:first-child):not(:last-child)');
+            pageButtons.forEach(button => {
+                button.classList.remove('active');
+                if (parseInt(button.textContent) === pageNumber) {
+                    button.classList.add('active');
+                }
+            });
         }
     </script>
 </body>
