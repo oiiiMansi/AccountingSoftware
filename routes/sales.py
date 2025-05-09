@@ -713,6 +713,7 @@ def billed_purchase():
     # Ensure tables exist with proper schema
     create_billed_purchase_table()
     update_transactions_table()
+    update_purchase_tables()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -793,6 +794,7 @@ def non_billed_purchase():
     # Ensure tables exist with proper schema
     create_purchase_table()
     update_transactions_table()
+    update_purchase_tables()
     
     conn = connect_db()
     cursor = conn.cursor(dictionary=True)
@@ -1203,63 +1205,76 @@ def delete_non_billed_purchase(purchase_id):
 
 # Update sales tables to include payment_type
 def update_sales_tables():
+    """Update non_billed_sales and bills tables with payment_type and payment_status if they don't exist"""
     conn = connect_db()
     cursor = conn.cursor()
+    
     try:
-        # Check if payment_type column exists in non_billed_sales
+        # Check non_billed_sales table
         cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'payment_type'")
         payment_type_exists = cursor.fetchone()
         
-        # If the column doesn't exist, add it
         if not payment_type_exists:
             cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER amount")
             conn.commit()
             print("Added payment_type column to non_billed_sales table")
-        # If the column exists but has incorrect type or default, modify it
-        else:
-            cursor.execute("ALTER TABLE non_billed_sales MODIFY COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash'")
-            conn.commit()
-            print("Updated payment_type column in non_billed_sales table")
-        
-        # Check if payment_type column exists in bills
-        cursor.execute("SHOW COLUMNS FROM bills LIKE 'payment_type'")
-        payment_type_exists = cursor.fetchone()
-        
-        # If the column doesn't exist, add it
-        if not payment_type_exists:
-            cursor.execute("ALTER TABLE bills ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER basic_amount")
-            conn.commit()
-            print("Added payment_type column to bills table")
-        # If the column exists but has incorrect type or default, modify it
-        else:
-            cursor.execute("ALTER TABLE bills MODIFY COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash'")
-            conn.commit()
-            print("Updated payment_type column in bills table")
             
-        # Similarly check and add/update payment_status columns
         cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'payment_status'")
         payment_status_exists = cursor.fetchone()
         
         if not payment_status_exists:
-            cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid' AFTER payment_type")
+            cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid' AFTER payment_type")
             conn.commit()
             print("Added payment_status column to non_billed_sales table")
         else:
-            cursor.execute("ALTER TABLE non_billed_sales MODIFY COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid'")
+            # Update enum to include partially paid option
+            cursor.execute("ALTER TABLE non_billed_sales MODIFY COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid'")
             conn.commit()
-            print("Updated payment_status column in non_billed_sales table")
+            print("Updated payment_status column in non_billed_sales table to include Partially Paid")
+        
+        # Add paid_amount to non_billed_sales if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'paid_amount'")
+        paid_amount_exists = cursor.fetchone()
+        
+        if not paid_amount_exists:
+            cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN paid_amount DECIMAL(10,2) DEFAULT 0 AFTER amount")
+            cursor.execute("UPDATE non_billed_sales SET paid_amount = amount WHERE payment_status = 'Paid'")
+            cursor.execute("UPDATE non_billed_sales SET paid_amount = 0 WHERE payment_status = 'Pending'")
+            conn.commit()
+            print("Added paid_amount column to non_billed_sales table")
+            
+        # Check bills table
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'payment_type'")
+        payment_type_exists = cursor.fetchone()
+        
+        if not payment_type_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER total_amount")
+            conn.commit()
+            print("Added payment_type column to bills table")
             
         cursor.execute("SHOW COLUMNS FROM bills LIKE 'payment_status'")
         payment_status_exists = cursor.fetchone()
         
         if not payment_status_exists:
-            cursor.execute("ALTER TABLE bills ADD COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid' AFTER payment_type")
+            cursor.execute("ALTER TABLE bills ADD COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid' AFTER payment_type")
             conn.commit()
             print("Added payment_status column to bills table")
         else:
-            cursor.execute("ALTER TABLE bills MODIFY COLUMN payment_status ENUM('Pending', 'Paid') DEFAULT 'Paid'")
+            # Update enum to include partially paid option
+            cursor.execute("ALTER TABLE bills MODIFY COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid'")
             conn.commit()
-            print("Updated payment_status column in bills table")
+            print("Updated payment_status column in bills table to include Partially Paid")
+        
+        # Add paid_amount to bills if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'paid_amount'")
+        paid_amount_exists = cursor.fetchone()
+        
+        if not paid_amount_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN paid_amount DECIMAL(10,2) DEFAULT 0 AFTER total_amount")
+            cursor.execute("UPDATE bills SET paid_amount = total_amount WHERE payment_status = 'Paid'")
+            cursor.execute("UPDATE bills SET paid_amount = 0 WHERE payment_status = 'Pending'")
+            conn.commit()
+            print("Added paid_amount column to bills table")
             
     except Exception as e:
         print(f"Error updating sales tables: {e}")
@@ -1277,13 +1292,17 @@ def credit_sales():
     credit_sales = []
     
     try:
+        # Ensure tables are updated with the required columns
+        update_sales_tables()
+        
         # Get credit sales from both tables
         cursor.execute("""
             SELECT 
                 'bill' as sale_type, 
                 id, 
                 customer_name, 
-                COALESCE(total_amount, basic_amount) as amount, 
+                COALESCE(total_amount, basic_amount) as amount,
+                COALESCE(paid_amount, 0) as paid_amount,
                 date, 
                 payment_status 
             FROM bills 
@@ -1296,6 +1315,7 @@ def credit_sales():
                 id, 
                 customer_name, 
                 amount, 
+                COALESCE(paid_amount, 0) as paid_amount,
                 date, 
                 payment_status 
             FROM non_billed_sales 
@@ -1316,22 +1336,104 @@ def credit_sales():
 @accountant_required
 def mark_as_paid(sale_type, sale_id):
     conn = connect_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     try:
         # Begin transaction
         conn.autocommit = False
         
-        if sale_type == 'bill':
-            cursor.execute("UPDATE bills SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (sale_id,))
-        elif sale_type == 'non_billed':
-            cursor.execute("UPDATE non_billed_sales SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (sale_id,))
+        # Get the payment amount from the form
+        payment_amount = Decimal(request.form.get('payment_amount', 0))
         
+        if sale_type == 'bill':
+            # First, get the current bill data
+            cursor.execute("SELECT total_amount, paid_amount FROM bills WHERE id = %s", (sale_id,))
+            bill = cursor.fetchone()
+            if not bill:
+                flash("Bill not found", "error")
+                return redirect(url_for('sales.credit_sales'))
+            
+            total_amount = Decimal(bill['total_amount'] or 0)
+            current_paid = Decimal(bill['paid_amount'] or 0)
+            new_paid_amount = current_paid + payment_amount
+            
+            # Determine the new payment status
+            if new_paid_amount >= total_amount:
+                # If paid in full or more, set as fully paid
+                new_status = 'Paid'
+                new_paid_amount = total_amount  # Ensure we don't record overpayment
+                new_payment_type = 'Cash'  # Change payment type to Cash when fully paid
+            elif new_paid_amount > 0:
+                # If partially paid
+                new_status = 'Partially Paid'
+                new_payment_type = 'Credit'  # Keep as Credit until fully paid
+            else:
+                # If no payment
+                new_status = 'Pending'
+                new_payment_type = 'Credit'
+            
+            # Update the bill with new payment info
+            cursor.execute(
+                "UPDATE bills SET payment_status = %s, paid_amount = %s, payment_type = %s WHERE id = %s",
+                (new_status, new_paid_amount, new_payment_type, sale_id)
+            )
+            
+            # Add payment to transactions if payment amount > 0
+            if payment_amount > 0:
+                cursor.execute(
+                    """INSERT INTO transactions 
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, CURRENT_DATE(), 'credit', %s, 'bill_payment')""",
+                    (f"Partial payment for bill #{sale_id}", payment_amount, sale_id)
+                )
+            
+        elif sale_type == 'non_billed':
+            # First, get the current sale data
+            cursor.execute("SELECT amount, paid_amount FROM non_billed_sales WHERE id = %s", (sale_id,))
+            sale = cursor.fetchone()
+            if not sale:
+                flash("Sale not found", "error")
+                return redirect(url_for('sales.credit_sales'))
+            
+            total_amount = Decimal(sale['amount'] or 0)
+            current_paid = Decimal(sale['paid_amount'] or 0)
+            new_paid_amount = current_paid + payment_amount
+            
+            # Determine the new payment status
+            if new_paid_amount >= total_amount:
+                # If paid in full or more, set as fully paid
+                new_status = 'Paid'
+                new_paid_amount = total_amount  # Ensure we don't record overpayment
+                new_payment_type = 'Cash'  # Change payment type to Cash when fully paid
+            elif new_paid_amount > 0:
+                # If partially paid
+                new_status = 'Partially Paid'
+                new_payment_type = 'Credit'  # Keep as Credit until fully paid
+            else:
+                # If no payment
+                new_status = 'Pending'
+                new_payment_type = 'Credit'
+            
+            # Update the sale with new payment info
+            cursor.execute(
+                "UPDATE non_billed_sales SET payment_status = %s, paid_amount = %s, payment_type = %s WHERE id = %s",
+                (new_status, new_paid_amount, new_payment_type, sale_id)
+            )
+            
+            # Add payment to transactions if payment amount > 0
+            if payment_amount > 0:
+                cursor.execute(
+                    """INSERT INTO transactions 
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, CURRENT_DATE(), 'credit', %s, 'non_billed_payment')""",
+                    (f"Partial payment for non-billed sale #{sale_id}", payment_amount, sale_id)
+                )
+            
         conn.commit()
-        flash("Payment status updated successfully!", "success")
+        flash("Payment recorded successfully!", "success")
     except Exception as e:
         conn.rollback()
-        flash(f"Error updating payment status: {str(e)}", "error")
+        flash(f"Error recording payment: {str(e)}", "error")
     finally:
         cursor.close()
         conn.close()
@@ -1348,6 +1450,9 @@ def credit_purchases():
     credit_purchases = []
     
     try:
+        # Ensure tables are updated with the required columns
+        update_purchase_tables()
+        
         # Get credit purchases from both tables
         cursor.execute("""
             SELECT 
@@ -1355,6 +1460,7 @@ def credit_purchases():
                 id, 
                 vendor_name, 
                 amount,
+                COALESCE(paid_amount, 0) as paid_amount,
                 quantity,
                 date, 
                 payment_status,
@@ -1369,6 +1475,7 @@ def credit_purchases():
                 id, 
                 vendor_name, 
                 amount,
+                COALESCE(paid_amount, 0) as paid_amount,
                 quantity, 
                 date, 
                 payment_status,
@@ -1391,22 +1498,106 @@ def credit_purchases():
 @accountant_required
 def mark_purchase_as_paid(purchase_type, purchase_id):
     conn = connect_db()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     
     try:
         # Begin transaction
         conn.autocommit = False
         
-        if purchase_type == 'billed_purchase':
-            cursor.execute("UPDATE billed_purchases SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (purchase_id,))
-        elif purchase_type == 'purchase':
-            cursor.execute("UPDATE purchases SET payment_status = 'Paid', payment_type = 'Cash' WHERE id = %s", (purchase_id,))
+        # Get the payment amount from the form
+        payment_amount = Decimal(request.form.get('payment_amount', 0))
         
+        if purchase_type == 'billed_purchase':
+            # First, get the current purchase data
+            cursor.execute("SELECT amount, paid_amount, gst_percentage FROM billed_purchases WHERE id = %s", (purchase_id,))
+            purchase = cursor.fetchone()
+            if not purchase:
+                flash("Purchase not found", "error")
+                return redirect(url_for('sales.credit_purchases'))
+            
+            basic_amount = Decimal(purchase['amount'] or 0)
+            gst_percentage = Decimal(purchase['gst_percentage'] or 0)
+            total_amount = basic_amount * (1 + gst_percentage/100)
+            current_paid = Decimal(purchase['paid_amount'] or 0)
+            new_paid_amount = current_paid + payment_amount
+            
+            # Determine the new payment status
+            if new_paid_amount >= basic_amount:
+                # If paid in full or more, set as fully paid
+                new_status = 'Paid'
+                new_paid_amount = basic_amount  # Ensure we don't record overpayment
+                new_payment_type = 'Cash'  # Change payment type to Cash when fully paid
+            elif new_paid_amount > 0:
+                # If partially paid
+                new_status = 'Partially Paid'
+                new_payment_type = 'Credit'  # Keep as Credit until fully paid
+            else:
+                # If no payment
+                new_status = 'Pending'
+                new_payment_type = 'Credit'
+            
+            # Update the purchase with new payment info
+            cursor.execute(
+                "UPDATE billed_purchases SET payment_status = %s, paid_amount = %s, payment_type = %s WHERE id = %s",
+                (new_status, new_paid_amount, new_payment_type, purchase_id)
+            )
+            
+            # Add payment to transactions if payment amount > 0
+            if payment_amount > 0:
+                cursor.execute(
+                    """INSERT INTO transactions 
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, CURRENT_DATE(), 'debit', %s, 'billed_purchase_payment')""",
+                    (f"Partial payment for billed purchase #{purchase_id}", payment_amount, purchase_id)
+                )
+            
+        elif purchase_type == 'purchase':
+            # First, get the current purchase data
+            cursor.execute("SELECT amount, paid_amount FROM purchases WHERE id = %s", (purchase_id,))
+            purchase = cursor.fetchone()
+            if not purchase:
+                flash("Purchase not found", "error")
+                return redirect(url_for('sales.credit_purchases'))
+            
+            total_amount = Decimal(purchase['amount'] or 0)
+            current_paid = Decimal(purchase['paid_amount'] or 0)
+            new_paid_amount = current_paid + payment_amount
+            
+            # Determine the new payment status
+            if new_paid_amount >= total_amount:
+                # If paid in full or more, set as fully paid
+                new_status = 'Paid'
+                new_paid_amount = total_amount  # Ensure we don't record overpayment
+                new_payment_type = 'Cash'  # Change payment type to Cash when fully paid
+            elif new_paid_amount > 0:
+                # If partially paid
+                new_status = 'Partially Paid'
+                new_payment_type = 'Credit'  # Keep as Credit until fully paid
+            else:
+                # If no payment
+                new_status = 'Pending'
+                new_payment_type = 'Credit'
+            
+            # Update the purchase with new payment info
+            cursor.execute(
+                "UPDATE purchases SET payment_status = %s, paid_amount = %s, payment_type = %s WHERE id = %s",
+                (new_status, new_paid_amount, new_payment_type, purchase_id)
+            )
+            
+            # Add payment to transactions if payment amount > 0
+            if payment_amount > 0:
+                cursor.execute(
+                    """INSERT INTO transactions 
+                    (description, amount, date, transaction_type, reference_id, reference_type) 
+                    VALUES (%s, %s, CURRENT_DATE(), 'debit', %s, 'purchase_payment')""",
+                    (f"Partial payment for non-billed purchase #{purchase_id}", payment_amount, purchase_id)
+                )
+            
         conn.commit()
-        flash("Payment status updated successfully!", "success")
+        flash("Payment recorded successfully!", "success")
     except Exception as e:
         conn.rollback()
-        flash(f"Error updating payment status: {str(e)}", "error")
+        flash(f"Error recording payment: {str(e)}", "error")
     finally:
         cursor.close()
         conn.close()
@@ -1456,4 +1647,59 @@ def test_db_structure():
         cursor.close()
         conn.close()
     
-    return "<pre>" + "\n".join(output) + "</pre>" 
+    return "<pre>" + "\n".join(output) + "</pre>"
+
+# Add payment tracking to credit purchases table
+def update_purchase_tables():
+    """Update purchases and billed_purchases tables with paid_amount field"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Update purchases table
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'payment_status'")
+        payment_status_exists = cursor.fetchone()
+        
+        if payment_status_exists:
+            # Update enum to include partially paid option
+            cursor.execute("ALTER TABLE purchases MODIFY COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid'")
+            conn.commit()
+            print("Updated payment_status column in purchases table to include Partially Paid")
+        
+        # Add paid_amount to purchases if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'paid_amount'")
+        paid_amount_exists = cursor.fetchone()
+        
+        if not paid_amount_exists:
+            cursor.execute("ALTER TABLE purchases ADD COLUMN paid_amount DECIMAL(10,2) DEFAULT 0 AFTER amount")
+            cursor.execute("UPDATE purchases SET paid_amount = amount WHERE payment_status = 'Paid'")
+            cursor.execute("UPDATE purchases SET paid_amount = 0 WHERE payment_status = 'Pending'")
+            conn.commit()
+            print("Added paid_amount column to purchases table")
+            
+        # Update billed_purchases table
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'payment_status'")
+        payment_status_exists = cursor.fetchone()
+        
+        if payment_status_exists:
+            # Update enum to include partially paid option
+            cursor.execute("ALTER TABLE billed_purchases MODIFY COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid'")
+            conn.commit()
+            print("Updated payment_status column in billed_purchases table to include Partially Paid")
+        
+        # Add paid_amount to billed_purchases if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'paid_amount'")
+        paid_amount_exists = cursor.fetchone()
+        
+        if not paid_amount_exists:
+            cursor.execute("ALTER TABLE billed_purchases ADD COLUMN paid_amount DECIMAL(10,2) DEFAULT 0 AFTER amount")
+            cursor.execute("UPDATE billed_purchases SET paid_amount = amount WHERE payment_status = 'Paid'")
+            cursor.execute("UPDATE billed_purchases SET paid_amount = 0 WHERE payment_status = 'Pending'")
+            conn.commit()
+            print("Added paid_amount column to billed_purchases table")
+            
+    except Exception as e:
+        print(f"Error updating purchase tables: {e}")
+    finally:
+        cursor.close()
+        conn.close() 

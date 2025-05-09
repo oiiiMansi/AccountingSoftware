@@ -15,7 +15,7 @@ from routes.reports import reports
 from routes.transactions import transactions
 from routes.salary import salary
 from routes.employees import employees
-from routes.sales import sales  
+from routes.sales import sales, update_sales_tables, update_purchase_tables  
 
 # Flask App
 app = Flask(__name__)
@@ -55,7 +55,12 @@ app.register_blueprint(reports)
 app.register_blueprint(transactions)
 app.register_blueprint(salary)
 app.register_blueprint(employees)
-app.register_blueprint(sales, url_prefix='/sales')  
+app.register_blueprint(sales, url_prefix='/sales')
+
+# Update database tables for partial payment support
+with app.app_context():
+    update_sales_tables()
+    update_purchase_tables()
 
 # Redirect old reports URL to new one
 @app.route("/reports")

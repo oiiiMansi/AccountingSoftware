@@ -212,6 +212,68 @@
             padding: 15px;
             margin-top: 40px;
         }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .partially {
+            background-color: #e6f7ff;
+            color: #0066cc;
+            border: 1px solid #b3d7ff;
+        }
+        
+        #balanceInfo {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -235,8 +297,8 @@
                     <div class="value">{{ credit_sales|length }}</div>
                 </div>
                 <div>
-                    <div class="label">Total Pending Amount</div>
-                    <div class="value">₹{{ credit_sales|selectattr('payment_status', 'equalto', 'Pending')|sum(attribute='amount')|round(2) }}</div>
+                    <div class="label">Total Outstanding Amount</div>
+                    <div class="value">₹{{ credit_sales|map(attribute='amount')|sum|round(2) - credit_sales|map(attribute='paid_amount')|sum|round(2) }}</div>
                 </div>
             </div>
             
@@ -244,7 +306,9 @@
                 <thead>
                     <tr>
                         <th>Customer Name</th>
-                        <th>Amount</th>
+                        <th>Total Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Balance</th>
                         <th>Date</th>
                         <th>Type</th>
                         <th>Status</th>
@@ -256,22 +320,40 @@
                     <tr>
                         <td>{{ sale.customer_name }}</td>
                         <td>₹{{ sale.amount }}</td>
+                        <td>₹{{ sale.paid_amount }}</td>
+                        <td>₹{{ (sale.amount - sale.paid_amount)|round(2) }}</td>
                         <td>{{ sale.date }}</td>
                         <td>{{ "Billed" if sale.sale_type == "bill" else "Without Bill" }}</td>
                         <td>
                             <span class="status {{ sale.payment_status|lower }}">{{ sale.payment_status }}</span>
                         </td>
                         <td class="actions">
-                            {% if sale.payment_status == 'Pending' %}
-                            <form action="{{ url_for('sales.mark_as_paid', sale_type=sale.sale_type, sale_id=sale.id) }}" method="post">
-                                <button type="submit" class="btn" onclick="return confirm('Mark this sale as paid?')">Mark as Paid</button>
-                            </form>
+                            {% if sale.payment_status != 'Paid' %}
+                            <button class="btn show-payment-form" data-id="{{ sale.id }}" data-type="{{ sale.sale_type }}" data-balance="{{ (sale.amount - sale.paid_amount)|round(2) }}">Add Payment</button>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            
+            <!-- Payment Modal -->
+            <div id="paymentModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Add Payment</h2>
+                    <form id="paymentForm" action="" method="post">
+                        <div class="form-group">
+                            <label for="payment_amount">Payment Amount (₹)</label>
+                            <input type="number" step="0.01" id="payment_amount" name="payment_amount" required min="0">
+                            <small id="balanceInfo">Balance: ₹<span id="balanceAmount"></span></small>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn">Process Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         {% else %}
             <div class="no-credit">
                 <h2>No Credit Sales Found</h2>
@@ -283,5 +365,47 @@
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
+    
+    <script>
+        // Get the modal
+        var modal = document.getElementById("paymentModal");
+        var paymentForm = document.getElementById("paymentForm");
+        var balanceAmount = document.getElementById("balanceAmount");
+        
+        // Get all buttons that open the modal
+        var buttons = document.getElementsByClassName("show-payment-form");
+        
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        
+        // Loop through all buttons and attach click events
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].onclick = function() {
+                // Set form action based on data attributes
+                var saleId = this.getAttribute("data-id");
+                var saleType = this.getAttribute("data-type");
+                var balance = this.getAttribute("data-balance");
+                
+                paymentForm.action = "/sales/mark_as_paid/" + saleType + "/" + saleId;
+                balanceAmount.textContent = balance;
+                document.getElementById("payment_amount").max = balance;
+                document.getElementById("payment_amount").value = balance; // Default to full payment
+                
+                modal.style.display = "block";
+            }
+        }
+        
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html> 
