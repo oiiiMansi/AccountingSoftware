@@ -337,7 +337,7 @@
                             <td>{{ "%.2f"|format(purchase.gst_percentage|float) }}%</td>
                             <td>₹{{ "%.2f"|format(purchase.amount|float * (1 + purchase.gst_percentage|float/100)) }}</td>
                             <td>{{ purchase.payment_type }}</td>
-                            <td>{{ purchase.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ purchase.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                             <td>{{ purchase.description }}</td>
                             <td class="actions">
                                 <a href="{{ url_for('sales.edit_billed_purchase', purchase_id=purchase.id) }}" class="btn-edit">Edit</a>

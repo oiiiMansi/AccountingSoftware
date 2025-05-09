@@ -337,7 +337,7 @@
                         <td>{{ "%.2f"|format(bill.gst_percentage|float if bill.gst_percentage is not none else 0) }}%</td>
                         <td>₹{{ "%.2f"|format(bill.gst_amount|float if bill.gst_amount is not none else 0) }}</td>
                         <td>₹{{ "%.2f"|format(bill.total_amount|float if bill.total_amount is not none else 0) }}</td>
-                        <td>{{ bill.date.strftime('%Y-%m-%d') if bill.date is not none else 'N/A' }}</td>
+                        <td>{{ bill.date.strftime('%Y-%m-%d %H:%M:%S') if bill.date is not none else 'N/A' }}</td>
                         <td class="actions">
                             <a href="{{ url_for('billing.edit_bill', bill_id=bill.id) }}" class="btn-edit">Edit</a>
                             <a href="{{ url_for('billing.delete_bill', bill_id=bill.id) }}" class="btn-delete" 

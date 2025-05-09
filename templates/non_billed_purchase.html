@@ -273,7 +273,7 @@
                         <td>{{ purchase.quantity or 1 }}</td>
                         <td>₹{{ purchase.amount }}</td>
                         <td>{{ purchase.payment_type }}</td>
-                        <td>{{ purchase.date }}</td>
+                        <td>{{ purchase.date.strftime('%Y-%m-%d %H:%M:%S') if purchase.date is not none else purchase.date }}</td>
                         <td>{{ purchase.item_details }}</td>
                         <td class="actions">
                             <a href="{{ url_for('sales.edit_non_billed_purchase', purchase_id=purchase.id) }}" class="btn-edit">Edit</a>

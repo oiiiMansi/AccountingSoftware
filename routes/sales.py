@@ -186,7 +186,7 @@ def billing():
             customer_name = request.form.get('customer_name', '')
             amount = Decimal(request.form.get('basic_amount', 0))
             quantity = int(request.form.get('quantity', 1))
-            date = request.form.get('date', '')
+            date_str = request.form.get('date', '')
             
             # Get GST-related fields
             gst_type = request.form.get('gst_type', '')
@@ -232,6 +232,15 @@ def billing():
             customer_address = request.form.get('customer_address', '')
             shipping_address = request.form.get('shipping_address', '')
             
+            # Convert date string to datetime with current time
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                current_time = datetime.now().time()
+                date_with_time = datetime.combine(date_obj.date(), current_time)
+            except ValueError:
+                # If date is invalid, use current datetime
+                date_with_time = datetime.now()
+            
             # Insert with explicit payment_type value and GST fields
             sql = """
             INSERT INTO bills 
@@ -243,10 +252,21 @@ def billing():
             params = (
                 customer_name, customer_number, customer_address, shipping_address,
                 amount, quantity, gst_type, gst_percentage, gst_amount, total_amount,
-                payment_type, payment_status, date
+                payment_type, payment_status, date_with_time
             )
             
             cursor.execute(sql, params)
+            bill_id = cursor.lastrowid
+            
+            # Add to transactions
+            transaction_desc = f"Bill for {customer_name}"
+            cursor.execute(
+                """INSERT INTO transactions 
+                (description, amount, date, transaction_type, reference_id, reference_type) 
+                VALUES (%s, %s, %s, 'credit', %s, 'bill')""",
+                (transaction_desc, total_amount, date_with_time, bill_id)
+            )
+            
             conn.commit()
             
             # Show different message based on payment type
@@ -294,7 +314,7 @@ def without_billing():
             item_details = request.form['item_details']
             quantity = int(request.form.get('quantity', 1))
             amount = Decimal(request.form['amount'])
-            date = request.form['date']
+            date_str = request.form['date']
             notes = request.form.get('notes', '')
             
             # Get payment_type with logging
@@ -309,6 +329,15 @@ def without_billing():
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             logger.info(f"Final payment_type: {payment_type}, payment_status: {payment_status}")
+            
+            # Convert date string to datetime with current time
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                current_time = datetime.now().time()
+                date_with_time = datetime.combine(date_obj.date(), current_time)
+            except ValueError:
+                # If date is invalid, use current datetime
+                date_with_time = datetime.now()
 
             # Start a transaction
             conn.autocommit = False
@@ -322,7 +351,7 @@ def without_billing():
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 params = (customer_name, contact_number, item_details, quantity, amount, 
-                        payment_type, payment_status, date, notes)
+                        payment_type, payment_status, date_with_time, notes)
                 
                 logger.info(f"Executing SQL: {sql}")
                 logger.info(f"With parameters: {params}")
@@ -340,7 +369,7 @@ def without_billing():
                     """INSERT INTO transactions 
                        (description, amount, date, transaction_type, reference_id, reference_type) 
                        VALUES (%s, %s, %s, 'credit', %s, 'non_billed_sale')""",
-                    (description, amount, date, sale_id)
+                    (description, amount, date_with_time, sale_id)
                 )
                 
                 # Commit both operations
@@ -727,7 +756,7 @@ def billed_purchase():
             quantity = int(request.form.get('quantity', 1))
             gst_type = request.form.get('gst_type', 'CGST_SGST')
             gst_percentage = Decimal(request.form.get('gst_percentage', 18.00))
-            date = request.form['date']
+            date_str = request.form['date']
             description = request.form.get('description', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
@@ -736,6 +765,15 @@ def billed_purchase():
             
             # Calculate total amount with GST
             total_amount = amount * (1 + gst_percentage/100)
+            
+            # Convert date string to datetime with current time
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                current_time = datetime.now().time()
+                date_with_time = datetime.combine(date_obj.date(), current_time)
+            except ValueError:
+                # If date is invalid, use current datetime
+                date_with_time = datetime.now()
 
             # Start transaction
             conn.autocommit = False
@@ -746,7 +784,7 @@ def billed_purchase():
                     """INSERT INTO billed_purchases 
                     (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date, description) 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date, description)
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date_with_time, description)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -758,7 +796,7 @@ def billed_purchase():
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
                     VALUES (%s, %s, %s, 'debit', %s, 'billed_purchase')""",
-                    (trans_description, total_amount, date, purchase_id)
+                    (trans_description, total_amount, date_with_time, purchase_id)
                 )
                 
                 # Commit both operations
@@ -806,13 +844,22 @@ def non_billed_purchase():
             vendor_name = request.form['vendor_name']
             amount = Decimal(request.form['amount'])
             quantity = int(request.form.get('quantity', 1))
-            date = request.form['date']
+            date_str = request.form['date']
             item_details = request.form['item_details']
             notes = request.form.get('notes', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
+            
+            # Convert date string to datetime with current time
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                current_time = datetime.now().time()
+                date_with_time = datetime.combine(date_obj.date(), current_time)
+            except ValueError:
+                # If date is invalid, use current datetime
+                date_with_time = datetime.now()
             
             # Start transaction
             conn.autocommit = False
@@ -823,7 +870,7 @@ def non_billed_purchase():
                     """INSERT INTO purchases 
                     (vendor_name, amount, quantity, payment_type, payment_status, date, item_details, notes) 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, payment_type, payment_status, date, item_details, notes)
+                    (vendor_name, amount, quantity, payment_type, payment_status, date_with_time, item_details, notes)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -835,7 +882,7 @@ def non_billed_purchase():
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
                     VALUES (%s, %s, %s, 'debit', %s, 'purchase')""",
-                    (description, amount, date, purchase_id)
+                    (description, amount, date_with_time, purchase_id)
                 )
                 
                 # Commit both operations
@@ -1345,6 +1392,9 @@ def mark_as_paid(sale_type, sale_id):
         # Get the payment amount from the form
         payment_amount = Decimal(request.form.get('payment_amount', 0))
         
+        # Get current datetime for transaction
+        current_datetime = datetime.now()
+        
         if sale_type == 'bill':
             # First, get the current bill data
             cursor.execute("SELECT total_amount, paid_amount FROM bills WHERE id = %s", (sale_id,))
@@ -1383,8 +1433,8 @@ def mark_as_paid(sale_type, sale_id):
                 cursor.execute(
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
-                    VALUES (%s, %s, CURRENT_DATE(), 'credit', %s, 'bill_payment')""",
-                    (f"Partial payment for bill #{sale_id}", payment_amount, sale_id)
+                    VALUES (%s, %s, %s, 'credit', %s, 'bill_payment')""",
+                    (f"Partial payment for bill #{sale_id}", payment_amount, current_datetime, sale_id)
                 )
             
         elif sale_type == 'non_billed':
@@ -1425,8 +1475,8 @@ def mark_as_paid(sale_type, sale_id):
                 cursor.execute(
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
-                    VALUES (%s, %s, CURRENT_DATE(), 'credit', %s, 'non_billed_payment')""",
-                    (f"Partial payment for non-billed sale #{sale_id}", payment_amount, sale_id)
+                    VALUES (%s, %s, %s, 'credit', %s, 'non_billed_payment')""",
+                    (f"Partial payment for non-billed sale #{sale_id}", payment_amount, current_datetime, sale_id)
                 )
             
         conn.commit()
@@ -1507,6 +1557,9 @@ def mark_purchase_as_paid(purchase_type, purchase_id):
         # Get the payment amount from the form
         payment_amount = Decimal(request.form.get('payment_amount', 0))
         
+        # Get current datetime for transaction
+        current_datetime = datetime.now()
+        
         if purchase_type == 'billed_purchase':
             # First, get the current purchase data
             cursor.execute("SELECT amount, paid_amount, gst_percentage FROM billed_purchases WHERE id = %s", (purchase_id,))
@@ -1547,8 +1600,8 @@ def mark_purchase_as_paid(purchase_type, purchase_id):
                 cursor.execute(
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
-                    VALUES (%s, %s, CURRENT_DATE(), 'debit', %s, 'billed_purchase_payment')""",
-                    (f"Partial payment for billed purchase #{purchase_id}", payment_amount, purchase_id)
+                    VALUES (%s, %s, %s, 'debit', %s, 'billed_purchase_payment')""",
+                    (f"Partial payment for billed purchase #{purchase_id}", payment_amount, current_datetime, purchase_id)
                 )
             
         elif purchase_type == 'purchase':
@@ -1589,8 +1642,8 @@ def mark_purchase_as_paid(purchase_type, purchase_id):
                 cursor.execute(
                     """INSERT INTO transactions 
                     (description, amount, date, transaction_type, reference_id, reference_type) 
-                    VALUES (%s, %s, CURRENT_DATE(), 'debit', %s, 'purchase_payment')""",
-                    (f"Partial payment for non-billed purchase #{purchase_id}", payment_amount, purchase_id)
+                    VALUES (%s, %s, %s, 'debit', %s, 'purchase_payment')""",
+                    (f"Partial payment for non-billed purchase #{purchase_id}", payment_amount, current_datetime, purchase_id)
                 )
             
         conn.commit()

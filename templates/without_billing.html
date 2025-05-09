@@ -380,7 +380,7 @@
                         </div>
                         <div>
                             <div class="label">Date</div>
-                            <div>{{ sale.date.strftime('%Y-%m-%d') if sale.date is not none else 'N/A' }}</div>
+                            <div>{{ sale.date.strftime('%Y-%m-%d %H:%M:%S') if sale.date is not none else 'N/A' }}</div>
                         </div>
                     </div>
                     <div class="description">

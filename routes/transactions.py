@@ -22,7 +22,7 @@ def create_transactions_table():
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            date DATE NOT NULL,
+            date DATETIME NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
             description VARCHAR(255) NOT NULL,
             narration TEXT,
@@ -42,6 +42,19 @@ def update_transactions_table():
     try:
         db = get_db_connection()
         cursor = db.cursor()
+        
+        # Check if date column is DATETIME or DATE
+        cursor.execute("""
+            SELECT COLUMN_TYPE
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'transactions'
+            AND COLUMN_NAME = 'date'
+        """)
+        date_type = cursor.fetchone()
+        if date_type and date_type[0] == "date":
+            # Convert DATE to DATETIME
+            cursor.execute("ALTER TABLE transactions MODIFY COLUMN date DATETIME NOT NULL")
+            print("Updated date column to DATETIME")
         
         # Check if transaction_type column exists
         cursor.execute("""
@@ -132,19 +145,31 @@ def add_transaction():
     if request.method == 'POST':
         description = request.form['description']
         amount = request.form['amount']
-        date = request.form['date']
+        date_str = request.form['date']
+        time_str = request.form.get('time', '00:00')
         transaction_type = request.form.get('transaction_type', 'credit')
         narration = request.form.get('narration', '')
+        
+        # Combine date and time into a datetime object
+        try:
+            date_time_str = f"{date_str} {time_str}"
+            date_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+        except ValueError:
+            # If time format is invalid, default to midnight
+            date_time = datetime.strptime(date_str, '%Y-%m-%d')
         
         db = get_db_connection()
         cursor = db.cursor()
         cursor.execute("INSERT INTO transactions (description, amount, date, transaction_type, narration) VALUES (%s, %s, %s, %s, %s)",
-                      (description, amount, date, transaction_type, narration))
+                      (description, amount, date_time, transaction_type, narration))
         db.commit()
         db.close()
         flash("Transaction added successfully!", "success")
         return redirect(url_for('transactions.show_transactions'))
-    return render_template('add_transaction.html')
+    
+    # Pass current datetime to template
+    now = datetime.now()
+    return render_template('add_transaction.html', now=now)
 
 @transactions.route('/transactions/delete/<int:id>', methods=['POST', 'GET'])
 @login_required
@@ -195,7 +220,7 @@ def download_transactions():
         
         # Format dates nicely
         if 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+            df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d %H:%M:%S')
         if 'created_at' in df.columns:
             df['created_at'] = pd.to_datetime(df['created_at']).dt.strftime('%Y-%m-%d %H:%M:%S')
         
@@ -211,6 +236,14 @@ def download_transactions():
                 return f"Non-billed Sale #{int(row['reference_id'])}"
             elif row['reference_type'] == 'bill':
                 return f"Bill #{int(row['reference_id'])}"
+            elif row['reference_type'] == 'bill_payment':
+                return f"Bill Payment #{int(row['reference_id'])}"
+            elif row['reference_type'] == 'non_billed_payment':
+                return f"Non-billed Sale Payment #{int(row['reference_id'])}"
+            elif row['reference_type'] == 'billed_purchase_payment':
+                return f"Billed Purchase Payment #{int(row['reference_id'])}"
+            elif row['reference_type'] == 'purchase_payment':
+                return f"Purchase Payment #{int(row['reference_id'])}"
             else:
                 return f"{row['reference_type']} #{int(row['reference_id'])}"
         
@@ -218,7 +251,7 @@ def download_transactions():
         
         # Rename columns for better readability
         columns_to_display = {
-            'date': 'Date',
+            'date': 'Date & Time',
             'description': 'Description',
             'narration': 'Narration',
             'amount': 'Amount',

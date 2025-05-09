@@ -819,48 +819,24 @@
                 <table class="transactions-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date & Time</th>
                             <th>Description</th>
-                            <th>Narration</th>
                             <th>Amount</th>
                             <th>Type</th>
-                            <th>Source</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for txn in transactions %}
-                        <tr class="{{ txn.transaction_type if txn.transaction_type else 'credit' }}">
-                            <td class="transaction-date">{{ txn.date.strftime('%d %b %Y') if txn.date.strftime else txn.date }}</td>
-                            <td class="transaction-description">{{ txn.description }}</td>
-                            <td class="transaction-narration">{{ txn.narration if txn.narration else "" }}</td>
-                            <td class="transaction-amount {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
-                                ₹{{ "%.2f"|format(txn.amount|float) }}
-                            </td>
-                            <td class="transaction-type">
-                                <span class="transaction-tag {{ txn.transaction_type if txn.transaction_type else 'credit' }}">
-                                    {{ txn.transaction_type|capitalize if txn.transaction_type else 'Credit' }}
-                                </span>
-                            </td>
-                            <td class="transaction-source">
-                                {% if txn.reference_type == 'purchase' %}
-                                    <i class="fas fa-shopping-cart"></i> Purchase #{{ txn.reference_id }}
-                                {% elif txn.reference_type == 'billed_purchase' %}
-                                    <i class="fas fa-file-invoice"></i> Billed Purchase #{{ txn.reference_id }}
-                                {% elif txn.reference_type == 'non_billed_sale' %}
-                                    <i class="fas fa-shopping-bag"></i> Non-billed Sale #{{ txn.reference_id }}
-                                {% elif txn.reference_type == 'bill' %}
-                                    <i class="fas fa-receipt"></i> Bill #{{ txn.reference_id }}
-                                {% else %}
-                                    <i class="fas fa-keyboard"></i> Manual Entry
-                                {% endif %}
-                            </td>
-                            <td class="transaction-actions">
-                                <a href="{{ url_for('transactions.delete_transaction', id=txn.id) }}" 
-                                   class="action-btn delete"
-                                   onclick="return confirm('Are you sure you want to delete this transaction?')">
-                                   <i class="fas fa-trash-alt"></i> Delete
-                                </a>
+                        {% for transaction in transactions %}
+                        <tr class="{{ transaction.transaction_type }}">
+                            <td>{{ transaction.date.strftime('%Y-%m-%d %H:%M:%S') if transaction.date is defined and transaction.date is not string else transaction.date }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td>₹{{ transaction.amount }}</td>
+                            <td><span class="tag {{ transaction.transaction_type }}">{{ transaction.transaction_type|title }}</span></td>
+                            <td class="actions">
+                                <form action="{{ url_for('transactions.delete_transaction', id=transaction.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
