@@ -84,8 +84,9 @@
     </style>
 </head>
 <body>
+    {% include 'includes/header_navigation.html' %}
+
     <div class="container">
-        <a href="{{ url_for('sales.non_billed_purchase') }}" class="back-link">← Back to Non-Billed Purchases</a>
         <h1>Edit Non-Billed Purchase</h1>
 
         <form method="POST">
