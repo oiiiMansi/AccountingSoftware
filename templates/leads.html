@@ -413,40 +413,7 @@
 </head>
 
 <body>
-    <header>
-        <div class="logo">KK Enterprises</div>
-        <nav>
-            <div class="dropdown">
-                <a href="/">Dashboard</a>
-            </div>
-            <div class="dropdown">
-                <a href="/sales">Sales</a>
-            </div>
-            <div class="dropdown">
-                <a href="/purchase">Purchase</a>
-            </div>
-            <div class="dropdown">
-                <a href="#">Accounts</a>
-                <div class="dropdown-content">
-                    <a href="/expenses">Expenses</a>
-                    <a href="/transactions">Transactions</a>
-                    <a href="/salary">Salary</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#">Management</a>
-                <div class="dropdown-content">
-                    <a href="/stock">Stock</a>
-                    <a href="/employees">Employees</a>
-                    <a href="/sales/leads">Employee Targets</a>
-                    <a href="/reports">Reports</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="/logout">Logout</a>
-            </div>
-        </nav>
-    </header>
+    {% include 'includes/header_navigation.html' %}
 
     <div class="container">
         <div class="page-header">
