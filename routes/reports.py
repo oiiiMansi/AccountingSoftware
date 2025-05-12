@@ -362,38 +362,54 @@ def get_payables_report():
 @reports.route("/reports/download-report", methods=["POST"])  # Adding alternate route to be safe
 def download_report():
     """Generate Excel report for download"""
-    print("Download report route hit")  # Debug logging
+    print("="*50)
+    print("DOWNLOAD REPORT ROUTE HIT")
+    print("="*50)
+    print(f"Form data: {request.form}")
+    
     try:
         report_type = request.form.get("report_type")
-        print(f"Report type requested: {report_type}")  # Debug logging
+        print(f"Report type requested: {report_type}")
         
         if not report_type:
-            print("No report type provided")  # Debug logging
+            print("Error: No report type provided")
             flash("Report type is required", "danger")
             return redirect(url_for('reports.show_reports'))
             
         date_range = request.form.get("date_range", "month")
-        print(f"Date range: {date_range}")  # Debug logging
+        print(f"Date range: {date_range}")
         
         start_date, end_date = get_date_range(date_range)
-        print(f"Start date: {start_date}, End date: {end_date}")  # Debug logging
+        print(f"Start date: {start_date}, End date: {end_date}")
         
+        # Verify database connection
+        db = get_db()
+        if not db:
+            print("Error: No database connection")
+            flash("Database connection error", "danger")
+            return redirect(url_for('reports.show_reports'))
+            
         # Create dataframe based on report type
+        print(f"Generating DataFrame for {report_type}...")
         df = generate_report_dataframe(report_type, start_date, end_date)
         
         if df.empty:
-            print(f"No data found for {report_type}")  # Debug logging
+            print(f"No data found for {report_type}")
             flash(f"No data found for {report_type} report", "warning")
             return redirect(url_for('reports.show_reports'))
             
-        print(f"DataFrame created with {len(df)} rows")  # Debug logging
+        print(f"DataFrame created with {len(df)} rows and columns: {list(df.columns)}")
+        print(f"DataFrame sample:\n{df.head()}")
         
         # Prepare the Excel file in memory
         output = io.BytesIO()
         
         try:
+            print("Creating Excel writer...")
             # Use xlsxwriter engine for better formatting
             writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            
+            print("Writing DataFrame to Excel...")
             df.to_excel(writer, index=False, sheet_name=report_type.capitalize())
             
             # Get workbook and worksheet objects
@@ -401,10 +417,11 @@ def download_report():
             worksheet = writer.sheets[report_type.capitalize()]
             
             # Add formats
+            print("Formatting Excel file...")
             header_format = workbook.add_format({
                 'bold': True,
                 'bg_color': '#FFA500',
-                'color': 'white',
+                'font_color': 'white',
                 'border': 1
             })
             
@@ -414,43 +431,58 @@ def download_report():
                 
             # Adjust columns width
             for i, col in enumerate(df.columns):
-                column_width = max(df[col].astype(str).map(len).max(), len(col) + 2)
+                column_len = max([len(str(s)) for s in df[col].values] + [len(col)])
+                column_width = min(max(column_len + 2, len(col) + 2), 50)  # Cap width at 50
                 worksheet.set_column(i, i, column_width)
             
+            print("Closing Excel writer...")
             # Close the writer
             writer.close()
             
-            print("Excel file created successfully")  # Debug logging
+            print("Excel file created successfully")
             
         except Exception as excel_error:
-            print(f"Error creating Excel file: {str(excel_error)}")  # Debug logging
+            print(f"Error creating Excel file: {str(excel_error)}")
+            import traceback
+            print(f"Excel error traceback:\n{traceback.format_exc()}")
             raise excel_error
             
+        # Prepare for download
         output.seek(0)
         
         # Generate filename with current date
         filename = f"{report_type}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-        print(f"Sending file: {filename}")  # Debug logging
+        print(f"Sending file: {filename}")
         
-        response = send_file(
-            output,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name=filename
-        )
-        
-        # Add headers to prevent caching
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        
-        print("File sent successfully")  # Debug logging
-        return response
+        try:
+            print("Creating response with send_file...")
+            response = send_file(
+                output,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                as_attachment=True,
+                download_name=filename
+            )
+            
+            # Add headers to prevent caching
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+            
+            print("File sent successfully")
+            print("="*50)
+            return response
+            
+        except Exception as send_error:
+            print(f"Error sending file: {str(send_error)}")
+            import traceback
+            print(f"Send error traceback:\n{traceback.format_exc()}")
+            raise send_error
         
     except Exception as e:
-        print(f"Error in download_report: {str(e)}")  # Debug logging
+        print(f"Error in download_report: {str(e)}")
         import traceback
-        print(traceback.format_exc())  # Print full error traceback
+        print(f"Full error traceback:\n{traceback.format_exc()}")
+        print("="*50)
         flash(f"Error generating report: {str(e)}", "danger")
         return redirect(url_for('reports.show_reports'))
 
@@ -487,6 +519,7 @@ def get_date_range(date_range_str):
 
 def generate_report_dataframe(report_type, start_date, end_date):
     """Generate pandas DataFrame for the given report type and date range"""
+    print(f"Generating {report_type} DataFrame for date range: {start_date} to {end_date}")
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
@@ -496,41 +529,58 @@ def generate_report_dataframe(report_type, start_date, end_date):
     try:
         if report_type == 'income_statement':
             # Get revenue data
-            cursor.execute("""
-                SELECT 'Revenue' as Type, 'Billed Sales' as Category, SUM(total_amount) as Amount
+            print("Executing income statement SQL query...")
+            query = """
+                SELECT 'Revenue' as Type, 'Billed Sales' as Category, COALESCE(SUM(total_amount), 0) as Amount
                 FROM bills
                 WHERE date BETWEEN %s AND %s
                 UNION ALL
-                SELECT 'Revenue' as Type, 'Non-Billed Sales' as Category, SUM(amount) as Amount
+                SELECT 'Revenue' as Type, 'Non-Billed Sales' as Category, COALESCE(SUM(amount), 0) as Amount
                 FROM non_billed_sales
                 WHERE date BETWEEN %s AND %s
                 UNION ALL
-                SELECT 'Expenses' as Type, category as Category, SUM(amount) as Amount
+                SELECT 'Expenses' as Type, category as Category, COALESCE(SUM(amount), 0) as Amount
                 FROM expenses
                 WHERE date BETWEEN %s AND %s
                 GROUP BY category
                 UNION ALL
-                SELECT 'Expenses' as Type, 'Salary' as Category, SUM(amount) as Amount
+                SELECT 'Expenses' as Type, 'Salary' as Category, COALESCE(SUM(amount), 0) as Amount
                 FROM salary
                 WHERE date BETWEEN %s AND %s
                 UNION ALL
                 SELECT 'Expenses' as Type, 'Purchases' as Category, 
-                       SUM(amount * (1 + gst_percentage/100)) as Amount
+                       COALESCE(SUM(amount * (1 + gst_percentage/100)), 0) as Amount
                 FROM billed_purchases
                 WHERE date BETWEEN %s AND %s
-            """, (start_date_str, end_date_str) * 5)
+            """
+            print(f"SQL Query: {query}")
+            cursor.execute(query, (start_date_str, end_date_str) * 5)
             
             data = cursor.fetchall()
+            print(f"Query returned {len(data)} rows")
+            
             if not data:
+                print("No data returned from query")
                 return pd.DataFrame()
+            
+            # Convert all values to ensure they're properly formatted    
+            for row in data:
+                if 'Amount' in row and row['Amount'] is not None:
+                    # Convert Decimal or any other numeric type to float
+                    row['Amount'] = float(row['Amount'])
+                else:
+                    row['Amount'] = 0.0
                 
             # Convert to DataFrame
+            print("Creating pandas DataFrame from query results")
             df = pd.DataFrame(data)
             
             # Calculate totals
             revenue_total = df[df['Type'] == 'Revenue']['Amount'].sum()
             expenses_total = df[df['Type'] == 'Expenses']['Amount'].sum()
             net_income = revenue_total - expenses_total
+            
+            print(f"Calculated totals: Revenue={revenue_total}, Expenses={expenses_total}, Net Income={net_income}")
             
             # Add totals
             totals_df = pd.DataFrame([
@@ -542,8 +592,9 @@ def generate_report_dataframe(report_type, start_date, end_date):
             df = pd.concat([df, totals_df], ignore_index=True)
             
             # Format amounts
-            df['Amount'] = df['Amount'].fillna(0).round(2)
+            df['Amount'] = df['Amount'].fillna(0).astype(float).round(2)
             
+            print(f"Final DataFrame shape: {df.shape}")
             return df
             
         elif report_type == 'cash_flow':

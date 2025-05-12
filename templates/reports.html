@@ -578,6 +578,11 @@
                         <button class="btn btn-success" onclick="downloadCurrentReport()">
                             <i class="fas fa-download"></i> Download Report
                         </button>
+                        <!-- Add a hidden backup form for direct download -->
+                        <form id="direct-download-form" method="POST" action="/download-report" style="display:none;">
+                            <input type="hidden" id="direct-report-type" name="report_type" value="">
+                            <input type="hidden" id="direct-date-range" name="date_range" value="">
+                        </form>
                     </div>
                 </div>
                 
@@ -1122,27 +1127,61 @@
 
             try {
                 showLoading();
-                console.log('Starting download process...');
+                console.log('Starting download process for ' + currentReport);
                 
+                // Prepare the report type and date range
+                const reportType = currentReport.replace(/-/g, '_');
+                const dateRange = getDateRangeParam();
+                
+                console.log('Report type:', reportType);
+                console.log('Date range:', dateRange);
+                
+                // Try the direct form method first (more reliable)
+                try {
+                    // Set values in the direct download form
+                    document.getElementById('direct-report-type').value = reportType;
+                    document.getElementById('direct-date-range').value = dateRange;
+                    
+                    // Submit the form
+                    console.log('Submitting direct download form...');
+                    document.getElementById('direct-download-form').submit();
+                    
+                    // Show success message after a delay
+                    setTimeout(() => {
+                        hideLoading();
+                        showToast('Download started. Check your downloads folder.', 'success');
+                    }, 2000);
+                    
+                    return;
+                } catch (directError) {
+                    console.error('Error with direct form method:', directError);
+                    // Fall back to iframe method if direct form fails
+                }
+                
+                // Create an iframe for the download to avoid page reload
+                let downloadFrame = document.createElement('iframe');
+                downloadFrame.style.display = 'none';
+                document.body.appendChild(downloadFrame);
+                
+                // Create the form
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/reports/download-report';
+                form.action = '/download-report';
+                form.target = downloadFrame.name = 'download_frame_' + Date.now();
                 
                 // Add report type
                 const reportTypeInput = document.createElement('input');
                 reportTypeInput.type = 'hidden';
                 reportTypeInput.name = 'report_type';
-                reportTypeInput.value = currentReport.replace(/-/g, '_');
+                reportTypeInput.value = reportType;
                 form.appendChild(reportTypeInput);
-                console.log('Report type:', reportTypeInput.value);
 
                 // Add date range
                 const dateRangeInput = document.createElement('input');
                 dateRangeInput.type = 'hidden';
                 dateRangeInput.name = 'date_range';
-                dateRangeInput.value = getDateRangeParam();
+                dateRangeInput.value = dateRange;
                 form.appendChild(dateRangeInput);
-                console.log('Date range:', dateRangeInput.value);
 
                 // Add CSRF token if using Flask-WTF
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -1156,14 +1195,29 @@
 
                 // Submit the form
                 document.body.appendChild(form);
-                console.log('Submitting form...');
-                form.submit();
+                console.log('Form created and appended to document');
                 
-                // Remove the form after a short delay
+                // Submit the form after a short delay
                 setTimeout(() => {
-                    document.body.removeChild(form);
-                    hideLoading();
-                }, 1000);
+                    console.log('Submitting form...');
+                    form.submit();
+                    
+                    // Set a timeout to hide loading and show success message
+                    setTimeout(() => {
+                        hideLoading();
+                        showToast('Download started successfully. Check your downloads folder.', 'success');
+                        
+                        // Clean up form and iframe after a delay
+                        setTimeout(() => {
+                            if (document.body.contains(form)) {
+                                document.body.removeChild(form);
+                            }
+                            if (document.body.contains(downloadFrame)) {
+                                document.body.removeChild(downloadFrame);
+                            }
+                        }, 5000);
+                    }, 2000);
+                }, 100);
                 
             } catch (error) {
                 console.error('Error in downloadCurrentReport:', error);
