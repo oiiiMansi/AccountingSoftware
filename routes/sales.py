@@ -321,6 +321,12 @@ def without_billing():
             payment_type = request.form.get('payment_type')
             logger.info(f"Raw payment_type value: {payment_type}")
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+                logger.info(f"Payment subtype: {payment_subtype}")
+            
             # Sanitize and validate payment_type
             if payment_type not in ['Cash', 'Credit']:
                 logger.warning(f"Invalid payment_type: {payment_type}, defaulting to Cash")
@@ -328,7 +334,7 @@ def without_billing():
             
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
-            logger.info(f"Final payment_type: {payment_type}, payment_status: {payment_status}")
+            logger.info(f"Final payment_type: {payment_type}, payment_subtype: {payment_subtype}, payment_status: {payment_status}")
             
             # Convert date string to datetime with current time
             try:
@@ -347,11 +353,11 @@ def without_billing():
                 sql = """
                 INSERT INTO non_billed_sales 
                 (customer_name, contact_number, item_details, quantity, amount, 
-                payment_type, payment_status, date, notes) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                payment_type, payment_subtype, payment_status, date, notes) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 params = (customer_name, contact_number, item_details, quantity, amount, 
-                        payment_type, payment_status, date_with_time, notes)
+                        payment_type, payment_subtype, payment_status, date_with_time, notes)
                 
                 logger.info(f"Executing SQL: {sql}")
                 logger.info(f"With parameters: {params}")
@@ -449,6 +455,11 @@ def edit_non_billed_sale(sale_id):
             notes = request.form.get('notes', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
 
@@ -465,13 +476,14 @@ def edit_non_billed_sale(sale_id):
                         quantity = %s,
                         amount = %s,
                         payment_type = %s,
+                        payment_subtype = %s,
                         payment_status = %s,
                         date = %s,
                         notes = %s
                     WHERE id = %s
                 """, (
                     customer_name, contact_number, item_details, quantity, amount, 
-                    payment_type, payment_status, date, notes, sale_id
+                    payment_type, payment_subtype, payment_status, date, notes, sale_id
                 ))
                 
                 # Update corresponding transaction record
@@ -1265,6 +1277,15 @@ def update_sales_tables():
             cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER amount")
             conn.commit()
             print("Added payment_type column to non_billed_sales table")
+            
+        # Add payment_subtype column if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'payment_subtype'")
+        payment_subtype_exists = cursor.fetchone()
+        
+        if not payment_subtype_exists:
+            cursor.execute("ALTER TABLE non_billed_sales ADD COLUMN payment_subtype VARCHAR(50) DEFAULT 'Cash' AFTER payment_type")
+            conn.commit()
+            print("Added payment_subtype column to non_billed_sales table")
             
         cursor.execute("SHOW COLUMNS FROM non_billed_sales LIKE 'payment_status'")
         payment_status_exists = cursor.fetchone()

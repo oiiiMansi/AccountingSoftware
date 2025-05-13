@@ -210,6 +210,14 @@
                 <option value="Credit" {% if sale.payment_type == 'Credit' %}selected{% endif %}>Credit</option>
             </select>
 
+            <div id="payment_subtype_container" style="display: {% if sale.payment_type == 'Cash' %}block{% else %}none{% endif %};">
+                <label for="payment_subtype">Payment Method:</label>
+                <select id="payment_subtype" name="payment_subtype">
+                    <option value="Cash" {% if sale.payment_subtype == 'Cash' or not sale.payment_subtype %}selected{% endif %}>Cash</option>
+                    <option value="Bank" {% if sale.payment_subtype == 'Bank' %}selected{% endif %}>Bank</option>
+                </select>
+            </div>
+
             <label for="date">Date:</label>
             <input type="date" id="date" name="date" value="{{ sale.date.strftime('%Y-%m-%d') if sale.date else '' }}" required>
 
@@ -226,5 +234,25 @@
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle payment type change to show/hide payment subtype
+            const paymentTypeSelect = document.getElementById('payment_type');
+            const paymentSubtypeContainer = document.getElementById('payment_subtype_container');
+            
+            // Function to toggle payment subtype visibility
+            function togglePaymentSubtype() {
+                if (paymentTypeSelect.value === 'Cash') {
+                    paymentSubtypeContainer.style.display = 'block';
+                } else {
+                    paymentSubtypeContainer.style.display = 'none';
+                }
+            }
+            
+            // Add change event listener
+            paymentTypeSelect.addEventListener('change', togglePaymentSubtype);
+        });
+    </script>
 </body>
 </html> 
