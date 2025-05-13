@@ -221,11 +221,17 @@ def billing():
                 payment_type = 'Credit'
                 logger.info("This is a test credit sale - forcing Credit payment_type")
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+                logger.info(f"Payment subtype: {payment_subtype}")
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
             # CRITICAL: Log the final decision
-            logger.info(f"FINAL DECISION: payment_type={payment_type}, payment_status={payment_status}")
+            logger.info(f"FINAL DECISION: payment_type={payment_type}, payment_subtype={payment_subtype}, payment_status={payment_status}")
             
             # Get other form fields
             customer_number = request.form.get('customer_number', '')
@@ -246,13 +252,13 @@ def billing():
             INSERT INTO bills 
             (customer_name, customer_number, customer_address, shipping_address, 
             basic_amount, quantity, gst_type, gst_percentage, gst_amount, total_amount,
-            payment_type, payment_status, date) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            payment_type, payment_subtype, payment_status, date) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             params = (
                 customer_name, customer_number, customer_address, shipping_address,
                 amount, quantity, gst_type, gst_percentage, gst_amount, total_amount,
-                payment_type, payment_status, date_with_time
+                payment_type, payment_subtype, payment_status, date_with_time
             )
             
             cursor.execute(sql, params)
@@ -567,6 +573,15 @@ def edit_bill(bill_id):
             shipping_address = request.form.get('shipping_address', '')
             gst_type = request.form.get('gst_type', '')
             gst_percentage = Decimal(request.form.get('gst_percentage', 0))
+            payment_type = request.form.get('payment_type', 'Cash')
+            
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+            
+            # Set payment status based on payment type
+            payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
 
             # Calculate GST and total amount
             gst_amount = 0
@@ -591,11 +606,15 @@ def edit_bill(bill_id):
                         gst_percentage = %s,
                         gst_amount = %s,
                         total_amount = %s,
-                        date = %s
+                        date = %s,
+                        payment_type = %s,
+                        payment_subtype = %s,
+                        payment_status = %s
                     WHERE id = %s
                 """, (
                     customer_name, customer_number, customer_address, shipping_address,
-                    basic_amount, quantity, gst_type, gst_percentage, gst_amount, total_amount, date, bill_id
+                    basic_amount, quantity, gst_type, gst_percentage, gst_amount, total_amount, date,
+                    payment_type, payment_subtype, payment_status, bill_id
                 ))
                 
                 # Check if there's a corresponding transaction
@@ -1319,6 +1338,15 @@ def update_sales_tables():
             cursor.execute("ALTER TABLE bills ADD COLUMN payment_type ENUM('Cash', 'Credit') DEFAULT 'Cash' AFTER total_amount")
             conn.commit()
             print("Added payment_type column to bills table")
+            
+        # Add payment_subtype column to bills if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM bills LIKE 'payment_subtype'")
+        payment_subtype_exists = cursor.fetchone()
+        
+        if not payment_subtype_exists:
+            cursor.execute("ALTER TABLE bills ADD COLUMN payment_subtype VARCHAR(50) DEFAULT 'Cash' AFTER payment_type")
+            conn.commit()
+            print("Added payment_subtype column to bills table")
             
         cursor.execute("SHOW COLUMNS FROM bills LIKE 'payment_status'")
         payment_status_exists = cursor.fetchone()
