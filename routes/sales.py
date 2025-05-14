@@ -886,6 +886,12 @@ def non_billed_purchase():
             notes = request.form.get('notes', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+                logger.info(f"Payment subtype: {payment_subtype}")
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
@@ -905,9 +911,9 @@ def non_billed_purchase():
                 # Insert into purchases table
                 cursor.execute(
                     """INSERT INTO purchases 
-                    (vendor_name, amount, quantity, payment_type, payment_status, date, item_details, notes) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, payment_type, payment_status, date_with_time, item_details, notes)
+                    (vendor_name, amount, quantity, payment_type, payment_subtype, payment_status, date, item_details, notes) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, payment_type, payment_subtype, payment_status, date_with_time, item_details, notes)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -1051,6 +1057,11 @@ def edit_non_billed_purchase(purchase_id):
             notes = request.form.get('notes', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
@@ -1065,13 +1076,14 @@ def edit_non_billed_purchase(purchase_id):
                         amount = %s,
                         quantity = %s,
                         payment_type = %s,
+                        payment_subtype = %s,
                         payment_status = %s,
                         date = %s,
                         item_details = %s,
                         notes = %s
                     WHERE id = %s
                 """, (
-                    vendor_name, amount, quantity, payment_type, payment_status,
+                    vendor_name, amount, quantity, payment_type, payment_subtype, payment_status,
                     date, item_details, notes, purchase_id
                 ))
                 
