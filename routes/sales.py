@@ -791,6 +791,12 @@ def billed_purchase():
             description = request.form.get('description', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+                logger.info(f"Payment subtype: {payment_subtype}")
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
@@ -813,9 +819,9 @@ def billed_purchase():
                 # Insert into billed_purchases table
                 cursor.execute(
                     """INSERT INTO billed_purchases 
-                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date, description) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_status, date_with_time, description)
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_subtype, payment_status, date, description) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (vendor_name, amount, quantity, gst_type, gst_percentage, payment_type, payment_subtype, payment_status, date_with_time, description)
                 )
                 
                 # Get the ID of the inserted purchase
@@ -961,6 +967,11 @@ def edit_billed_purchase(purchase_id):
             description = request.form.get('description', '')
             payment_type = request.form.get('payment_type', 'Cash')
             
+            # Get payment_subtype when applicable
+            payment_subtype = 'Cash'  # Default value
+            if payment_type == 'Cash':
+                payment_subtype = request.form.get('payment_subtype', 'Cash')
+            
             # Set payment status based on payment type
             payment_status = 'Pending' if payment_type == 'Credit' else 'Paid'
             
@@ -980,13 +991,14 @@ def edit_billed_purchase(purchase_id):
                         gst_type = %s,
                         gst_percentage = %s,
                         payment_type = %s,
+                        payment_subtype = %s,
                         payment_status = %s,
                         date = %s,
                         description = %s
                     WHERE id = %s
                 """, (
                     vendor_name, amount, quantity, gst_type, gst_percentage, 
-                    payment_type, payment_status, date, description, purchase_id
+                    payment_type, payment_subtype, payment_status, date, description, purchase_id
                 ))
                 
                 # Update corresponding transaction record
@@ -1768,6 +1780,15 @@ def update_purchase_tables():
             conn.commit()
             print("Updated payment_status column in purchases table to include Partially Paid")
         
+        # Add payment_subtype to purchases if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM purchases LIKE 'payment_subtype'")
+        payment_subtype_exists = cursor.fetchone()
+        
+        if not payment_subtype_exists:
+            cursor.execute("ALTER TABLE purchases ADD COLUMN payment_subtype VARCHAR(50) DEFAULT 'Cash' AFTER payment_type")
+            conn.commit()
+            print("Added payment_subtype column to purchases table")
+        
         # Add paid_amount to purchases if it doesn't exist
         cursor.execute("SHOW COLUMNS FROM purchases LIKE 'paid_amount'")
         paid_amount_exists = cursor.fetchone()
@@ -1788,6 +1809,15 @@ def update_purchase_tables():
             cursor.execute("ALTER TABLE billed_purchases MODIFY COLUMN payment_status ENUM('Pending', 'Partially Paid', 'Paid') DEFAULT 'Paid'")
             conn.commit()
             print("Updated payment_status column in billed_purchases table to include Partially Paid")
+        
+        # Add payment_subtype to billed_purchases if it doesn't exist
+        cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'payment_subtype'")
+        payment_subtype_exists = cursor.fetchone()
+        
+        if not payment_subtype_exists:
+            cursor.execute("ALTER TABLE billed_purchases ADD COLUMN payment_subtype VARCHAR(50) DEFAULT 'Cash' AFTER payment_type")
+            conn.commit()
+            print("Added payment_subtype column to billed_purchases table")
         
         # Add paid_amount to billed_purchases if it doesn't exist
         cursor.execute("SHOW COLUMNS FROM billed_purchases LIKE 'paid_amount'")
