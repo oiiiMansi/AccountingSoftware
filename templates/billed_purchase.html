@@ -13,73 +13,6 @@
             background-color: #f5f5f5;
         }
         
-        /* Navigation Header Styles */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #333, #555);
-            color: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 10px;
-            transition: 0.3s ease-in-out;
-        }
-
-        .dropdown a:hover {
-            color: #ffa500;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            padding: 10px 0;
-            z-index: 1;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 15px;
-            display: block;
-            text-decoration: none;
-            transition: 0.3s ease-in-out;
-        }
-
-        .dropdown-content a:hover {
-            background: #ffa500;
-            color: white;
-        }
-        
         /* Page Content Styles */
         .container {
             max-width: 1200px; /* Increased from 900px */
@@ -212,40 +145,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">KK Enterprises</div>
-        <nav>
-            <div class="dropdown">
-                <a href="/">Dashboard</a>
-            </div>
-            <div class="dropdown">
-                <a href="/sales">Sales</a>
-            </div>
-            <div class="dropdown">
-                <a href="/purchase">Purchase</a>
-            </div>
-            <div class="dropdown">
-                <a href="#">Accounts</a>
-                <div class="dropdown-content">
-                    <a href="/expenses">Expenses</a>
-                    <a href="/transactions">Transactions</a>
-                    <a href="/salary">Salary</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="#">Management</a>
-                <div class="dropdown-content">
-                    <a href="/stock">Stock</a>
-                    <a href="/employees">Employees</a>
-                    <a href="/leads">Leads</a>
-                    <a href="/reports">Reports</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <a href="/logout">Logout</a>
-            </div>
-        </nav>
-    </header>
+    {% include 'includes/header_navigation.html' %}
     
     <div class="container">
         <a href="{{ url_for('sales.purchase') }}" class="back-link">← Back to Purchase Options</a>
