@@ -486,6 +486,228 @@ def download_report():
         flash(f"Error generating report: {str(e)}", "danger")
         return redirect(url_for('reports.show_reports'))
 
+@reports.route("/api/report/balance-sheet")
+def get_balance_sheet():
+    """Get balance sheet data"""
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
+    # Get date up to query parameters (balance sheet is as of a date)
+    date_range = request.args.get('date_range', 'month')
+    _, end_date = get_date_range(date_range)
+    
+    # Format date for SQL query
+    end_date_str = end_date.strftime('%Y-%m-%d')
+    
+    try:
+        # Get current assets
+        assets = []
+        
+        # Cash and Bank Balances (get latest balance)
+        cursor.execute("""
+            SELECT 'Cash and Bank Balances' as category, 
+                   COALESCE(SUM(
+                       CASE WHEN transaction_type = 'Income' THEN amount
+                            WHEN transaction_type = 'Expense' THEN -amount
+                            ELSE 0 END
+                   ), 0) as amount
+            FROM transactions
+            WHERE date <= %s
+        """, (end_date_str,))
+        cash_balance = cursor.fetchone()
+        if cash_balance and cash_balance['amount'] is not None:
+            assets.append({
+                'category': 'Cash and Bank Balances',
+                'amount': float(cash_balance['amount']),
+                'type': 'Current Assets'
+            })
+        
+        # Accounts Receivable (pending bills)
+        cursor.execute("""
+            SELECT 'Accounts Receivable' as category, 
+                   COALESCE(SUM(total_amount), 0) as amount
+            FROM bills
+            WHERE payment_status = 'Pending' AND date <= %s
+        """, (end_date_str,))
+        receivables = cursor.fetchone()
+        if receivables and receivables['amount'] is not None:
+            assets.append({
+                'category': 'Accounts Receivable',
+                'amount': float(receivables['amount']),
+                'type': 'Current Assets'
+            })
+        
+        # Inventory (this is simplified - in a real system you would track inventory properly)
+        cursor.execute("""
+            SELECT 'Inventory' as category, 
+                   COALESCE(SUM(quantity * rate), 0) as amount
+            FROM stock_items
+            WHERE date_added <= %s
+        """, (end_date_str,))
+        inventory = cursor.fetchone()
+        if inventory and inventory['amount'] is not None:
+            assets.append({
+                'category': 'Inventory',
+                'amount': float(inventory['amount']),
+                'type': 'Current Assets'
+            })
+            
+        # Get liabilities
+        liabilities = []
+        
+        # Accounts Payable (pending purchases)
+        cursor.execute("""
+            SELECT 'Accounts Payable' as category, 
+                   COALESCE(SUM(amount * (1 + gst_percentage/100)), 0) as amount
+            FROM billed_purchases
+            WHERE payment_type = 'Credit' AND payment_status = 'Pending' 
+            AND date <= %s
+        """, (end_date_str,))
+        payables = cursor.fetchone()
+        if payables and payables['amount'] is not None:
+            liabilities.append({
+                'category': 'Accounts Payable',
+                'amount': float(payables['amount']),
+                'type': 'Current Liabilities'
+            })
+        
+        # Calculate equity (simplified to just retained earnings)
+        # In a real system, you would track owner investments, withdrawals, etc.
+        
+        # Total Revenue - all time up to date
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as revenue
+            FROM bills
+            WHERE date <= %s
+        """, (end_date_str,))
+        revenue_billed = cursor.fetchone()['revenue'] or 0
+        
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount), 0) as revenue
+            FROM non_billed_sales
+            WHERE date <= %s
+        """, (end_date_str,))
+        revenue_nonbilled = cursor.fetchone()['revenue'] or 0
+        
+        total_revenue = float(revenue_billed) + float(revenue_nonbilled)
+        
+        # Total Expenses - all time up to date
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount), 0) as expenses
+            FROM expenses
+            WHERE date <= %s
+        """, (end_date_str,))
+        total_expenses = float(cursor.fetchone()['expenses'] or 0)
+        
+        # Total Salary - all time up to date
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount), 0) as salary
+            FROM salary
+            WHERE date <= %s
+        """, (end_date_str,))
+        total_salary = float(cursor.fetchone()['salary'] or 0)
+        
+        # Total Purchases - all time up to date
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount * (1 + gst_percentage/100)), 0) as purchases
+            FROM billed_purchases
+            WHERE date <= %s
+        """, (end_date_str,))
+        total_billed_purchases = float(cursor.fetchone()['purchases'] or 0)
+        
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount), 0) as purchases
+            FROM purchases
+            WHERE date <= %s
+        """, (end_date_str,))
+        total_nonbilled_purchases = float(cursor.fetchone()['purchases'] or 0)
+        
+        total_purchases = total_billed_purchases + total_nonbilled_purchases
+        
+        # Retained Earnings
+        retained_earnings = total_revenue - total_expenses - total_salary - total_purchases
+        
+        equity = [{
+            'category': 'Retained Earnings',
+            'amount': retained_earnings,
+            'type': 'Equity'
+        }]
+        
+        return jsonify({
+            'assets': assets,
+            'liabilities': liabilities,
+            'equity': equity,
+            'as_of_date': end_date_str
+        })
+    except Exception as e:
+        print(f"Error in get_balance_sheet: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@reports.route("/api/report/tax-summary")
+def get_tax_summary():
+    """Get tax summary report data"""
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
+    # Get date range from query parameters
+    date_range = request.args.get('date_range', 'month')
+    start_date, end_date = get_date_range(date_range)
+    
+    # Format dates for SQL query
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
+    
+    try:
+        # Get GST collected (on sales)
+        cursor.execute("""
+            SELECT 'GST Collected' as category, 
+                   COALESCE(SUM(gst_amount), 0) as amount
+            FROM bills
+            WHERE date BETWEEN %s AND %s
+        """, (start_date_str, end_date_str))
+        gst_collected = cursor.fetchone()
+        
+        # Get GST paid (on purchases)
+        cursor.execute("""
+            SELECT 'GST Paid' as category, 
+                   COALESCE(SUM(amount * gst_percentage/100), 0) as amount
+            FROM billed_purchases
+            WHERE date BETWEEN %s AND %s
+        """, (start_date_str, end_date_str))
+        gst_paid = cursor.fetchone()
+        
+        # Calculate net GST
+        gst_collected_amount = float(gst_collected['amount'] or 0)
+        gst_paid_amount = float(gst_paid['amount'] or 0)
+        net_gst = gst_collected_amount - gst_paid_amount
+        
+        # Get other tax categories if applicable (e.g., income tax)
+        
+        # Prepare response
+        tax_data = [
+            {
+                'category': 'GST Collected',
+                'amount': gst_collected_amount
+            },
+            {
+                'category': 'GST Paid (Input Tax Credit)',
+                'amount': gst_paid_amount
+            },
+            {
+                'category': 'Net GST Payable',
+                'amount': net_gst
+            }
+        ]
+        
+        return jsonify({
+            'tax_data': tax_data,
+            'start_date': start_date_str,
+            'end_date': end_date_str
+        })
+    except Exception as e:
+        print(f"Error in get_tax_summary: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 def get_date_range(date_range_str):
     """Convert date range string to start and end dates"""
     today = datetime.now().date()
@@ -669,6 +891,119 @@ def generate_report_dataframe(report_type, start_date, end_date):
             """)
             data = cursor.fetchall()
             return pd.DataFrame(data if data else [])
+            
+        elif report_type == 'balance_sheet':
+            # For balance sheet, we only care about the end date
+            cursor.execute("""
+                SELECT 'Current Assets' as Type, 'Cash and Bank Balances' as Category,
+                       (
+                           SELECT COALESCE(SUM(
+                               CASE WHEN transaction_type = 'Income' THEN amount
+                                    WHEN transaction_type = 'Expense' THEN -amount
+                                    ELSE 0 END
+                           ), 0)
+                           FROM transactions
+                           WHERE date <= %s
+                       ) as Amount
+                UNION ALL
+                SELECT 'Current Assets' as Type, 'Accounts Receivable' as Category,
+                       COALESCE((
+                           SELECT SUM(total_amount)
+                           FROM bills
+                           WHERE payment_status = 'Pending'
+                           AND date <= %s
+                       ), 0) as Amount
+                UNION ALL
+                SELECT 'Current Assets' as Type, 'Inventory' as Category,
+                       COALESCE((
+                           SELECT SUM(quantity * rate)
+                           FROM stock_items
+                           WHERE date_added <= %s
+                       ), 0) as Amount
+                UNION ALL
+                SELECT 'Current Liabilities' as Type, 'Accounts Payable' as Category,
+                       COALESCE((
+                           SELECT SUM(amount * (1 + gst_percentage/100))
+                           FROM billed_purchases
+                           WHERE payment_type = 'Credit' AND payment_status = 'Pending'
+                           AND date <= %s
+                       ), 0) as Amount
+            """, (end_date_str, end_date_str, end_date_str, end_date_str))
+            balance_sheet_data = cursor.fetchall()
+            
+            # Calculate equity (Retained Earnings)
+            cursor.execute("""
+                SELECT 
+                    (SELECT COALESCE(SUM(total_amount), 0)
+                     FROM bills
+                     WHERE date <= %s) +
+                    (SELECT COALESCE(SUM(amount), 0)
+                     FROM non_billed_sales
+                     WHERE date <= %s) -
+                    (SELECT COALESCE(SUM(amount), 0)
+                     FROM expenses
+                     WHERE date <= %s) -
+                    (SELECT COALESCE(SUM(amount), 0)
+                     FROM salary
+                     WHERE date <= %s) -
+                    (SELECT COALESCE(SUM(amount * (1 + gst_percentage/100)), 0)
+                     FROM billed_purchases
+                     WHERE date <= %s) -
+                    (SELECT COALESCE(SUM(amount), 0)
+                     FROM purchases
+                     WHERE date <= %s)
+                     AS retained_earnings
+            """, (end_date_str, end_date_str, end_date_str, end_date_str, end_date_str, end_date_str))
+            retained_earnings = cursor.fetchone()['retained_earnings'] or 0
+            
+            # Add to balance sheet data
+            balance_sheet_data.append({
+                'Type': 'Equity',
+                'Category': 'Retained Earnings',
+                'Amount': float(retained_earnings)
+            })
+            
+            # Calculate totals
+            assets_total = sum(float(item['Amount']) for item in balance_sheet_data if item['Type'] == 'Current Assets')
+            liabilities_total = sum(float(item['Amount']) for item in balance_sheet_data if item['Type'] == 'Current Liabilities')
+            equity_total = sum(float(item['Amount']) for item in balance_sheet_data if item['Type'] == 'Equity')
+            
+            # Add totals to data
+            balance_sheet_data.extend([
+                {'Type': 'Total', 'Category': 'Total Assets', 'Amount': assets_total},
+                {'Type': 'Total', 'Category': 'Total Liabilities', 'Amount': liabilities_total},
+                {'Type': 'Total', 'Category': 'Total Equity', 'Amount': equity_total},
+                {'Type': 'Total', 'Category': 'Total Liabilities and Equity', 'Amount': liabilities_total + equity_total}
+            ])
+            
+            return pd.DataFrame(balance_sheet_data)
+            
+        elif report_type == 'tax_summary':
+            cursor.execute("""
+                SELECT 'GST Collected' as Category,
+                       COALESCE(SUM(gst_amount), 0) as Amount
+                FROM bills
+                WHERE date BETWEEN %s AND %s
+                UNION ALL
+                SELECT 'GST Paid (Input Tax Credit)' as Category,
+                       COALESCE(SUM(amount * gst_percentage/100), 0) as Amount
+                FROM billed_purchases
+                WHERE date BETWEEN %s AND %s
+            """, (start_date_str, end_date_str, start_date_str, end_date_str))
+            tax_data = cursor.fetchall()
+            
+            # Calculate net GST
+            gst_collected = next((float(item['Amount']) for item in tax_data if item['Category'] == 'GST Collected'), 0)
+            gst_paid = next((float(item['Amount']) for item in tax_data if item['Category'] == 'GST Paid (Input Tax Credit)'), 0)
+            net_gst = gst_collected - gst_paid
+            
+            # Add net GST to data
+            tax_data.append({
+                'Category': 'Net GST Payable',
+                'Amount': net_gst
+            })
+            
+            return pd.DataFrame(tax_data)
         
         return pd.DataFrame()
         

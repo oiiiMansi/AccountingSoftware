@@ -529,6 +529,84 @@
             opacity: 0.5;
             pointer-events: none;
         }
+
+        /* Balance Sheet Specific Styles */
+        .balance-sheet-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .balance-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .category-row {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        .subtotal-row {
+            background-color: rgba(67, 97, 238, 0.05);
+            font-weight: 500;
+        }
+        
+        .total-row {
+            background-color: rgba(67, 97, 238, 0.1);
+            font-weight: 600;
+        }
+        
+        .balance-verification {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .balance-verification.balanced {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+        
+        .balance-verification.unbalanced {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger);
+        }
+        
+        /* Tax Summary Specific Styles */
+        .tax-summary-container {
+            margin-bottom: 30px;
+        }
+        
+        .tax-notes {
+            background-color: rgba(255, 152, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .tax-notes h4 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .tax-notes ul {
+            padding-left: 20px;
+        }
+        
+        .tax-notes li {
+            margin-bottom: 5px;
+            color: var(--gray);
+        }
     </style>
 </head>
 <body>
@@ -547,6 +625,7 @@
                     <li><a href="#receivables" onclick="showReport('receivables')"><span>Accounts Receivable</span></a></li>
                     <li><a href="#payables" onclick="showReport('payables')"><span>Accounts Payable</span></a></li>
                     <li><a href="#salary" onclick="showReport('salary')"><span>Salary Report</span></a></li>
+                    <li><a href="#tax-summary" onclick="showReport('tax-summary')"><span>Tax Summary</span></a></li>
                 </ul>
             </div>
             
@@ -673,6 +752,10 @@
                 </div>
                 
                 <div id="salary" class="report-section" style="display:none;">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div id="tax-summary" class="report-section" style="display:none;">
                     <!-- Will be filled dynamically -->
                 </div>
             </div>
@@ -812,6 +895,9 @@
                 case 'income-statement':
                     loadIncomeStatement(dateRange);
                     break;
+                case 'balance-sheet':
+                    loadBalanceSheet(dateRange);
+                    break;
                 case 'cash-flow':
                     loadCashFlow(dateRange);
                     break;
@@ -829,6 +915,9 @@
                     break;
                 case 'salary':
                     loadSalaryReport(dateRange);
+                    break;
+                case 'tax-summary':
+                    loadTaxSummary(dateRange);
                     break;
                 // Balance sheet will be implemented later
             }
@@ -1117,7 +1206,8 @@
         function downloadCurrentReport() {
             // Only allow download for valid report types
             const downloadableReports = [
-                'income-statement', 'cash-flow', 'sales', 'expenses', 'receivables', 'payables', 'salary'
+                'income-statement', 'cash-flow', 'sales', 'expenses', 
+                'receivables', 'payables', 'salary', 'balance-sheet', 'tax-summary'
             ];
             
             if (!downloadableReports.includes(currentReport)) {
@@ -1270,6 +1360,246 @@
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
+        }
+
+        // Load balance sheet data
+        function loadBalanceSheet(dateRange) {
+            // Show loading
+            document.getElementById('balance-sheet').innerHTML = '<div class="loading-message">Loading balance sheet data...</div>';
+            
+            fetch(`/api/report/balance-sheet?date_range=${dateRange}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showToast(`Error: ${data.error}`, 'error');
+                        document.getElementById('balance-sheet').innerHTML = '<div class="error-message">Failed to load balance sheet data</div>';
+                        return;
+                    }
+                    
+                    // Create balance sheet HTML
+                    let html = `
+                        <div class="section-header">
+                            <h2 class="section-title">Balance Sheet</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-primary" onclick="downloadCurrentReport()">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-info">
+                            <p class="report-date">As of: ${data.as_of_date}</p>
+                        </div>
+                        
+                        <div class="balance-sheet-container">
+                            <div class="balance-section">
+                                <h3 class="section-subtitle">Assets</h3>
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th class="amount-column">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                    
+                    // Add assets
+                    let totalAssets = 0;
+                    if (data.assets && data.assets.length > 0) {
+                        data.assets.forEach(asset => {
+                            html += `
+                                <tr>
+                                    <td>${asset.category}</td>
+                                    <td class="amount-column">${formatCurrency(asset.amount)}</td>
+                                </tr>`;
+                            totalAssets += parseFloat(asset.amount);
+                        });
+                    } else {
+                        html += `<tr><td colspan="2" class="no-data">No asset data available</td></tr>`;
+                    }
+                    
+                    // Add total assets
+                    html += `
+                                <tr class="total-row">
+                                    <td><strong>Total Assets</strong></td>
+                                    <td class="amount-column"><strong>${formatCurrency(totalAssets)}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="balance-section">
+                        <h3 class="section-subtitle">Liabilities & Equity</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="amount-column">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    
+                    // Add liabilities
+                    let totalLiabilities = 0;
+                    if (data.liabilities && data.liabilities.length > 0) {
+                        html += `<tr class="category-row"><td colspan="2">Liabilities</td></tr>`;
+                        data.liabilities.forEach(liability => {
+                            html += `
+                                <tr>
+                                    <td>${liability.category}</td>
+                                    <td class="amount-column">${formatCurrency(liability.amount)}</td>
+                                </tr>`;
+                            totalLiabilities += parseFloat(liability.amount);
+                        });
+                        
+                        // Add total liabilities
+                        html += `
+                            <tr class="subtotal-row">
+                                <td>Total Liabilities</td>
+                                <td class="amount-column">${formatCurrency(totalLiabilities)}</td>
+                            </tr>`;
+                    } else {
+                        html += `<tr><td colspan="2" class="no-data">No liability data available</td></tr>`;
+                    }
+                    
+                    // Add equity
+                    let totalEquity = 0;
+                    if (data.equity && data.equity.length > 0) {
+                        html += `<tr class="category-row"><td colspan="2">Equity</td></tr>`;
+                        data.equity.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td>${item.category}</td>
+                                    <td class="amount-column">${formatCurrency(item.amount)}</td>
+                                </tr>`;
+                            totalEquity += parseFloat(item.amount);
+                        });
+                        
+                        // Add total equity
+                        html += `
+                            <tr class="subtotal-row">
+                                <td>Total Equity</td>
+                                <td class="amount-column">${formatCurrency(totalEquity)}</td>
+                            </tr>`;
+                    } else {
+                        html += `<tr><td colspan="2" class="no-data">No equity data available</td></tr>`;
+                    }
+                    
+                    // Add total liabilities and equity
+                    html += `
+                            <tr class="total-row">
+                                <td><strong>Total Liabilities & Equity</strong></td>
+                                <td class="amount-column"><strong>${formatCurrency(totalLiabilities + totalEquity)}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+                    
+                    // Add balance comparison
+                    const totalAssetsRounded = Math.round(totalAssets * 100) / 100;
+                    const totalLiabilitiesEquityRounded = Math.round((totalLiabilities + totalEquity) * 100) / 100;
+                    const isBalanced = totalAssetsRounded === totalLiabilitiesEquityRounded;
+                    
+                    html += `
+                        <div class="balance-verification ${isBalanced ? 'balanced' : 'unbalanced'}">
+                            <p>Balance verification: ${isBalanced ? 'Balanced ✓' : 'Not balanced ✗'}</p>
+                            <p>Difference: ${formatCurrency(totalAssets - (totalLiabilities + totalEquity))}</p>
+                        </div>`;
+                    
+                    // Display the balance sheet
+                    document.getElementById('balance-sheet').innerHTML = html;
+                    
+                    // Hide loading indicators
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error fetching balance sheet data:', error);
+                    document.getElementById('balance-sheet').innerHTML = '<div class="error-message">Failed to load balance sheet data</div>';
+                    showToast('Failed to load balance sheet data', 'error');
+                    hideLoading();
+                });
+        }
+        
+        // Load tax summary data
+        function loadTaxSummary(dateRange) {
+            // Show loading
+            document.getElementById('tax-summary').innerHTML = '<div class="loading-message">Loading tax summary data...</div>';
+            
+            fetch(`/api/report/tax-summary?date_range=${dateRange}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showToast(`Error: ${data.error}`, 'error');
+                        document.getElementById('tax-summary').innerHTML = '<div class="error-message">Failed to load tax summary data</div>';
+                        return;
+                    }
+                    
+                    // Create tax summary HTML
+                    let html = `
+                        <div class="section-header">
+                            <h2 class="section-title">Tax Summary</h2>
+                            <div class="section-actions">
+                                <button class="btn btn-primary" onclick="downloadCurrentReport()">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-info">
+                            <p class="report-date">Period: ${data.start_date} to ${data.end_date}</p>
+                        </div>
+                        
+                        <div class="tax-summary-container">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tax Category</th>
+                                        <th class="amount-column">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                    
+                    // Add tax data
+                    if (data.tax_data && data.tax_data.length > 0) {
+                        data.tax_data.forEach((item, index) => {
+                            const isNetPayable = item.category.includes('Net') || item.category.includes('Payable');
+                            html += `
+                                <tr class="${isNetPayable ? 'total-row' : ''}">
+                                    <td>${item.category}</td>
+                                    <td class="amount-column">${formatCurrency(item.amount)}</td>
+                                </tr>`;
+                        });
+                    } else {
+                        html += `<tr><td colspan="2" class="no-data">No tax data available</td></tr>`;
+                    }
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tax-notes">
+                            <h4>Notes:</h4>
+                            <ul>
+                                <li>GST Collected: GST collected on sales.</li>
+                                <li>GST Paid: GST paid on purchases that can be claimed as input tax credit.</li>
+                                <li>Net GST Payable: Amount to be paid to tax authorities (or claimed as refund if negative).</li>
+                            </ul>
+                        </div>`;
+                    
+                    // Display the tax summary
+                    document.getElementById('tax-summary').innerHTML = html;
+                    
+                    // Hide loading indicators
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error fetching tax summary data:', error);
+                    document.getElementById('tax-summary').innerHTML = '<div class="error-message">Failed to load tax summary data</div>';
+                    showToast('Failed to load tax summary data', 'error');
+                    hideLoading();
+                });
         }
     </script>
 </body>
