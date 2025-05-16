@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Filings Management{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tax Filings Management</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('taxes.tax_dashboard') }}">Tax Management</a></li>
+                    <li class="breadcrumb-item active">Tax Filings</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Actions Buttons -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Filing
+                </a>
+                
+                <div class="btn-group ml-2">
+                    <button type="button" class="btn btn-success" data-toggle="dropdown">
+                        <i class="fas fa-file-invoice"></i> Generate Filing
+                    </button>
+                    <div class="dropdown-menu">
+                        <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
+                            <input type="hidden" name="filing_type" value="GST">
+                            <input type="hidden" name="period_type" value="Monthly">
+                            <button type="submit" class="dropdown-item">Monthly GST</button>
+                        </form>
+                        <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
+                            <input type="hidden" name="filing_type" value="GST">
+                            <input type="hidden" name="period_type" value="Quarterly">
+                            <button type="submit" class="dropdown-item">Quarterly GST</button>
+                        </form>
+                        <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
+                            <input type="hidden" name="filing_type" value="Income Tax">
+                            <input type="hidden" name="period_type" value="Annually">
+                            <button type="submit" class="dropdown-item">Annual Income Tax</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Filings Table -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-file-invoice mr-2"></i>Tax Filings</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Period</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Collected Amount</th>
+                                        <th>Paid Amount</th>
+                                        <th>Net Payable</th>
+                                        <th>Filing Date</th>
+                                        <th>Reference #</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if filings %}
+                                        {% for filing in filings %}
+                                        <tr class="
+                                            {% if filing.status == 'Pending' and filing.due_date < today %}
+                                                table-danger
+                                            {% elif filing.status == 'Pending' %}
+                                                table-warning
+                                            {% elif filing.status == 'Filed' %}
+                                                table-success
+                                            {% elif filing.status == 'Late Filed' %}
+                                                table-info
+                                            {% endif %}
+                                        ">
+                                            <td>{{ filing.filing_type }}</td>
+                                            <td>
+                                                {{ filing.period_start.strftime('%d %b %Y') }} to 
+                                                {{ filing.period_end.strftime('%d %b %Y') }}
+                                            </td>
+                                            <td>
+                                                {{ filing.due_date.strftime('%d %b %Y') }}
+                                                {% if filing.status == 'Pending' and filing.due_date < today %}
+                                                    <span class="badge badge-danger">Overdue</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if filing.status == 'Pending' %}
+                                                    <span class="badge badge-warning">{{ filing.status }}</span>
+                                                {% elif filing.status == 'Filed' %}
+                                                    <span class="badge badge-success">{{ filing.status }}</span>
+                                                {% elif filing.status == 'Late Filed' %}
+                                                    <span class="badge badge-info">{{ filing.status }}</span>
+                                                {% elif filing.status == 'Under Query' %}
+                                                    <span class="badge badge-danger">{{ filing.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>₹{{ '%0.2f'|format(filing.collected_amount|float) }}</td>
+                                            <td>₹{{ '%0.2f'|format(filing.paid_amount|float) }}</td>
+                                            <td>
+                                                <strong>₹{{ '%0.2f'|format(filing.net_payable|float) }}</strong>
+                                                {% if filing.net_payable < 0 %}
+                                                    <span class="badge badge-info">Refundable</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if filing.filing_date %}
+                                                    {{ filing.filing_date.strftime('%d %b %Y') }}
+                                                {% else %}
+                                                    <span class="text-muted">Not Filed</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ filing.reference_number or '-' }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}" class="btn btn-info btn-xs">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    {% if filing.status == 'Pending' %}
+                                                    <button type="button" class="btn btn-success btn-xs mark-as-filed-btn" 
+                                                            data-filing-id="{{ filing.id }}"
+                                                            data-toggle="modal" data-target="#markAsFiledModal">
+                                                        <i class="fas fa-check"></i> Mark Filed
+                                                    </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="10" class="text-center">No tax filings found</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Filing Calendar -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Filing Calendar</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Regular Filing Dates</h5>
+                                <dl class="row">
+                                    <dt class="col-sm-6">GSTR-1 (Monthly)</dt>
+                                    <dd class="col-sm-6">11th of the following month</dd>
+                                    
+                                    <dt class="col-sm-6">GSTR-3B (Monthly)</dt>
+                                    <dd class="col-sm-6">20th of the following month</dd>
+                                    
+                                    <dt class="col-sm-6">GSTR-9 (Annual)</dt>
+                                    <dd class="col-sm-6">31st December of next FY</dd>
+                                    
+                                    <dt class="col-sm-6">Income Tax Return</dt>
+                                    <dd class="col-sm-6">31st July of next FY</dd>
+                                    
+                                    <dt class="col-sm-6">TDS Return (Quarterly)</dt>
+                                    <dd class="col-sm-6">31st of month following quarter</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Filing Tips</h5>
+                                <ul>
+                                    <li>Maintain proper documentation of invoices and tax documents</li>
+                                    <li>Reconcile your ITC (Input Tax Credit) before filing returns</li>
+                                    <li>Keep track of due dates and file returns on time to avoid penalties</li>
+                                    <li>Verify all calculated amounts before submitting return</li>
+                                    <li>Keep a copy of all returns filed and acknowledgment receipts</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mark as Filed Modal -->
+<div class="modal fade" id="markAsFiledModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Mark Filing as Completed</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="markAsFiledForm" action="#" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="filing_date">Filing Date</label>
+                        <input type="date" class="form-control" id="filing_date" name="filing_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reference_number">Reference Number/ARN</label>
+                        <input type="text" class="form-control" id="reference_number" name="reference_number" placeholder="Enter acknowledgment/reference number">
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Enter any notes about this filing"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Set today's date as default for filing date
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+        $('#filing_date').val(today);
+        
+        // Set up the Mark as Filed modal
+        $('.mark-as-filed-btn').click(function() {
+            var filingId = $(this).data('filing-id');
+            var formAction = "{{ url_for('taxes.edit_tax_filing', id=0) }}".replace('0', filingId);
+            $('#markAsFiledForm').attr('action', formAction);
+            
+            // Add hidden field for status
+            if ($('#status_field').length === 0) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'status_field',
+                    name: 'status',
+                    value: 'Filed'
+                }).appendTo('#markAsFiledForm');
+            }
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Reports & Analytics{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tax Reports & Analytics</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('taxes.tax_dashboard') }}">Tax Management</a></li>
+                    <li class="breadcrumb-item active">Tax Reports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Date Range Selector -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar mr-2"></i>Financial Year: {{ fy_start.strftime('%d %b %Y') }} to {{ fy_end.strftime('%d %b %Y') }}</h3>
+                        <div class="card-tools">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" id="export-csv"><i class="fas fa-file-csv mr-2"></i>CSV</a>
+                                    <a class="dropdown-item" href="#" id="export-excel"><i class="fas fa-file-excel mr-2"></i>Excel</a>
+                                    <a class="dropdown-item" href="#" id="export-pdf"><i class="fas fa-file-pdf mr-2"></i>PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Summary Cards -->
+        <div class="row">
+            <div class="col-lg-4 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(total_collected|float) }}</h3>
+                        <p>Total GST Collected</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(total_paid|float) }}</h3>
+                        <p>Total GST Paid (Input Credit)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-6">
+                <div class="small-box {{ 'bg-warning' if total_liability > 0 else 'bg-success' }}">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(total_liability|float) }}</h3>
+                        <p>{{ 'Net GST Payable' if total_liability >= 0 else 'GST Refundable' }}</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Chart -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-line mr-2"></i>Monthly Tax Summary</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="taxChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Summary by Type -->
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-table mr-2"></i>Tax Summary by Rate</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tax Type</th>
+                                        <th>Rate</th>
+                                        <th>Collected (₹)</th>
+                                        <th>Paid (₹)</th>
+                                        <th>Net (₹)</th>
+                                        <th>Transactions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if tax_summary_by_type %}
+                                        {% for summary in tax_summary_by_type %}
+                                        <tr>
+                                            <td>{{ summary.tax_name }}</td>
+                                            <td>{{ summary.tax_rate }}%</td>
+                                            <td>{{ '%0.2f'|format(summary.collected|float) }}</td>
+                                            <td>{{ '%0.2f'|format(summary.paid|float) }}</td>
+                                            <td>
+                                                <strong class="{{ 'text-danger' if summary.net > 0 else 'text-success' }}">
+                                                    {{ '%0.2f'|format(summary.net|float) }}
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                {{ summary.collected_count or 0 }} in / {{ summary.paid_count or 0 }} out
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No tax data available</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-light">
+                                        <th colspan="2">Total</th>
+                                        <th>{{ '%0.2f'|format(total_collected|float) }}</th>
+                                        <th>{{ '%0.2f'|format(total_paid|float) }}</th>
+                                        <th>{{ '%0.2f'|format(total_liability|float) }}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-file-invoice mr-2"></i>Filing Statistics</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Total</th>
+                                        <th>Pending</th>
+                                        <th>Filed</th>
+                                        <th>Amount Paid</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if filing_stats %}
+                                        {% for stat in filing_stats %}
+                                        <tr>
+                                            <td>{{ stat.filing_type }}</td>
+                                            <td>{{ stat.total_filings }}</td>
+                                            <td>
+                                                <span class="badge badge-warning">{{ stat.pending }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-success">{{ stat.filed }}</span>
+                                                {% if stat.late_filed > 0 %}
+                                                <span class="badge badge-danger ml-1">{{ stat.late_filed }} late</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>₹{{ '%0.2f'|format(stat.total_paid|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No filing statistics available</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-sm btn-info">
+                            <i class="fas fa-list"></i> All Filings
+                        </a>
+                        <a href="{{ url_for('taxes.generate_tax_filing') }}" class="btn btn-sm btn-success float-right" 
+                           data-toggle="modal" data-target="#generateFilingModal">
+                            <i class="fas fa-plus"></i> Generate Filing
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HSN Code Summary -->
+        {% if hsn_summary %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-barcode mr-2"></i>HSN Code Summary</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>HSN Code</th>
+                                        <th>Tax Rate</th>
+                                        <th>Taxable Amount (₹)</th>
+                                        <th>Tax Amount (₹)</th>
+                                        <th>Transactions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hsn in hsn_summary %}
+                                    <tr>
+                                        <td>{{ hsn.hsn_code }}</td>
+                                        <td>{{ hsn.tax_rate }}%</td>
+                                        <td>{{ '%0.2f'|format(hsn.total_taxable|float) }}</td>
+                                        <td>{{ '%0.2f'|format(hsn.total_tax|float) }}</td>
+                                        <td>{{ hsn.transaction_count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Generate Filing Modal -->
+<div class="modal fade" id="generateFilingModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Generate Tax Filing</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="filing_type">Filing Type</label>
+                        <select class="form-control" id="filing_type" name="filing_type" required>
+                            <option value="GST">GST</option>
+                            <option value="Income Tax">Income Tax</option>
+                            <option value="TDS">TDS</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="period_type">Period</label>
+                        <select class="form-control" id="period_type" name="period_type" required>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Annually">Annually</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Generate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Tax Chart
+        var ctx = document.getElementById('taxChart').getContext('2d');
+        var taxChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ months|tojson }},
+                datasets: [{
+                    label: 'GST Collected',
+                    data: {{ collected_data|tojson }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }, {
+                    label: 'GST Paid',
+                    data: {{ paid_data|tojson }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }, {
+                    label: 'Net Liability',
+                    data: {{ liability_data|tojson }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    borderWidth: 1,
+                    type: 'line'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ₹' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

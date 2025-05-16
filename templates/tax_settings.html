@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Settings{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tax Settings</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('taxes.tax_dashboard') }}">Tax Management</a></li>
+                    <li class="breadcrumb-item active">Tax Settings</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Business Tax Configuration</h3>
+                    </div>
+                    
+                    <form method="post" action="{{ url_for('taxes.tax_settings') }}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="business_name">Business Name</label>
+                                        <input type="text" class="form-control" id="business_name" name="business_name" 
+                                               value="{{ settings.business_name if settings else '' }}" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="gstin">GSTIN</label>
+                                        <input type="text" class="form-control" id="gstin" name="gstin" 
+                                               value="{{ settings.gstin if settings else '' }}" 
+                                               placeholder="e.g. 27AAPFU0939F1ZV">
+                                        <small class="form-text text-muted">15-digit GST Identification Number</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="pan">PAN</label>
+                                        <input type="text" class="form-control" id="pan" name="pan" 
+                                               value="{{ settings.pan if settings else '' }}" 
+                                               placeholder="e.g. AAPFU0939F">
+                                        <small class="form-text text-muted">10-digit Permanent Account Number</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="tax_period">Default Tax Period</label>
+                                        <select class="form-control" id="tax_period" name="tax_period">
+                                            <option value="Monthly" {% if settings and settings.tax_period == 'Monthly' %}selected{% endif %}>Monthly</option>
+                                            <option value="Quarterly" {% if settings and settings.tax_period == 'Quarterly' %}selected{% endif %}>Quarterly</option>
+                                            <option value="Annually" {% if settings and settings.tax_period == 'Annually' %}selected{% endif %}>Annually</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="financial_year_start">Financial Year Start Month</label>
+                                        <select class="form-control" id="financial_year_start" name="financial_year_start">
+                                            <option value="4" {% if settings and settings.financial_year_start == '4' %}selected{% endif %}>April (Default)</option>
+                                            <option value="1" {% if settings and settings.financial_year_start == '1' %}selected{% endif %}>January</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="gst_filing_due_date">GST Filing Due Days</label>
+                                        <input type="number" class="form-control" id="gst_filing_due_date" name="gst_filing_due_date" 
+                                               value="{{ settings.gst_filing_due_date if settings else '20' }}" min="1" max="31">
+                                        <small class="form-text text-muted">Number of days after month end when GST filing is due (typically 20)</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="default_tax_rate_id">Default Tax Rate</label>
+                                        <select class="form-control" id="default_tax_rate_id" name="default_tax_rate_id">
+                                            {% for rate in tax_rates %}
+                                            <option value="{{ rate.id }}" {% if settings and settings.default_tax_rate_id == rate.id %}selected{% endif %}>
+                                                {{ rate.name }} ({{ rate.rate }}%)
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                            <a href="{{ url_for('taxes.tax_dashboard') }}" class="btn btn-default float-right">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">GST Filing Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="icon fas fa-info"></i> GST Return Filing Schedule</h5>
+                            <ul>
+                                <li><strong>GSTR-1 (Outward supplies):</strong> Due by 11th of the following month</li>
+                                <li><strong>GSTR-3B (Monthly summary):</strong> Due by 20th of the following month</li>
+                                <li><strong>GSTR-9 (Annual return):</strong> Due by December 31st following the financial year</li>
+                            </ul>
+                        </div>
+                        
+                        <p>Configure your business tax details to ensure accurate tax filing and compliance with tax regulations.</p>
+                        
+                        <p>Your GSTIN number is used for all GST-related documentation and transactions. Make sure it is entered correctly.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card card-warning">
+                    <div class="card-header">
+                        <h3 class="card-title">Tax Compliance Reminders</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Late Filing Penalties:</strong></p>
+                        <ul>
+                            <li>Late GSTR-1: ₹100 per day up to a maximum of ₹5,000</li>
+                            <li>Late GSTR-3B: 18% per annum interest on tax liability</li>
+                        </ul>
+                        
+                        <p><strong>Important Compliance Notes:</strong></p>
+                        <ul>
+                            <li>Keep invoices and tax records for a minimum of 6 years</li>
+                            <li>Reconcile sales and purchase registers with GST returns monthly</li>
+                            <li>Verify that all input tax credit claims are supported by valid invoices</li>
+                        </ul>
+                        
+                        <div class="mt-3">
+                            <a href="{{ url_for('taxes.tax_reports') }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-chart-bar mr-1"></i> View Tax Reports
+                            </a>
+                            <a href="{{ url_for('taxes.tax_exports') }}" class="btn btn-sm btn-success ml-2">
+                                <i class="fas fa-file-export mr-1"></i> GST Returns Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Any scripts needed for tax settings page
+    });
+</script>
+{% endblock %} 

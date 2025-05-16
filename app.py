@@ -15,7 +15,8 @@ from routes.reports import reports
 from routes.transactions import transactions
 from routes.salary import salary
 from routes.employees import employees
-from routes.sales import sales, update_sales_tables, update_purchase_tables  
+from routes.sales import sales, update_sales_tables, update_purchase_tables
+from routes.taxes import taxes  
 
 # Flask App
 app = Flask(__name__)
@@ -56,6 +57,7 @@ app.register_blueprint(transactions)
 app.register_blueprint(salary)
 app.register_blueprint(employees)
 app.register_blueprint(sales, url_prefix='/sales')
+app.register_blueprint(taxes, url_prefix='')
 
 # Update database tables for partial payment support
 with app.app_context():

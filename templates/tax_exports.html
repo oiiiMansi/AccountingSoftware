@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Export & Returns{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">GST Returns & Exports</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('taxes.tax_dashboard') }}">Tax Management</a></li>
+                    <li class="breadcrumb-item active">GST Exports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Info Cards -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-export mr-2"></i>GST Export Tools
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Use these tools to export your GST data in formats suitable for filing GST returns.</p>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Note:</strong> Export your GST data before filing returns on the GST portal. 
+                            The exported files will help you fill the online forms accurately.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">GSTR-1</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Outward Supplies</strong></p>
+                        <p>Export details of all your sales invoices and tax collected.</p>
+                        <p><small class="text-muted">Due by 11th of next month</small></p>
+                        
+                        <form action="{{ url_for('taxes.export_tax_data') }}" method="get">
+                            <input type="hidden" name="type" value="gstr1">
+                            
+                            <div class="form-group">
+                                <label>Select Month</label>
+                                <input type="month" class="form-control" name="period" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-info btn-block">
+                                <i class="fas fa-download mr-2"></i>Export GSTR-1 Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-success">
+                        <h3 class="card-title">GSTR-2</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Inward Supplies</strong></p>
+                        <p>Export details of all your purchase invoices and input tax credit.</p>
+                        <p><small class="text-muted">For your records (Auto-populated on portal)</small></p>
+                        
+                        <form action="{{ url_for('taxes.export_tax_data') }}" method="get">
+                            <input type="hidden" name="type" value="gstr2">
+                            
+                            <div class="form-group">
+                                <label>Select Month</label>
+                                <input type="month" class="form-control" name="period" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success btn-block">
+                                <i class="fas fa-download mr-2"></i>Export GSTR-2 Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-warning">
+                        <h3 class="card-title">GSTR-3B</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Monthly Return</strong></p>
+                        <p>Export summary of GST collected, paid, and net tax liability.</p>
+                        <p><small class="text-muted">Due by 20th of next month</small></p>
+                        
+                        <form action="{{ url_for('taxes.export_tax_data') }}" method="get">
+                            <input type="hidden" name="type" value="gstr3b">
+                            
+                            <div class="form-group">
+                                <label>Select Month</label>
+                                <input type="month" class="form-control" name="period" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-warning btn-block">
+                                <i class="fas fa-download mr-2"></i>Export GSTR-3B Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GST Filing Guide -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-question-circle mr-2"></i>GST Filing Guide
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Required GST Returns</h5>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Return</th>
+                                            <th>Description</th>
+                                            <th>Due Date</th>
+                                            <th>Applicable To</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>GSTR-1</td>
+                                            <td>Outward Supplies</td>
+                                            <td>11th of next month</td>
+                                            <td>All registered businesses</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-3B</td>
+                                            <td>Monthly Return</td>
+                                            <td>20th of next month</td>
+                                            <td>All registered businesses</td>
+                                        </tr>
+                                        <tr>
+                                            <td>GSTR-9</td>
+                                            <td>Annual Return</td>
+                                            <td>31st December</td>
+                                            <td>All registered businesses</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5>GST Filing Tips</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        File GSTR-1 before GSTR-3B to avoid discrepancies
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        Verify all invoice data before submitting returns
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        Check that input tax credit claims match with your purchase records
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        Keep copies of all filed returns for your records
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        Pay GST dues on time to avoid interest and penalties
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Set current month as default for all month inputs
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const defaultValue = `${year}-${month}`;
+        
+        $('input[type="month"]').val(defaultValue);
+    });
+</script>
+{% endblock %} 

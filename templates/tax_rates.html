@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Rates Management{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tax Rates Management</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('taxes.tax_dashboard') }}">Tax Management</a></li>
+                    <li class="breadcrumb-item active">Tax Rates</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-percentage mr-2"></i>Tax Rates</h3>
+                        <div class="card-tools">
+                            <a href="{{ url_for('taxes.add_tax_rate') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add New Rate
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Rate (%)</th>
+                                        <th>Description</th>
+                                        <th>Effective From</th>
+                                        <th>Effective To</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if tax_rates %}
+                                        {% for rate in tax_rates %}
+                                        <tr>
+                                            <td>{{ rate.name }}</td>
+                                            <td>{{ rate.type }}</td>
+                                            <td>{{ '%0.2f'|format(rate.rate|float) }}%</td>
+                                            <td>{{ rate.description }}</td>
+                                            <td>{{ rate.effective_from.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                {% if rate.effective_to %}
+                                                    {{ rate.effective_to.strftime('%d %b %Y') }}
+                                                {% else %}
+                                                    <span class="text-muted">Not Set</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if rate.is_active %}
+                                                    <span class="badge badge-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('taxes.edit_tax_rate', id=rate.id) }}" class="btn btn-info btn-xs">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="8" class="text-center">No tax rates defined</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Rates Information -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>GST Rate Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>The Goods and Services Tax (GST) in India has multiple rate slabs:</p>
+                        <ul>
+                            <li><strong>0% (Exempt):</strong> Essential goods and services</li>
+                            <li><strong>5%:</strong> Items of mass consumption</li>
+                            <li><strong>12%:</strong> Standard rate for processed foods and other goods</li>
+                            <li><strong>18%:</strong> Standard rate for most goods and services</li>
+                            <li><strong>28%:</strong> Luxury and demerit goods</li>
+                        </ul>
+                        <p>For intra-state transactions, the tax is split equally between CGST (Central GST) and SGST (State GST). For inter-state transactions, IGST (Integrated GST) applies.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-question-circle mr-2"></i>How to Use Tax Rates</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Configure the appropriate tax rates for your business needs:</p>
+                        <ol>
+                            <li>Set up all applicable GST rates for your products/services</li>
+                            <li>Configure a default tax rate in <a href="{{ url_for('taxes.tax_settings') }}">Tax Settings</a></li>
+                            <li>Ensure each rate has a proper effective date range</li>
+                            <li>Mark rates as inactive when they are no longer applicable</li>
+                        </ol>
+                        <p>When creating new sales or purchase records, the system will automatically suggest the appropriate tax rate based on your settings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

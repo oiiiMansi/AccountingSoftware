@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Management Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tax Management Dashboard</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Tax Management</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Tax Summary -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(tax_summary.collected|float) }}</h3>
+                        <p>GST Collected</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(tax_summary.paid|float) }}</h3>
+                        <p>GST Paid (Input Credit)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box {{ 'bg-warning' if tax_summary.liability > 0 else 'bg-success' }}">
+                    <div class="inner">
+                        <h3>₹{{ '%0.2f'|format(tax_summary.liability|float) }}</h3>
+                        <p>{{ 'Net GST Payable' if tax_summary.liability >= 0 else 'GST Refundable' }}</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ overdue_filings|length }}</h3>
+                        <p>Overdue Filings</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Business Details -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-building mr-2"></i>Business Tax Details</h3>
+                        <div class="card-tools">
+                            <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-tool" title="Edit Settings">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if tax_settings %}
+                        <dl class="row">
+                            <dt class="col-sm-4">Business Name:</dt>
+                            <dd class="col-sm-8">{{ tax_settings.business_name }}</dd>
+                            
+                            <dt class="col-sm-4">GSTIN:</dt>
+                            <dd class="col-sm-8">{{ tax_settings.gstin }}</dd>
+                            
+                            <dt class="col-sm-4">PAN:</dt>
+                            <dd class="col-sm-8">{{ tax_settings.pan }}</dd>
+                            
+                            <dt class="col-sm-4">Tax Period:</dt>
+                            <dd class="col-sm-8">{{ tax_settings.tax_period }}</dd>
+                            
+                            <dt class="col-sm-4">Default GST Rate:</dt>
+                            <dd class="col-sm-8">
+                                {% for rate in tax_rates %}
+                                    {% if rate.id == tax_settings.default_tax_rate_id %}
+                                        {{ rate.name }} ({{ rate.rate }}%)
+                                    {% endif %}
+                                {% endfor %}
+                            </dd>
+                        </dl>
+                        {% else %}
+                        <p>No tax settings configured. <a href="{{ url_for('taxes.tax_settings') }}">Configure now</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Tax Filing Calendar</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if pending_filings %}
+                                        {% for filing in pending_filings %}
+                                        <tr>
+                                            <td>{{ filing.filing_type }}</td>
+                                            <td>{{ filing.due_date.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <span class="badge badge-warning">{{ filing.status }}</span>
+                                            </td>
+                                            <td>₹{{ '%0.2f'|format(filing.net_payable|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No pending tax filings</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-sm btn-info">View All Filings</a>
+                        <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-sm btn-success float-right">Add New Filing</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Alerts -->
+        {% if overdue_filings %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Overdue Tax Filings!</h5>
+                    <p>You have {{ overdue_filings|length }} overdue tax filings that require immediate attention:</p>
+                    <ul>
+                        {% for filing in overdue_filings %}
+                        <li>
+                            {{ filing.filing_type }} for period {{ filing.period_start.strftime('%d %b %Y') }} - 
+                            {{ filing.period_end.strftime('%d %b %Y') }}, due on {{ filing.due_date.strftime('%d %b %Y') }}
+                            (₹{{ '%0.2f'|format(filing.net_payable|float) }})
+                            <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}" class="btn btn-xs btn-danger ml-2">Complete Now</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Recent Tax Transactions -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>Recent Tax Transactions</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Reference</th>
+                                        <th>Tax Rate</th>
+                                        <th>Taxable Amount</th>
+                                        <th>Tax Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if recent_transactions %}
+                                        {% for tx in recent_transactions %}
+                                        <tr>
+                                            <td>{{ tx.date.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <span class="badge {{ 'badge-info' if tx.transaction_type == 'Collected' else 'badge-success' }}">
+                                                    {{ tx.transaction_type }}
+                                                </span>
+                                            </td>
+                                            <td>{{ tx.reference_type }} #{{ tx.reference_id }}</td>
+                                            <td>{{ tx.tax_name }} ({{ tx.tax_rate }}%)</td>
+                                            <td>₹{{ '%0.2f'|format(tx.taxable_amount|float) }}</td>
+                                            <td>₹{{ '%0.2f'|format(tx.tax_amount|float) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No recent tax transactions</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bolt mr-2"></i>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-block btn-lg btn-primary mb-3">
+                                    <i class="fas fa-file-invoice mr-2"></i> Tax Filings
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ url_for('taxes.tax_reports') }}" class="btn btn-block btn-lg btn-info mb-3">
+                                    <i class="fas fa-chart-bar mr-2"></i> Tax Reports
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ url_for('taxes.tax_rates') }}" class="btn btn-block btn-lg btn-info mb-3">
+                                    <i class="fas fa-percentage mr-2"></i> Tax Rates
+                                </a>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
+                                    <input type="hidden" name="filing_type" value="GST">
+                                    <input type="hidden" name="period_type" value="Monthly">
+                                    <button type="submit" class="btn btn-block btn-lg btn-success mb-3">
+                                        <i class="fas fa-calculator mr-2"></i> Generate GST Filing
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-block btn-lg btn-warning mb-3">
+                                    <i class="fas fa-cogs mr-2"></i> Tax Settings
+                                </a>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <a href="{{ url_for('taxes.tax_exports') }}" class="btn btn-block btn-lg btn-danger mb-3">
+                                    <i class="fas fa-file-export mr-2"></i> GST Returns Export
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Any JavaScript needed for the tax dashboard
+    });
+</script>
+{% endblock %} 

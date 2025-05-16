@@ -55,6 +55,20 @@
         </div>
         {% endcall %}
         
+        {% call show_for_role('accountant') %}
+        <div class="dropdown">
+            <a href="/taxes" class="nav-link">Taxes</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('taxes.tax_dashboard') }}">Tax Dashboard</a>
+                <a href="{{ url_for('taxes.tax_filings') }}">Tax Filings</a>
+                <a href="{{ url_for('taxes.tax_reports') }}">Tax Reports</a>
+                <a href="{{ url_for('taxes.tax_exports') }}">GST Exports</a>
+                <a href="{{ url_for('taxes.tax_rates') }}">Tax Rates</a>
+                <a href="{{ url_for('taxes.tax_settings') }}">Tax Settings</a>
+            </div>
+        </div>
+        {% endcall %}
+        
         <div class="dropdown">
             <a href="/logout" class="nav-link">Logout</a>
         </div>

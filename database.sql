@@ -469,6 +469,151 @@ LOCK TABLES `users` WRITE;
 INSERT INTO `users` VALUES (1,'admin','scrypt:32768:8:1$dzu8G5JuutZ5lGOU$36943b4b9b285bd77c3ed0e33595548dc5677c3550d30d71eb09e50dbadf22cffe7a7df26402b3a3eea41423a85d86ab3fcc66e4fe39d0c2ad72dcdfb4d10bd8','admin','2025-05-01 05:00:45','2025-05-01 05:54:19'),(2,'accountant','scrypt:32768:8:1$dzu8G5JuutZ5lGOU$36943b4b9b285bd77c3ed0e33595548dc5677c3550d30d71eb09e50dbadf22cffe7a7df26402b3a3eea41423a85d86ab3fcc66e4fe39d0c2ad72dcdfb4d10bd8','accountant','2025-05-01 05:00:45','2025-05-01 05:54:19'),(3,'viewer','scrypt:32768:8:1$dzu8G5JuutZ5lGOU$36943b4b9b285bd77c3ed0e33595548dc5677c3550d30d71eb09e50dbadf22cffe7a7df26402b3a3eea41423a85d86ab3fcc66e4fe39d0c2ad72dcdfb4d10bd8','viewer','2025-05-01 05:00:45','2025-05-01 05:54:19'),(4,'user','scrypt:32768:8:1$dzu8G5JuutZ5lGOU$36943b4b9b285bd77c3ed0e33595548dc5677c3550d30d71eb09e50dbadf22cffe7a7df26402b3a3eea41423a85d86ab3fcc66e4fe39d0c2ad72dcdfb4d10bd8','viewer','2025-05-01 05:02:10','2025-05-01 05:54:19'),(5,'roxanne','scrypt:32768:8:1$dzu8G5JuutZ5lGOU$36943b4b9b285bd77c3ed0e33595548dc5677c3550d30d71eb09e50dbadf22cffe7a7df26402b3a3eea41423a85d86ab3fcc66e4fe39d0c2ad72dcdfb4d10bd8','admin','2025-05-01 05:04:56','2025-05-01 05:54:19');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `tax_rates`
+--
+
+DROP TABLE IF EXISTS `tax_rates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tax_rates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `type` enum('GST','IGST','CGST','SGST','Income Tax','Other') NOT NULL DEFAULT 'GST',
+  `rate` decimal(10,2) NOT NULL,
+  `description` text,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `hsn_code` varchar(20) DEFAULT NULL,
+  `effective_from` date NOT NULL,
+  `effective_to` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_tax_name_type` (`name`, `type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tax_rates`
+--
+
+LOCK TABLES `tax_rates` WRITE;
+/*!40000 ALTER TABLE `tax_rates` DISABLE KEYS */;
+INSERT INTO `tax_rates` VALUES 
+(1, 'GST 5%', 'GST', 5.00, 'GST at 5% rate', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'GST 12%', 'GST', 12.00, 'GST at 12% rate', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'GST 18%', 'GST', 18.00, 'GST at 18% rate', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'GST 28%', 'GST', 28.00, 'GST at 28% rate', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'CGST 9%', 'CGST', 9.00, 'Central GST component at 9%', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 'SGST 9%', 'SGST', 9.00, 'State GST component at 9%', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 'IGST 18%', 'IGST', 18.00, 'Integrated GST at 18%', 1, NULL, '2025-01-01', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+/*!40000 ALTER TABLE `tax_rates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tax_settings`
+--
+
+DROP TABLE IF EXISTS `tax_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tax_settings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `business_name` varchar(255) NOT NULL,
+  `gstin` varchar(20) DEFAULT NULL,
+  `pan` varchar(20) DEFAULT NULL,
+  `tax_period` enum('Monthly','Quarterly','Annually') NOT NULL DEFAULT 'Monthly',
+  `financial_year_start` date DEFAULT NULL,
+  `gst_filing_due_date` int DEFAULT '20',
+  `default_tax_rate_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_default_tax_rate` (`default_tax_rate_id`),
+  CONSTRAINT `fk_default_tax_rate` FOREIGN KEY (`default_tax_rate_id`) REFERENCES `tax_rates` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tax_settings`
+--
+
+LOCK TABLES `tax_settings` WRITE;
+/*!40000 ALTER TABLE `tax_settings` DISABLE KEYS */;
+INSERT INTO `tax_settings` VALUES (1, 'KK Enterprises', '27AADCK1234P1ZV', 'AADCK1234P', 'Monthly', '2025-04-01', 20, 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+/*!40000 ALTER TABLE `tax_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tax_transactions`
+--
+
+DROP TABLE IF EXISTS `tax_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tax_transactions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `transaction_type` enum('Collected','Paid','Adjustment') NOT NULL,
+  `reference_id` int NOT NULL,
+  `reference_type` enum('Bill','Purchase','Expense','Other') NOT NULL,
+  `tax_rate_id` int DEFAULT NULL,
+  `taxable_amount` decimal(10,2) NOT NULL,
+  `tax_amount` decimal(10,2) NOT NULL,
+  `hsn_code` varchar(20) DEFAULT NULL,
+  `date` date NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_tax_rate` (`tax_rate_id`),
+  CONSTRAINT `fk_tax_rate` FOREIGN KEY (`tax_rate_id`) REFERENCES `tax_rates` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tax_transactions`
+--
+
+LOCK TABLES `tax_transactions` WRITE;
+/*!40000 ALTER TABLE `tax_transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tax_transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tax_filing`
+--
+
+DROP TABLE IF EXISTS `tax_filing`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tax_filing` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `filing_type` enum('GST','Income Tax','TDS','Other') NOT NULL DEFAULT 'GST',
+  `period_start` date NOT NULL,
+  `period_end` date NOT NULL,
+  `due_date` date NOT NULL,
+  `filing_date` date DEFAULT NULL,
+  `status` enum('Pending','Filed','Late Filed','Under Query') NOT NULL DEFAULT 'Pending',
+  `collected_amount` decimal(10,2) DEFAULT '0.00',
+  `paid_amount` decimal(10,2) DEFAULT '0.00',
+  `net_payable` decimal(10,2) DEFAULT '0.00',
+  `reference_number` varchar(50) DEFAULT NULL,
+  `notes` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tax_filing`
+--
+
+LOCK TABLES `tax_filing` WRITE;
+/*!40000 ALTER TABLE `tax_filing` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tax_filing` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
