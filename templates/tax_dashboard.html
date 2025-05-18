@@ -7,19 +7,21 @@
     body.dashboard-bg {
         background: linear-gradient(120deg, #f8f9fa 80%, #fff7e6 100%) !important;
     }
+
     .dashboard-header {
         background: linear-gradient(90deg, #ffa500 60%, #ffb84d 100%);
         color: #fff;
         border-radius: 16px;
         padding: 32px 32px 24px 32px;
         margin-bottom: 32px;
-        box-shadow: 0 6px 32px rgba(255,165,0,0.08);
+        box-shadow: 0 6px 32px rgba(255, 165, 0, 0.08);
         display: flex;
         align-items: center;
         gap: 24px;
         position: relative;
         overflow: hidden;
     }
+
     .dashboard-header .header-icon {
         font-size: 3.5rem;
         background: #fff3cd;
@@ -28,6 +30,7 @@
         padding: 18px 22px;
         box-shadow: 0 2px 12px #ffa50022;
     }
+
     .dashboard-header h1 {
         font-size: 2.2rem;
         font-weight: 700;
@@ -35,20 +38,23 @@
         color: #fff;
         letter-spacing: 1px;
     }
+
     .dashboard-header .header-desc {
         font-size: 1.1rem;
         color: #fffbe6;
         margin-top: 6px;
     }
+
     .section-divider {
         border: none;
         border-top: 2px dashed #ffe0b3;
         margin: 36px 0 28px 0;
     }
+
     /* Enhanced summary cards */
     .small-box {
         border-radius: 14px;
-        box-shadow: 0 4px 24px rgba(255,165,0,0.07);
+        box-shadow: 0 4px 24px rgba(255, 165, 0, 0.07);
         transition: transform 0.18s, box-shadow 0.18s;
         position: relative;
         overflow: hidden;
@@ -56,11 +62,13 @@
         background: #fff;
         border: 1.5px solid #ffe0b3;
     }
+
     .small-box:hover {
         transform: translateY(-6px) scale(1.04);
-        box-shadow: 0 10px 32px rgba(255,165,0,0.13);
+        box-shadow: 0 10px 32px rgba(255, 165, 0, 0.13);
         z-index: 2;
     }
+
     .small-box .inner h3 {
         font-size: 2.4rem;
         font-weight: 700;
@@ -68,12 +76,14 @@
         margin-bottom: 0.2em;
         transition: color 0.2s;
     }
+
     .small-box .inner p {
         font-size: 1.13rem;
         color: #666;
         margin-bottom: 0;
         font-weight: 500;
     }
+
     .small-box .icon {
         position: absolute;
         top: 18px;
@@ -82,22 +92,27 @@
         color: #ffa50033;
         z-index: 1;
     }
+
     .small-box.bg-info {
         background: linear-gradient(135deg, #e3f0ff 60%, #b6e0fe 100%);
         border-left: 7px solid #36a2eb;
     }
+
     .small-box.bg-success {
         background: linear-gradient(135deg, #e6ffe6 60%, #b2f2bb 100%);
         border-left: 7px solid #28a745;
     }
+
     .small-box.bg-warning {
         background: linear-gradient(135deg, #fffbe6 60%, #ffe066 100%);
         border-left: 7px solid #ffc107;
     }
+
     .small-box.bg-danger {
         background: linear-gradient(135deg, #ffeaea 60%, #ffb3b3 100%);
         border-left: 7px solid #dc3545;
     }
+
     /* Card section headers */
     .card-title {
         font-size: 1.25rem;
@@ -105,15 +120,18 @@
         color: #ffa500;
         letter-spacing: 0.5px;
     }
+
     .card-header {
         background: #fff7e6;
         border-bottom: 1px solid #ffe0b3;
         border-radius: 10px 10px 0 0;
     }
+
     /* Table enhancements */
     .table-striped tbody tr:nth-of-type(odd) {
         background-color: #f9f9f9;
     }
+
     .table th {
         background: #ffa500;
         color: #fff;
@@ -121,15 +139,21 @@
         border-top-right-radius: 8px;
         font-size: 1.08rem;
     }
-    .table td, .table th {
+
+    .table td,
+    .table th {
         vertical-align: middle;
     }
+
     .table tbody tr:hover {
         background: #fff3cd !important;
         transition: background 0.2s;
     }
+
     /* Pill badges */
-    .badge-warning, .badge-info, .badge-success {
+    .badge-warning,
+    .badge-info,
+    .badge-success {
         border-radius: 999px;
         padding: 6px 16px;
         font-size: 0.98em;
@@ -137,18 +161,22 @@
         letter-spacing: 0.5px;
         box-shadow: 0 1px 4px #ffa50022;
     }
+
     .badge-warning {
         background: #ffc107;
         color: #333;
     }
+
     .badge-info {
         background: #36a2eb;
         color: #fff;
     }
+
     .badge-success {
         background: #28a745;
         color: #fff;
     }
+
     /* Alert enhancements */
     .alert-danger {
         background: linear-gradient(90deg, #ffeaea 60%, #ffb3b3 100%);
@@ -158,6 +186,7 @@
         font-size: 1.08rem;
         box-shadow: 0 2px 12px #dc354522;
     }
+
     .alert-danger .btn-danger {
         background: #dc3545;
         color: #fff;
@@ -166,19 +195,22 @@
         font-size: 0.98em;
         margin-left: 8px;
     }
+
     /* Quick Actions */
     .quick-actions-card {
         border-radius: 14px;
-        box-shadow: 0 4px 24px rgba(255,165,0,0.07);
+        box-shadow: 0 4px 24px rgba(255, 165, 0, 0.07);
         border: 1.5px solid #ffe0b3;
         background: #fff;
     }
+
     .quick-btn {
+        margin: 27px;
         min-height: 54px;
         font-size: 1.08rem;
         font-weight: 600;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(255,165,0,0.08);
+        box-shadow: 0 2px 8px rgba(255, 165, 0, 0.08);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -187,33 +219,40 @@
         padding: 0.7rem 0.5rem;
         text-align: center;
     }
+
     .quick-btn i {
         font-size: 1.3em;
         margin-right: 0.5em;
     }
+
     .quick-btn span {
         flex: 1;
         text-align: left;
         font-weight: 600;
     }
-    .quick-btn:hover, .quick-btn:focus {
+
+    .quick-btn:hover,
+    .quick-btn:focus {
         filter: brightness(1.08);
-        box-shadow: 0 6px 18px rgba(255,165,0,0.13);
+        box-shadow: 0 6px 18px rgba(255, 165, 0, 0.13);
         transform: translateY(-2px) scale(1.03);
         text-decoration: none;
         color: #fff !important;
     }
+
     @media (max-width: 991px) {
         .quick-btn {
             font-size: 1rem;
             min-height: 48px;
         }
     }
+
     @media (max-width: 767px) {
-        .quick-actions-card .row.g-3 > [class^='col-'] {
+        .quick-actions-card .row.g-3>[class^='col-'] {
             flex: 0 0 100%;
             max-width: 100%;
         }
+
         .quick-btn {
             font-size: 0.98rem;
             min-height: 44px;
@@ -241,7 +280,8 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
                 <div class="inner">
-                    <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.collected|float) }}">₹0.00</h3>
+                    <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.collected|float) }}">₹0.00
+                    </h3>
                     <p>GST Collected</p>
                 </div>
                 <div class="icon">
@@ -263,7 +303,8 @@
         <div class="col-lg-3 col-6">
             <div class="small-box {{ 'bg-warning' if tax_summary.liability > 0 else 'bg-success' }}">
                 <div class="inner">
-                    <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.liability|float) }}">₹0.00</h3>
+                    <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.liability|float) }}">₹0.00
+                    </h3>
                     <p>{{ 'Net GST Payable' if tax_summary.liability >= 0 else 'GST Refundable' }}</p>
                 </div>
                 <div class="icon">
@@ -283,7 +324,7 @@
             </div>
         </div>
     </div>
-    <hr class="section-divider"/>
+    <hr class="section-divider" />
     <!-- Business Details & Filing Calendar -->
     <div class="row">
         <div class="col-md-6">
@@ -310,9 +351,9 @@
                         <dt class="col-sm-4">Default GST Rate:</dt>
                         <dd class="col-sm-8">
                             {% for rate in tax_rates %}
-                                {% if rate.id == tax_settings.default_tax_rate_id %}
-                                    {{ rate.name }} ({{ rate.rate }}%)
-                                {% endif %}
+                            {% if rate.id == tax_settings.default_tax_rate_id %}
+                            {{ rate.name }} ({{ rate.rate }}%)
+                            {% endif %}
                             {% endfor %}
                         </dd>
                     </dl>
@@ -340,20 +381,20 @@
                             </thead>
                             <tbody>
                                 {% if pending_filings %}
-                                    {% for filing in pending_filings %}
-                                    <tr>
-                                        <td>{{ filing.filing_type }}</td>
-                                        <td>{{ filing.due_date.strftime('%d %b %Y') }}</td>
-                                        <td>
-                                            <span class="badge badge-warning">{{ filing.status }}</span>
-                                        </td>
-                                        <td>₹{{ '%0.2f'|format(filing.net_payable|float) }}</td>
-                                    </tr>
-                                    {% endfor %}
+                                {% for filing in pending_filings %}
+                                <tr>
+                                    <td>{{ filing.filing_type }}</td>
+                                    <td>{{ filing.due_date.strftime('%d %b %Y') }}</td>
+                                    <td>
+                                        <span class="badge badge-warning">{{ filing.status }}</span>
+                                    </td>
+                                    <td>₹{{ '%0.2f'|format(filing.net_payable|float) }}</td>
+                                </tr>
+                                {% endfor %}
                                 {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center">No pending tax filings</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="4" class="text-center">No pending tax filings</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -361,12 +402,13 @@
                 </div>
                 <div class="card-footer">
                     <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-sm btn-info">View All Filings</a>
-                    <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-sm btn-success float-right">Add New Filing</a>
+                    <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-sm btn-success float-right">Add New
+                        Filing</a>
                 </div>
             </div>
         </div>
     </div>
-    <hr class="section-divider"/>
+    <hr class="section-divider" />
     <!-- Tax Alerts -->
     {% if overdue_filings %}
     <div class="row">
@@ -378,10 +420,12 @@
                     <ul>
                         {% for filing in overdue_filings %}
                         <li>
-                            {{ filing.filing_type }} for period {{ filing.period_start.strftime('%d %b %Y') }} - 
-                            {{ filing.period_end.strftime('%d %b %Y') }}, due on {{ filing.due_date.strftime('%d %b %Y') }}
+                            {{ filing.filing_type }} for period {{ filing.period_start.strftime('%d %b %Y') }} -
+                            {{ filing.period_end.strftime('%d %b %Y') }}, due on {{ filing.due_date.strftime('%d %b %Y')
+                            }}
                             (₹{{ '%0.2f'|format(filing.net_payable|float) }})
-                            <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}" class="btn btn-xs btn-danger ml-2">Complete Now</a>
+                            <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}"
+                                class="btn btn-xs btn-danger ml-2">Complete Now</a>
                         </li>
                         {% endfor %}
                     </ul>
@@ -390,7 +434,7 @@
         </div>
     </div>
     {% endif %}
-    <hr class="section-divider"/>
+    <hr class="section-divider" />
     <!-- Recent Tax Transactions -->
     <div class="row">
         <div class="col-md-12">
@@ -413,24 +457,25 @@
                             </thead>
                             <tbody>
                                 {% if recent_transactions %}
-                                    {% for tx in recent_transactions %}
-                                    <tr>
-                                        <td>{{ tx.date.strftime('%d %b %Y') }}</td>
-                                        <td>
-                                            <span class="badge {{ 'badge-info' if tx.transaction_type == 'Collected' else 'badge-success' }}">
-                                                {{ tx.transaction_type }}
-                                            </span>
-                                        </td>
-                                        <td>{{ tx.reference_type }} #{{ tx.reference_id }}</td>
-                                        <td>{{ tx.tax_name }} ({{ tx.tax_rate }}%)</td>
-                                        <td>₹{{ '%0.2f'|format(tx.taxable_amount|float) }}</td>
-                                        <td>₹{{ '%0.2f'|format(tx.tax_amount|float) }}</td>
-                                    </tr>
-                                    {% endfor %}
+                                {% for tx in recent_transactions %}
+                                <tr>
+                                    <td>{{ tx.date.strftime('%d %b %Y') }}</td>
+                                    <td>
+                                        <span
+                                            class="badge {{ 'badge-info' if tx.transaction_type == 'Collected' else 'badge-success' }}">
+                                            {{ tx.transaction_type }}
+                                        </span>
+                                    </td>
+                                    <td>{{ tx.reference_type }} #{{ tx.reference_id }}</td>
+                                    <td>{{ tx.tax_name }} ({{ tx.tax_rate }}%)</td>
+                                    <td>₹{{ '%0.2f'|format(tx.taxable_amount|float) }}</td>
+                                    <td>₹{{ '%0.2f'|format(tx.tax_amount|float) }}</td>
+                                </tr>
+                                {% endfor %}
                                 {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center">No recent tax transactions</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="6" class="text-center">No recent tax transactions</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -439,12 +484,13 @@
             </div>
         </div>
     </div>
-    <hr class="section-divider"/>
+    <hr class="section-divider" />
     <!-- Quick Actions -->
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
             <div class="card quick-actions-card mb-4">
-                <div class="card-header d-flex align-items-center" style="background: #fff7e6; border-bottom: 1px solid #ffe0b3; border-radius: 10px 10px 0 0;">
+                <div class="card-header d-flex align-items-center"
+                    style="background: #fff7e6; border-bottom: 1px solid #ffe0b3; border-radius: 10px 10px 0 0;">
                     <h3 class="card-title mb-0" style="color: #ffa500; font-size: 1.25rem; font-weight: 700;">
                         <i class="fas fa-bolt mr-2"></i>Quick Actions
                     </h3>
@@ -452,17 +498,20 @@
                 <div class="card-body py-4">
                     <div class="row g-3">
                         <div class="col-md-4 col-sm-6 mb-3">
-                            <a href="{{ url_for('taxes.tax_filings') }}" class="quick-btn btn btn-block btn-lg btn-primary d-flex align-items-center justify-content-center">
+                            <a href="{{ url_for('taxes.tax_filings') }}"
+                                class="quick-btn btn btn-block btn-lg btn-primary d-flex align-items-center justify-content-center">
                                 <i class="fas fa-file-invoice mr-2"></i> <span>Tax Filings</span>
                             </a>
                         </div>
                         <div class="col-md-4 col-sm-6 mb-3">
-                            <a href="{{ url_for('taxes.tax_reports') }}" class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
+                            <a href="{{ url_for('taxes.tax_reports') }}"
+                                class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
                                 <i class="fas fa-chart-bar mr-2"></i> <span>Tax Reports</span>
                             </a>
                         </div>
                         <div class="col-md-4 col-sm-6 mb-3">
-                            <a href="{{ url_for('taxes.tax_rates') }}" class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
+                            <a href="{{ url_for('taxes.tax_rates') }}"
+                                class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
                                 <i class="fas fa-percentage mr-2"></i> <span>Tax Rates</span>
                             </a>
                         </div>
@@ -470,18 +519,21 @@
                             <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post" class="w-100">
                                 <input type="hidden" name="filing_type" value="GST">
                                 <input type="hidden" name="period_type" value="Monthly">
-                                <button type="submit" class="quick-btn btn btn-block btn-lg btn-success d-flex align-items-center justify-content-center w-100">
+                                <button type="submit"
+                                    class="quick-btn btn btn-block btn-lg btn-success d-flex align-items-center justify-content-center w-100">
                                     <i class="fas fa-calculator mr-2"></i> <span>Generate GST Filing</span>
                                 </button>
                             </form>
                         </div>
                         <div class="col-md-4 col-sm-6 mb-3">
-                            <a href="{{ url_for('taxes.tax_settings') }}" class="quick-btn btn btn-block btn-lg btn-warning d-flex align-items-center justify-content-center">
+                            <a href="{{ url_for('taxes.tax_settings') }}"
+                                class="quick-btn btn btn-block btn-lg btn-warning d-flex align-items-center justify-content-center">
                                 <i class="fas fa-cogs mr-2"></i> <span>Tax Settings</span>
                             </a>
                         </div>
                         <div class="col-md-4 col-sm-6 mb-3">
-                            <a href="{{ url_for('taxes.tax_exports') }}" class="quick-btn btn btn-block btn-lg btn-danger d-flex align-items-center justify-content-center">
+                            <a href="{{ url_for('taxes.tax_exports') }}"
+                                class="quick-btn btn btn-block btn-lg btn-danger d-flex align-items-center justify-content-center">
                                 <i class="fas fa-file-export mr-2"></i> <span>GST Returns Export</span>
                             </a>
                         </div>
@@ -496,7 +548,7 @@
 {% block scripts %}
 <script>
     // Animated counters for summary cards
-    document.querySelectorAll('.animated-counter').forEach(function(el) {
+    document.querySelectorAll('.animated-counter').forEach(function (el) {
         var value = parseFloat(el.getAttribute('data-value').replace(/[^\d.-]/g, ''));
         var isCurrency = el.getAttribute('data-value').includes('₹');
         var start = 0;
@@ -515,4 +567,4 @@
         requestAnimationFrame(animateCounter);
     });
 </script>
-{% endblock %} 
+{% endblock %}
