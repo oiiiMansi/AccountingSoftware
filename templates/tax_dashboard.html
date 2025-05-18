@@ -167,59 +167,56 @@
         margin-left: 8px;
     }
     /* Quick Actions */
-    .quick-actions .btn {
-        font-size: 1.13rem;
+    .quick-actions-card {
+        border-radius: 14px;
+        box-shadow: 0 4px 24px rgba(255,165,0,0.07);
+        border: 1.5px solid #ffe0b3;
+        background: #fff;
+    }
+    .quick-btn {
+        min-height: 54px;
+        font-size: 1.08rem;
         font-weight: 600;
-        padding: 20px 0;
-        margin-bottom: 18px;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(255,165,0,0.08);
-        transition: background 0.2s, color 0.2s, transform 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+        padding: 0.7rem 0.5rem;
+        text-align: center;
     }
-    .quick-actions .btn:active, .quick-actions .btn:focus {
-        outline: none;
-        transform: scale(0.98);
+    .quick-btn i {
+        font-size: 1.3em;
+        margin-right: 0.5em;
     }
-    .quick-actions .btn-primary {
-        background: linear-gradient(90deg, #ffa500 60%, #ffb84d 100%);
-        color: #fff;
+    .quick-btn span {
+        flex: 1;
+        text-align: left;
+        font-weight: 600;
     }
-    .quick-actions .btn-info {
-        background: linear-gradient(90deg, #36a2eb 60%, #b6e0fe 100%);
-        color: #fff;
+    .quick-btn:hover, .quick-btn:focus {
+        filter: brightness(1.08);
+        box-shadow: 0 6px 18px rgba(255,165,0,0.13);
+        transform: translateY(-2px) scale(1.03);
+        text-decoration: none;
+        color: #fff !important;
     }
-    .quick-actions .btn-success {
-        background: linear-gradient(90deg, #28a745 60%, #b2f2bb 100%);
-        color: #fff;
-    }
-    .quick-actions .btn-warning {
-        background: linear-gradient(90deg, #ffc107 60%, #ffe066 100%);
-        color: #333;
-    }
-    .quick-actions .btn-danger {
-        background: linear-gradient(90deg, #dc3545 60%, #ffb3b3 100%);
-        color: #fff;
+    @media (max-width: 991px) {
+        .quick-btn {
+            font-size: 1rem;
+            min-height: 48px;
+        }
     }
     @media (max-width: 767px) {
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 18px 10px 12px 10px;
+        .quick-actions-card .row.g-3 > [class^='col-'] {
+            flex: 0 0 100%;
+            max-width: 100%;
         }
-        .dashboard-header h1 {
-            font-size: 1.3rem;
-        }
-        .small-box .inner h3 {
-            font-size: 1.1rem;
-        }
-        .card {
-            padding: 10px;
-        }
-        .container-fluid {
-            padding: 0 2px;
-        }
-        .section-divider {
-            margin: 18px 0 12px 0;
+        .quick-btn {
+            font-size: 0.98rem;
+            min-height: 44px;
         }
     }
 </style>
@@ -444,40 +441,53 @@
     </div>
     <hr class="section-divider"/>
     <!-- Quick Actions -->
-    <div class="row quick-actions">
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-block btn-lg btn-primary mb-3">
-                <i class="fas fa-file-invoice mr-2"></i> Tax Filings
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ url_for('taxes.tax_reports') }}" class="btn btn-block btn-lg btn-info mb-3">
-                <i class="fas fa-chart-bar mr-2"></i> Tax Reports
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ url_for('taxes.tax_rates') }}" class="btn btn-block btn-lg btn-info mb-3">
-                <i class="fas fa-percentage mr-2"></i> Tax Rates
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post">
-                <input type="hidden" name="filing_type" value="GST">
-                <input type="hidden" name="period_type" value="Monthly">
-                <button type="submit" class="btn btn-block btn-lg btn-success mb-3">
-                    <i class="fas fa-calculator mr-2"></i> Generate GST Filing
-                </button>
-            </form>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-block btn-lg btn-warning mb-3">
-                <i class="fas fa-cogs mr-2"></i> Tax Settings
-            </a>
-        </div>
-        <div class="col-md-6 col-sm-12">
-            <a href="{{ url_for('taxes.tax_exports') }}" class="btn btn-block btn-lg btn-danger mb-3">
-                <i class="fas fa-file-export mr-2"></i> GST Returns Export
-            </a>
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12">
+            <div class="card quick-actions-card mb-4">
+                <div class="card-header d-flex align-items-center" style="background: #fff7e6; border-bottom: 1px solid #ffe0b3; border-radius: 10px 10px 0 0;">
+                    <h3 class="card-title mb-0" style="color: #ffa500; font-size: 1.25rem; font-weight: 700;">
+                        <i class="fas fa-bolt mr-2"></i>Quick Actions
+                    </h3>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-3">
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a href="{{ url_for('taxes.tax_filings') }}" class="quick-btn btn btn-block btn-lg btn-primary d-flex align-items-center justify-content-center">
+                                <i class="fas fa-file-invoice mr-2"></i> <span>Tax Filings</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a href="{{ url_for('taxes.tax_reports') }}" class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chart-bar mr-2"></i> <span>Tax Reports</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a href="{{ url_for('taxes.tax_rates') }}" class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
+                                <i class="fas fa-percentage mr-2"></i> <span>Tax Rates</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post" class="w-100">
+                                <input type="hidden" name="filing_type" value="GST">
+                                <input type="hidden" name="period_type" value="Monthly">
+                                <button type="submit" class="quick-btn btn btn-block btn-lg btn-success d-flex align-items-center justify-content-center w-100">
+                                    <i class="fas fa-calculator mr-2"></i> <span>Generate GST Filing</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a href="{{ url_for('taxes.tax_settings') }}" class="quick-btn btn btn-block btn-lg btn-warning d-flex align-items-center justify-content-center">
+                                <i class="fas fa-cogs mr-2"></i> <span>Tax Settings</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <a href="{{ url_for('taxes.tax_exports') }}" class="quick-btn btn btn-block btn-lg btn-danger d-flex align-items-center justify-content-center">
+                                <i class="fas fa-file-export mr-2"></i> <span>GST Returns Export</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
