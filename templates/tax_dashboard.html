@@ -5,257 +5,480 @@
 {% block additional_styles %}
 <style>
     body.dashboard-bg {
-        background: linear-gradient(120deg, #f8f9fa 80%, #fff7e6 100%) !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #f0f8ff 100%) !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     }
 
     .dashboard-header {
-        background: linear-gradient(90deg, #ffa500 60%, #ffb84d 100%);
+        background: linear-gradient(120deg, #4361ee 0%, #3a0ca3 100%);
         color: #fff;
-        border-radius: 16px;
-        padding: 32px 32px 24px 32px;
-        margin-bottom: 32px;
-        box-shadow: 0 6px 32px rgba(255, 165, 0, 0.08);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.12);
         display: flex;
         align-items: center;
-        gap: 24px;
+        gap: 30px;
         position: relative;
         overflow: hidden;
     }
 
-    .dashboard-header .header-icon {
-        font-size: 3.5rem;
-        background: #fff3cd;
-        color: #ffa500;
+    .dashboard-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.07);
         border-radius: 50%;
-        padding: 18px 22px;
-        box-shadow: 0 2px 12px #ffa50022;
+    }
+
+    .dashboard-header .header-icon {
+        font-size: 2.8rem;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        z-index: 1;
     }
 
     .dashboard-header h1 {
-        font-size: 2.2rem;
-        font-weight: 700;
+        font-size: 2.4rem;
+        font-weight: 800;
         margin-bottom: 0;
         color: #fff;
-        letter-spacing: 1px;
+        letter-spacing: -0.5px;
+        z-index: 1;
     }
 
     .dashboard-header .header-desc {
         font-size: 1.1rem;
-        color: #fffbe6;
-        margin-top: 6px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-top: 8px;
+        z-index: 1;
     }
 
     .section-divider {
         border: none;
-        border-top: 2px dashed #ffe0b3;
-        margin: 36px 0 28px 0;
+        border-top: 1px solid #e0e4f0;
+        margin: 40px 0 32px 0;
+        position: relative;
+    }
+
+    .section-divider::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 0;
+        width: 80px;
+        height: 2px;
+        background: #4361ee;
     }
 
     /* Enhanced summary cards */
     .small-box {
-        border-radius: 14px;
-        box-shadow: 0 4px 24px rgba(255, 165, 0, 0.07);
-        transition: transform 0.18s, box-shadow 0.18s;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
         overflow: hidden;
-        margin-bottom: 28px;
+        margin-bottom: 30px;
         background: #fff;
-        border: 1.5px solid #ffe0b3;
+        border: none;
+        padding: 28px;
+        height: 100%;
     }
 
     .small-box:hover {
-        transform: translateY(-6px) scale(1.04);
-        box-shadow: 0 10px 32px rgba(255, 165, 0, 0.13);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         z-index: 2;
     }
 
     .small-box .inner h3 {
-        font-size: 2.4rem;
+        font-size: 2.6rem;
         font-weight: 700;
-        color: #ffa500;
-        margin-bottom: 0.2em;
+        margin-bottom: 0.15em;
         transition: color 0.2s;
+        letter-spacing: -0.5px;
     }
 
     .small-box .inner p {
-        font-size: 1.13rem;
-        color: #666;
+        font-size: 1.15rem;
+        color: #6c757d;
         margin-bottom: 0;
         font-weight: 500;
     }
 
     .small-box .icon {
         position: absolute;
-        top: 18px;
-        right: 22px;
-        font-size: 2.7rem;
-        color: #ffa50033;
+        top: 20px;
+        right: 20px;
+        font-size: 1.8rem;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        border-radius: 12px;
         z-index: 1;
     }
 
     .small-box.bg-info {
-        background: linear-gradient(135deg, #e3f0ff 60%, #b6e0fe 100%);
-        border-left: 7px solid #36a2eb;
+        background: #fff;
+        border-left: none;
+        border-top: 5px solid #4361ee;
+    }
+    
+    .small-box.bg-info .icon {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: #4361ee;
+    }
+    
+    .small-box.bg-info h3 {
+        color: #4361ee;
     }
 
     .small-box.bg-success {
-        background: linear-gradient(135deg, #e6ffe6 60%, #b2f2bb 100%);
-        border-left: 7px solid #28a745;
+        background: #fff;
+        border-left: none;
+        border-top: 5px solid #10b981;
+    }
+    
+    .small-box.bg-success .icon {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .small-box.bg-success h3 {
+        color: #10b981;
     }
 
     .small-box.bg-warning {
-        background: linear-gradient(135deg, #fffbe6 60%, #ffe066 100%);
-        border-left: 7px solid #ffc107;
+        background: #fff;
+        border-left: none;
+        border-top: 5px solid #f59e0b;
+    }
+    
+    .small-box.bg-warning .icon {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+    
+    .small-box.bg-warning h3 {
+        color: #f59e0b;
     }
 
     .small-box.bg-danger {
-        background: linear-gradient(135deg, #ffeaea 60%, #ffb3b3 100%);
-        border-left: 7px solid #dc3545;
+        background: #fff;
+        border-left: none;
+        border-top: 5px solid #ef4444;
+    }
+    
+    .small-box.bg-danger .icon {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .small-box.bg-danger h3 {
+        color: #ef4444;
     }
 
-    /* Card section headers */
+    /* Card design */
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: box-shadow 0.3s;
+    }
+
+    .card:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
     .card-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #ffa500;
-        letter-spacing: 0.5px;
+        color: #4361ee;
+        letter-spacing: -0.3px;
     }
 
     .card-header {
-        background: #fff7e6;
-        border-bottom: 1px solid #ffe0b3;
-        border-radius: 10px 10px 0 0;
+        background: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 24px;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .card-footer {
+        background: #fff;
+        border-top: 1px solid #f0f0f0;
+        padding: 16px 24px;
     }
 
     /* Table enhancements */
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
     .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
+        background-color: #f9fafd;
     }
 
     .table th {
-        background: #ffa500;
+        background: #4361ee;
         color: #fff;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        font-size: 1.08rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        padding: 14px 20px;
+        border: none;
     }
 
-    .table td,
-    .table th {
+    .table td {
+        padding: 14px 20px;
         vertical-align: middle;
+        border-top: 1px solid #f0f0f0;
+        font-size: 0.95rem;
     }
 
     .table tbody tr:hover {
-        background: #fff3cd !important;
+        background: rgba(67, 97, 238, 0.05) !important;
         transition: background 0.2s;
     }
 
     /* Pill badges */
-    .badge-warning,
-    .badge-info,
-    .badge-success {
-        border-radius: 999px;
-        padding: 6px 16px;
-        font-size: 0.98em;
+    .badge {
+        border-radius: 50px;
+        padding: 6px 14px;
+        font-size: 0.8rem;
         font-weight: 600;
-        letter-spacing: 0.5px;
-        box-shadow: 0 1px 4px #ffa50022;
+        letter-spacing: 0.3px;
     }
 
     .badge-warning {
-        background: #ffc107;
-        color: #333;
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
     }
 
     .badge-info {
-        background: #36a2eb;
-        color: #fff;
+        background: rgba(67, 97, 238, 0.1);
+        color: #4361ee;
     }
 
     .badge-success {
-        background: #28a745;
-        color: #fff;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
     }
 
     /* Alert enhancements */
     .alert-danger {
-        background: linear-gradient(90deg, #ffeaea 60%, #ffb3b3 100%);
-        color: #a71d2a;
-        border: 1.5px solid #dc3545;
-        border-radius: 12px;
-        font-size: 1.08rem;
-        box-shadow: 0 2px 12px #dc354522;
+        background: #fff;
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        font-size: 1rem;
+        box-shadow: 0 8px 30px rgba(239, 68, 68, 0.08);
+        padding: 24px;
+    }
+
+    .alert-danger h5 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-danger .icon {
+        margin-right: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .alert-danger ul {
+        margin-bottom: 0;
+    }
+
+    .alert-danger li {
+        margin-bottom: 8px;
+    }
+
+    .alert-danger li:last-child {
+        margin-bottom: 0;
     }
 
     .alert-danger .btn-danger {
-        background: #dc3545;
+        background: #ef4444;
         color: #fff;
-        border-radius: 999px;
-        padding: 2px 14px;
-        font-size: 0.98em;
-        margin-left: 8px;
+        border: none;
+        border-radius: 8px;
+        padding: 5px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+        transition: all 0.2s;
+    }
+
+    .alert-danger .btn-danger:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    /* Definition List */
+    dl.row {
+        margin-bottom: 0;
+    }
+
+    dl.row dt {
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    dl.row dd {
+        color: #111827;
+        font-weight: 500;
     }
 
     /* Quick Actions */
     .quick-actions-card {
-        border-radius: 14px;
-        box-shadow: 0 4px 24px rgba(255, 165, 0, 0.07);
-        border: 1.5px solid #ffe0b3;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        border: none;
         background: #fff;
     }
 
     .quick-btn {
-        margin: 27px;
-        min-height: 54px;
-        font-size: 1.08rem;
+        margin: 15px 0;
+        min-height: 64px;
+        font-size: 1rem;
         font-weight: 600;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(255, 165, 0, 0.08);
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
-        padding: 0.7rem 0.5rem;
-        text-align: center;
+        gap: 0.8rem;
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding: 0.8rem;
+        border: none;
     }
 
     .quick-btn i {
-        font-size: 1.3em;
-        margin-right: 0.5em;
-    }
-
-    .quick-btn span {
-        flex: 1;
-        text-align: left;
-        font-weight: 600;
+        font-size: 1.5rem;
     }
 
     .quick-btn:hover,
     .quick-btn:focus {
-        filter: brightness(1.08);
-        box-shadow: 0 6px 18px rgba(255, 165, 0, 0.13);
-        transform: translateY(-2px) scale(1.03);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         text-decoration: none;
-        color: #fff !important;
     }
 
+    .btn-primary {
+        background: #4361ee;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #3a56d4;
+        color: #fff;
+    }
+
+    .btn-info {
+        background: #3b82f6;
+        color: #fff;
+    }
+
+    .btn-info:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: #fff;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        color: #fff;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: #fff;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+        color: #fff;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    /* Responsive adjustments */
     @media (max-width: 991px) {
-        .quick-btn {
-            font-size: 1rem;
-            min-height: 48px;
+        .dashboard-header {
+            padding: 30px;
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .small-box .inner h3 {
+            font-size: 2.2rem;
+        }
+
+        .small-box .inner p {
+            font-size: 1.05rem;
         }
     }
 
     @media (max-width: 767px) {
-        .quick-actions-card .row.g-3>[class^='col-'] {
-            flex: 0 0 100%;
-            max-width: 100%;
+        .dashboard-header h1 {
+            font-size: 2rem;
         }
 
-        .quick-btn {
-            font-size: 0.98rem;
-            min-height: 44px;
+        .quick-actions-card .row>[class^='col-'] {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .table td, .table th {
+            padding: 12px 15px;
         }
     }
 </style>
@@ -277,7 +500,7 @@
 <div class="container-fluid">
     <!-- Tax Summary -->
     <div class="row">
-        <div class="col-lg-3 col-6">
+        <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="small-box bg-info">
                 <div class="inner">
                     <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.collected|float) }}">₹0.00
@@ -289,7 +512,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-6">
+        <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="small-box bg-success">
                 <div class="inner">
                     <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.paid|float) }}">₹0.00</h3>
@@ -300,7 +523,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-6">
+        <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="small-box {{ 'bg-warning' if tax_summary.liability > 0 else 'bg-success' }}">
                 <div class="inner">
                     <h3 class="animated-counter" data-value="{{ '%0.2f'|format(tax_summary.liability|float) }}">₹0.00
@@ -312,7 +535,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-6">
+        <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="small-box bg-danger">
                 <div class="inner">
                     <h3 class="animated-counter" data-value="{{ overdue_filings|length }}">0</h3>
@@ -324,15 +547,17 @@
             </div>
         </div>
     </div>
+    
     <hr class="section-divider" />
+    
     <!-- Business Details & Filing Calendar -->
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-lg-5">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-building mr-2"></i>Business Tax Details</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0"><i class="fas fa-building mr-2"></i>Business Tax Details</h3>
                     <div class="card-tools">
-                        <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-tool" title="Edit Settings">
+                        <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-sm btn-light" title="Edit Settings">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
@@ -342,12 +567,16 @@
                     <dl class="row">
                         <dt class="col-sm-4">Business Name:</dt>
                         <dd class="col-sm-8">{{ tax_settings.business_name }}</dd>
+                        
                         <dt class="col-sm-4">GSTIN:</dt>
                         <dd class="col-sm-8">{{ tax_settings.gstin }}</dd>
+                        
                         <dt class="col-sm-4">PAN:</dt>
                         <dd class="col-sm-8">{{ tax_settings.pan }}</dd>
+                        
                         <dt class="col-sm-4">Tax Period:</dt>
                         <dd class="col-sm-8">{{ tax_settings.tax_period }}</dd>
+                        
                         <dt class="col-sm-4">Default GST Rate:</dt>
                         <dd class="col-sm-8">
                             {% for rate in tax_rates %}
@@ -358,15 +587,19 @@
                         </dd>
                     </dl>
                     {% else %}
-                    <p>No tax settings configured. <a href="{{ url_for('taxes.tax_settings') }}">Configure now</a></p>
+                    <div class="text-center py-3">
+                        <i class="fas fa-cogs text-muted" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                        <p>No tax settings configured.</p>
+                        <a href="{{ url_for('taxes.tax_settings') }}" class="btn btn-sm btn-primary">Configure now</a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-lg-7">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>Tax Filing Calendar</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0"><i class="fas fa-calendar-alt mr-2"></i>Tax Filing Calendar</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -393,54 +626,57 @@
                                 {% endfor %}
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center">No pending tax filings</td>
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="fas fa-check-circle text-success mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">No pending tax filings</p>
+                                    </td>
                                 </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="card-footer">
+                <div class="card-footer d-flex justify-content-between">
                     <a href="{{ url_for('taxes.tax_filings') }}" class="btn btn-sm btn-info">View All Filings</a>
-                    <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-sm btn-success float-right">Add New
-                        Filing</a>
+                    <a href="{{ url_for('taxes.add_tax_filing') }}" class="btn btn-sm btn-success">Add New Filing</a>
                 </div>
             </div>
         </div>
     </div>
-    <hr class="section-divider" />
+    
     <!-- Tax Alerts -->
     {% if overdue_filings %}
+    <hr class="section-divider" />
     <div class="row">
         <div class="col-md-12">
-            <div class="alert alert-danger d-flex align-items-center justify-content-between">
-                <div>
-                    <h5><i class="icon fas fa-ban"></i> Overdue Tax Filings!</h5>
-                    <p>You have {{ overdue_filings|length }} overdue tax filings that require immediate attention:</p>
-                    <ul>
-                        {% for filing in overdue_filings %}
-                        <li>
-                            {{ filing.filing_type }} for period {{ filing.period_start.strftime('%d %b %Y') }} -
-                            {{ filing.period_end.strftime('%d %b %Y') }}, due on {{ filing.due_date.strftime('%d %b %Y')
-                            }}
-                            (₹{{ '%0.2f'|format(filing.net_payable|float) }})
-                            <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}"
-                                class="btn btn-xs btn-danger ml-2">Complete Now</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <div class="alert alert-danger">
+                <h5><i class="icon fas fa-exclamation-circle"></i> Overdue Tax Filings!</h5>
+                <p>You have {{ overdue_filings|length }} overdue tax filings that require immediate attention:</p>
+                <ul>
+                    {% for filing in overdue_filings %}
+                    <li>
+                        {{ filing.filing_type }} for period {{ filing.period_start.strftime('%d %b %Y') }} -
+                        {{ filing.period_end.strftime('%d %b %Y') }}, due on {{ filing.due_date.strftime('%d %b %Y')
+                        }}
+                        (₹{{ '%0.2f'|format(filing.net_payable|float) }})
+                        <a href="{{ url_for('taxes.edit_tax_filing', id=filing.id) }}"
+                            class="btn btn-danger ml-2">Complete Now</a>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
     {% endif %}
+    
     <hr class="section-divider" />
+    
     <!-- Recent Tax Transactions -->
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-exchange-alt mr-2"></i>Recent Tax Transactions</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0"><i class="fas fa-exchange-alt mr-2"></i>Recent Tax Transactions</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -474,7 +710,10 @@
                                 {% endfor %}
                                 {% else %}
                                 <tr>
-                                    <td colspan="6" class="text-center">No recent tax transactions</td>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-receipt text-muted mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">No recent tax transactions</p>
+                                    </td>
                                 </tr>
                                 {% endif %}
                             </tbody>
@@ -484,57 +723,58 @@
             </div>
         </div>
     </div>
+    
     <hr class="section-divider" />
+    
     <!-- Quick Actions -->
     <div class="row justify-content-center">
-        <div class="col-lg-10 col-md-12">
+        <div class="col-lg-12">
             <div class="card quick-actions-card mb-4">
-                <div class="card-header d-flex align-items-center"
-                    style="background: #fff7e6; border-bottom: 1px solid #ffe0b3; border-radius: 10px 10px 0 0;">
-                    <h3 class="card-title mb-0" style="color: #ffa500; font-size: 1.25rem; font-weight: 700;">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0">
                         <i class="fas fa-bolt mr-2"></i>Quick Actions
                     </h3>
                 </div>
                 <div class="card-body py-4">
-                    <div class="row g-3">
-                        <div class="col-md-4 col-sm-6 mb-3">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6">
                             <a href="{{ url_for('taxes.tax_filings') }}"
-                                class="quick-btn btn btn-block btn-lg btn-primary d-flex align-items-center justify-content-center">
-                                <i class="fas fa-file-invoice mr-2"></i> <span>Tax Filings</span>
+                                class="quick-btn btn btn-block btn-primary">
+                                <i class="fas fa-file-invoice"></i> <span>Tax Filings</span>
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="col-lg-4 col-md-6">
                             <a href="{{ url_for('taxes.tax_reports') }}"
-                                class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
-                                <i class="fas fa-chart-bar mr-2"></i> <span>Tax Reports</span>
+                                class="quick-btn btn btn-block btn-info">
+                                <i class="fas fa-chart-bar"></i> <span>Tax Reports</span>
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="col-lg-4 col-md-6">
                             <a href="{{ url_for('taxes.tax_rates') }}"
-                                class="quick-btn btn btn-block btn-lg btn-info d-flex align-items-center justify-content-center">
-                                <i class="fas fa-percentage mr-2"></i> <span>Tax Rates</span>
+                                class="quick-btn btn btn-block btn-info">
+                                <i class="fas fa-percentage"></i> <span>Tax Rates</span>
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="col-lg-4 col-md-6">
                             <form action="{{ url_for('taxes.generate_tax_filing') }}" method="post" class="w-100">
                                 <input type="hidden" name="filing_type" value="GST">
                                 <input type="hidden" name="period_type" value="Monthly">
                                 <button type="submit"
-                                    class="quick-btn btn btn-block btn-lg btn-success d-flex align-items-center justify-content-center w-100">
-                                    <i class="fas fa-calculator mr-2"></i> <span>Generate GST Filing</span>
+                                    class="quick-btn btn btn-block btn-success w-100">
+                                    <i class="fas fa-calculator"></i> <span>Generate GST Filing</span>
                                 </button>
                             </form>
                         </div>
-                        <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="col-lg-4 col-md-6">
                             <a href="{{ url_for('taxes.tax_settings') }}"
-                                class="quick-btn btn btn-block btn-lg btn-warning d-flex align-items-center justify-content-center">
-                                <i class="fas fa-cogs mr-2"></i> <span>Tax Settings</span>
+                                class="quick-btn btn btn-block btn-warning">
+                                <i class="fas fa-cogs"></i> <span>Tax Settings</span>
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="col-lg-4 col-md-6">
                             <a href="{{ url_for('taxes.tax_exports') }}"
-                                class="quick-btn btn btn-block btn-lg btn-danger d-flex align-items-center justify-content-center">
-                                <i class="fas fa-file-export mr-2"></i> <span>GST Returns Export</span>
+                                class="quick-btn btn btn-block btn-danger">
+                                <i class="fas fa-file-export"></i> <span>GST Returns Export</span>
                             </a>
                         </div>
                     </div>
@@ -548,23 +788,28 @@
 {% block scripts %}
 <script>
     // Animated counters for summary cards
-    document.querySelectorAll('.animated-counter').forEach(function (el) {
-        var value = parseFloat(el.getAttribute('data-value').replace(/[^\d.-]/g, ''));
-        var isCurrency = el.getAttribute('data-value').includes('₹');
-        var start = 0;
-        var end = value;
-        var duration = 1200;
-        var startTime = null;
-        function animateCounter(currentTime) {
-            if (!startTime) startTime = currentTime;
-            var progress = Math.min((currentTime - startTime) / duration, 1);
-            var current = start + (end - start) * progress;
-            el.textContent = isCurrency ? '₹' + current.toFixed(2) : Math.round(current);
-            if (progress < 1) {
-                requestAnimationFrame(animateCounter);
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.animated-counter').forEach(function (el) {
+            var value = parseFloat(el.getAttribute('data-value').replace(/[^\d.-]/g, ''));
+            var isCurrency = el.getAttribute('data-value').includes('₹');
+            var start = 0;
+            var end = value;
+            var duration = 1500;
+            var startTime = null;
+            
+            function animateCounter(currentTime) {
+                if (!startTime) startTime = currentTime;
+                var progress = Math.min((currentTime - startTime) / duration, 1);
+                var easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+                var current = start + (end - start) * easeProgress;
+                el.textContent = isCurrency ? '₹' + current.toFixed(2) : Math.round(current);
+                if (progress < 1) {
+                    requestAnimationFrame(animateCounter);
+                }
             }
-        }
-        requestAnimationFrame(animateCounter);
+            
+            requestAnimationFrame(animateCounter);
+        });
     });
 </script>
 {% endblock %}
