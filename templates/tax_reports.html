@@ -51,6 +51,11 @@
             transform: translateY(-1px);
         }
 
+        .nav-link.active {
+            color: white !important;
+            font-weight: 600;
+        }
+
         /* Header Section */
         .page-header {
             background: white;
@@ -121,7 +126,6 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient);
             border-radius: 16px 16px 0 0;
         }
 
@@ -181,7 +185,7 @@
             padding: 1.5rem;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -457,7 +461,7 @@
         <div class="page-header fade-in-up">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1><i class="fas fa-analytics me-3"></i>Tax Reports & Analytics</h1>
+                    <h1><i class="fas fa-chart-bar me-3"></i>Tax Reports & Analytics</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -537,13 +541,13 @@
                     <i class="fas fa-chart-line me-2"></i>Monthly Tax Summary
                 </h3>
                 <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-secondary active">12M</button>
-                    <button type="button" class="btn btn-outline-secondary">6M</button>
-                    <button type="button" class="btn btn-outline-secondary">3M</button>
+                    <button type="button" class="btn btn-outline-secondary active" onclick="updateChart('12M')">12M</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="updateChart('6M')">6M</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="updateChart('3M')">3M</button>
                 </div>
             </div>
             <div class="chart-body">
-                <canvas id="taxChart" style="height: 400px;"></canvas>
+                <canvas id="taxChart" height="100"></canvas>
             </div>
         </div>
 
@@ -702,7 +706,33 @@
                             <td>₹6,422.40</td>
                             <td>12</td>
                         </tr>
+                        <tr>
+                            <td><strong>8517</strong></td>
+                            <td>Telecommunications</td>
+                            <td>18%</td>
+                            <td>₹45,200.00</td>
+                            <td>₹8,136.00</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9983</strong></td>
+                            <td>Consulting Services</td>
+                            <td>18%</td>
+                            <td>₹95,800.00</td>
+                            <td>₹17,244.00</td>
+                            <td>22</td>
+                        </tr>
                     </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th>Total</th>
+                            <th>-</th>
+                            <th>-</th>
+                            <th>₹3,86,680.00</th>
+                            <th>₹69,602.40</th>
+                            <th>85</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -718,7 +748,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form>
+                <form onsubmit="generateFiling(event)">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="filing_type" class="form-label">Filing Type</label>
@@ -782,3 +812,299 @@
                     <ul class="list-unstyled">
                         <li><a href="#">Help Center</a></li>
                         <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Company</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">News</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: #374151;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0">&copy; 2024 TaxManager Pro. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">Made with <i class="fas fa-heart text-danger"></i> for better tax management</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Chart Configuration
+        let taxChart;
+        
+        // Initialize chart when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+        });
+
+        function initializeChart() {
+            const ctx = document.getElementById('taxChart').getContext('2d');
+            
+            const chartData = {
+                '12M': {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    collected: [18500, 22300, 25600, 28900, 24200, 31500, 29800, 33200, 36500, 28900, 32100, 35400],
+                    paid: [14200, 17800, 19500, 22100, 18900, 24200, 23100, 25800, 28200, 22500, 24900, 27300]
+                },
+                '6M': {
+                    labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    collected: [29800, 33200, 36500, 28900, 32100, 35400],
+                    paid: [23100, 25800, 28200, 22500, 24900, 27300]
+                },
+                '3M': {
+                    labels: ['Oct', 'Nov', 'Dec'],
+                    collected: [28900, 32100, 35400],
+                    paid: [22500, 24900, 27300]
+                }
+            };
+
+            taxChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData['12M'].labels,
+                    datasets: [{
+                        label: 'GST Collected',
+                        data: chartData['12M'].collected,
+                        borderColor: '#0891b2',
+                        backgroundColor: 'rgba(8, 145, 178, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#0891b2',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }, {
+                        label: 'GST Paid (Input Credit)',
+                        data: chartData['12M'].paid,
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#059669',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                color: '#64748b'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                color: '#64748b',
+                                callback: function(value) {
+                                    return '₹' + (value / 1000) + 'K';
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            // Store chart data globally for updates
+            window.chartData = chartData;
+        }
+
+        function updateChart(period) {
+            // Update active button
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update chart data
+            const data = window.chartData[period];
+            taxChart.data.labels = data.labels;
+            taxChart.data.datasets[0].data = data.collected;
+            taxChart.data.datasets[1].data = data.paid;
+            taxChart.update('active');
+        }
+
+        function generateFiling(event) {
+            event.preventDefault();
+            
+            const filingType = document.getElementById('filing_type').value;
+            const periodType = document.getElementById('period_type').value;
+            const dueDate = document.getElementById('due_date').value;
+            
+            if (!filingType || !periodType || !dueDate) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Simulate filing generation
+            const modal = bootstrap.Modal.getInstance(document.getElementById('generateFilingModal'));
+            modal.hide();
+            
+            // Show success message
+            showNotification('Filing generated successfully!', 'success');
+            
+            // Reset form
+            document.querySelector('#generateFilingModal form').reset();
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Export functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for export buttons
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                if (item.textContent.includes('Export')) {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const format = this.textContent.toLowerCase().includes('csv') ? 'CSV' : 
+                                      this.textContent.toLowerCase().includes('excel') ? 'Excel' : 'PDF';
+                        showNotification(`Exporting data as ${format}...`, 'info');
+                        
+                        // Simulate export delay
+                        setTimeout(() => {
+                            showNotification(`${format} export completed successfully!`, 'success');
+                        }, 2000);
+                    });
+                }
+            });
+        });
+
+        // Add hover effects for stats cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const statsCards = document.querySelectorAll('.stats-card');
+            statsCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-4px)';
+                });
+            });
+        });
+
+        // Animate numbers on page load
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                element.textContent = '₹' + current.toLocaleString() + '.00';
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Animate stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const statsValues = document.querySelectorAll('.stats-value');
+                statsValues.forEach((element, index) => {
+                    const text = element.textContent.replace(/[₹,\.]/g, '');
+                    const value = parseInt(text);
+                    element.textContent = '₹0.00';
+                    setTimeout(() => {
+                        animateValue(element, 0, value, 1500);
+                    }, index * 200);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
