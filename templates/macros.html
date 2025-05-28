@@ -1,27 +1,51 @@
+{# 
+  Macro to check if the current user has the required permission 
+  based on their role.
+#}
 {% macro has_permission(role) %}
+    {# Check if a user is logged in and authenticated #}
     {% if current_user and current_user.is_authenticated %}
+        {# Admin has access to all roles #}
         {% if current_user.role == 'admin' %}
             true
+        {# Accountant can access accountant and viewer roles #}
         {% elif current_user.role == 'accountant' and role in ['accountant', 'viewer'] %}
             true
+        {# Viewer can only access viewer role #}
         {% elif current_user.role == 'viewer' and role == 'viewer' %}
             true
+        {# All other cases - no access #}
         {% else %}
             false
         {% endif %}
     {% else %}
+        {# If user is not authenticated, deny access #}
         false
     {% endif %}
 {% endmacro %}
 
+{# 
+  Macro to show a block of content only if the user has the required role.
+  Usage: 
+    {% call show_for_role('viewer') %}
+        Content for viewers
+    {% endcall %}
+#}
 {% macro show_for_role(role) %}
     {% if has_permission(role) %}
         {{ caller() }}
     {% endif %}
 {% endmacro %}
 
+{# 
+  Macro to hide a block of content from users with a specific role.
+  Usage:
+    {% call hide_for_role('admin') %}
+        Content hidden from admins
+    {% endcall %}
+#}
 {% macro hide_for_role(role) %}
     {% if not has_permission(role) %}
         {{ caller() }}
     {% endif %}
-{% endmacro %} 
+{% endmacro %}
