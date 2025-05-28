@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Tags for character set and responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Title block to allow dynamic page titles -->
     <title>{% block title %}KK Enterprises{% endblock %}</title>
+
+    <!-- Favicon for different browsers -->
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+
+    <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Internal CSS styling -->
     <style>
+        /* Global styles for body layout */
         body { 
             font-family: 'Poppins', sans-serif; 
             margin: 0; 
@@ -17,8 +27,8 @@
             display: flex;
             flex-direction: column;
         }
-        
-        /* Additional styles for the rest of the page */
+
+        /* Header styles */
         header {
             display: flex;
             justify-content: space-between;
@@ -40,6 +50,7 @@
             gap: 20px;
         }
 
+        /* Dropdown menu styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -84,20 +95,22 @@
             background: #ffa500;
             color: white;
         }
-        
+
+        /* Main container styling */
         .container { 
             flex: 1;
             padding: 40px; 
             max-width: 1200px; 
             margin: 0 auto; 
         }
-        
+
         h1 { 
             color: #333; 
             font-size: 28px;
             margin-bottom: 20px;
         }
-        
+
+        /* Card component styles */
         .card {
             background-color: white;
             border-radius: 8px;
@@ -105,29 +118,31 @@
             padding: 25px;
             margin-bottom: 30px;
         }
-        
+
+        /* Table styles */
         table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 20px;
         }
-        
+
         th, td { 
             padding: 12px 15px; 
             text-align: left; 
             border-bottom: 1px solid #eee; 
         }
-        
+
         th { 
             background: #ffa500; 
             color: white; 
             font-weight: 500;
         }
-        
+
         tr:hover { 
             background-color: #f5f5f5; 
         }
-        
+
+        /* Button styles */
         .btn {
             display: inline-block;
             padding: 8px 16px;
@@ -142,37 +157,39 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        
+
         .btn:hover {
             background-color: #e69500;
         }
-        
+
         .btn-danger {
             background-color: #dc3545;
         }
-        
+
         .btn-danger:hover {
             background-color: #c82333;
         }
-        
+
+        /* Flash message styles for success and error */
         .flash-message {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
         }
-        
+
         .flash-message.success {
             background-color: rgba(40, 167, 69, 0.1);
             border: 1px solid rgba(40, 167, 69, 0.2);
             color: #28a745;
         }
-        
+
         .flash-message.error {
             background-color: rgba(220, 53, 69, 0.1);
             border: 1px solid rgba(220, 53, 69, 0.2);
             color: #dc3545;
         }
-        
+
+        /* Footer styles */
         footer {
             background: #333;
             color: white;
@@ -181,15 +198,17 @@
             width: 100%;
             margin-top: auto;
         }
-        
-        /* Additional styles can be added in specific page templates */
+
+        /* Placeholder for page-specific styles from child templates */
         {% block additional_styles %}{% endblock %}
     </style>
 </head>
 <body>
+    <!-- Include the navigation/header component -->
     {% include 'includes/header_navigation.html' %}
     
     <div class="container">
+        <!-- Display flashed messages (like success or error alerts) -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -198,11 +217,13 @@
             {% endif %}
         {% endwith %}
         
+        <!-- Main page content block -->
         {% block content %}{% endblock %}
     </div>
     
+    <!-- Footer section -->
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
 </body>
-</html> 
+</html>
