@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic meta tags for character set and responsive design -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Management - KK Enterprises</title>
+
+    <!-- Google Fonts for Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Internal CSS for styling -->
     <style>
+        /* Global styles */
         body {
             font-family: "Poppins", sans-serif;
             margin: 0;
@@ -14,6 +20,7 @@
             color: #333;
         }
 
+        /* Header section styling */
         header {
             display: flex;
             justify-content: space-between;
@@ -30,6 +37,7 @@
             letter-spacing: 1px;
         }
 
+        /* Navigation styling */
         nav {
             display: flex;
             gap: 20px;
@@ -80,6 +88,7 @@
             color: white;
         }
 
+        /* Main container styling */
         .container {
             max-width: 900px;
             margin: 40px auto;
@@ -92,6 +101,7 @@
             color: #333;
         }
 
+        /* Purchase option cards */
         .purchase-options {
             display: flex;
             justify-content: center;
@@ -124,6 +134,7 @@
             margin-bottom: 15px;
         }
 
+        /* Button styling */
         .btn {
             display: inline-block;
             background: #ffa500;
@@ -139,6 +150,7 @@
             background: #333;
         }
 
+        /* Footer styling */
         footer {
             background: #333;
             color: white;
@@ -150,6 +162,7 @@
             font-size: 14px;
         }
 
+        /* Form styling */
         form {
             background: white;
             padding: 20px;
@@ -186,6 +199,7 @@
             background: #333;
         }
 
+        /* Flash message styles */
         .flash-message {
             padding: 10px;
             margin-bottom: 20px;
@@ -202,6 +216,7 @@
             color: #721c24;
         }
 
+        /* Table styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -219,6 +234,7 @@
             color: white;
         }
 
+        /* Action buttons in table */
         .action-btn {
             display: inline-block;
             padding: 5px 10px;
@@ -239,17 +255,22 @@
     </style>
 </head>
 <body>
+    <!-- Reusable navigation header included from external file -->
     {% include 'includes/header_navigation.html' %}
 
+    <!-- Main content container -->
     <div class="container">
         <h1>Purchase Management</h1>
 
+        <!-- Section with two purchase options -->
         <div class="purchase-options">
+            <!-- Billed Purchase Option -->
             <div class="purchase-card">
                 <h2>Billed Purchase</h2>
                 <p>Record purchases with GST</p>
                 <a href="{{ url_for('sales.billed_purchase') }}" class="btn">Go to</a>
             </div>
+            <!-- Non-Billed Purchase Option -->
             <div class="purchase-card">
                 <h2>Non-Billed Purchase</h2>
                 <p>Record purchases without GST</p>
@@ -257,6 +278,7 @@
             </div>
         </div>
 
+        <!-- Display flash messages (success or error) if any -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -266,8 +288,9 @@
         {% endwith %}
     </div>
 
+    <!-- Footer section -->
     <footer>
         <p>&copy; 2025 KK Enterprises. All Rights Reserved.</p>
     </footer>
 </body>
-</html> 
+</html>
