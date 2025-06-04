@@ -123,7 +123,7 @@ def login():
             flash("Please fill in all required fields.", "danger")
             return redirect(url_for("auth.login"))
 
-    return render_template("login.html", next=next_page)
+    return render_template("login.html", next_page=next_page)
 
 
 # ✅ Logout Route
