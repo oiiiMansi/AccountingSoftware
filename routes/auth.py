@@ -67,7 +67,7 @@ def register():
 
 # ✅ Login Route
 @auth.route("/login", methods=["GET", "POST"])
-def login():
+def  login_view():
     # Skip login page if already logged in
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -84,7 +84,8 @@ def login():
             # Basic form validation
             if not username or not password:
                 flash("Please enter both username and password.", "danger")
-                return redirect(url_for("auth.login"))
+                return redirect(url_for("auth.login_view")
+)
 
             conn = connect_db()
             cursor = conn.cursor(dictionary=True)
@@ -132,4 +133,4 @@ def login():
 def logout():
     logout_user()
     flash("You have successfully logged out.", "success")
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.login_view"))
