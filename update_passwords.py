@@ -50,3 +50,4 @@ cursor.close()
 conn.close()
 
 print("\n✅ Passwords updated successfully!")
+    
