@@ -67,7 +67,7 @@ def register():
 
 # ✅ Login Route
 @auth.route("/login", methods=["GET", "POST"])
-def  login_view():
+def  login():
     # Skip login page if already logged in
     if current_user.is_authenticated:
         return redirect(url_for('home'))
