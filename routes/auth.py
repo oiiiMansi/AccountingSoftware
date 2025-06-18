@@ -84,7 +84,7 @@ def  login():
             # Basic form validation
             if not username or not password:
                 flash("Please enter both username and password.", "danger")
-                return redirect(url_for("auth.login_view")
+                return redirect(url_for("auth.login")
 )
 
             conn = connect_db()
@@ -133,4 +133,4 @@ def  login():
 def logout():
     logout_user()
     flash("You have successfully logged out.", "success")
-    return redirect(url_for("auth.login_view"))
+    return redirect(url_for("auth.login"))
