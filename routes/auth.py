@@ -65,7 +65,7 @@ def register():
     return render_template("register.html")
 
 
-# ✅ Login Route
+# Login Route
 @auth.route("/login", methods=["GET", "POST"])
 def  login():
     # Skip login page if already logged in
