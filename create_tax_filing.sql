@@ -1,4 +1,4 @@
-
+-- Create tax_filing table if it doesn't exist
 CREATE TABLE IF NOT EXISTS `tax_filing` (
   `id` int NOT NULL AUTO_INCREMENT,
   `filing_type` enum('GST','Income Tax','TDS','Other') NOT NULL DEFAULT 'GST',
