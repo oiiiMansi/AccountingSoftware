@@ -20,7 +20,7 @@ cursor = conn.cursor()
 cursor.execute("SELECT username, password FROM users")
 users = cursor.fetchall()
 
-# Display passwords before update
+
 print("\n[Before Update] Stored Passwords:")
 for user in users:
     print(f"Username: {user[0]}, Password: {user[1]}")
