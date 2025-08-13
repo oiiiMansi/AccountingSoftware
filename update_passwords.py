@@ -16,7 +16,7 @@ def connect_db():
 conn = connect_db()
 cursor = conn.cursor()
 
-# Fetch all usernames and passwords from the users table
+
 cursor.execute("SELECT username, password FROM users")
 users = cursor.fetchall()
 
