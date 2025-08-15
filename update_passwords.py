@@ -12,7 +12,7 @@ def connect_db():
         database="accounting"
     )
 
-# Connect to the database
+
 conn = connect_db()
 cursor = conn.cursor()
 
