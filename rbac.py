@@ -59,7 +59,8 @@ def has_permission(required_role):
     # Check if current user's role level is sufficient
     return ROLES.get(current_user.role, 0) >= ROLES.get(required_role, 0)
 
-
+# Shortcut decorators for specific roles
+# Use these instead of writing @role_required('admin') every time
 
 def admin_required(f):
     """
