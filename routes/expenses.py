@@ -78,7 +78,7 @@ def expenses_page():
         calendar.monthrange(prev_year, prev_month)[1]
     ).strftime('%Y-%m-%d')
     
-    # Start of current year
+    
     start_of_year = datetime(current_year, 1, 1).strftime('%Y-%m-%d')
     
     # Get all expenses sorted by date (newest first)
