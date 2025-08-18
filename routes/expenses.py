@@ -68,7 +68,7 @@ def expenses_page():
         prev_month = current_month - 1
         prev_year = current_year
     
-    
+    # First day of previous month
     first_day_prev_month = datetime(prev_year, prev_month, 1).strftime('%Y-%m-%d')
     
     # Last day of previous month
